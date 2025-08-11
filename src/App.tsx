@@ -122,7 +122,7 @@ function App() {
         <section id="features" className="features">
             <div className="container">
                 <div className="section-header">
-                    <h2 className="section-title">Powerful Features to Organize Your Briefings</h2>
+                    <h2 className="section-title">juji</h2>
                 </div>
                 <div className="features-grid">
                     <div className="feature-card">
