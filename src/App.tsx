@@ -81,7 +81,7 @@ function App() {
             <div className="container">
                 <div className="hero-content">
                     <div className="hero-text fade-in">
-                        <h1 className="hero-title">Turn Disorganized Briefings into Organized Projects</h1>
+                        <h1 className="hero-title">skgks</h1>
                         <p className="hero-subtitle">
                             Our Automatic Briefing Organizer uses AI to structure information, detect gaps, 
                             and suggest questions — making every creative project start easier.
