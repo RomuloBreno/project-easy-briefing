@@ -24,17 +24,17 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
           <ul className="nav-menu">
             <li>
               <a href="index.html" className="nav-link">
-                Home
+                Início
               </a>
             </li>
             <li>
               <a href="index.html#features" className="nav-link">
-                Features
+                Recursos
               </a>
             </li>
             <li>
               <a href="index.html#pricing" className="nav-link">
-                Pricing
+                Planos
               </a>
             </li>
             <li>
@@ -44,13 +44,13 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
             </li>
             <li>
               <a href="index.html#contact" className="nav-link">
-                Contact
+                Contato
               </a>
             </li>
           </ul>
           <div className="nav-user">
-            <span className="user-name">Welcome back!</span>
-            <button onClick={onLogout} className="btn btn-outline btn-sm">Sign Out</button>
+            <span className="user-name">Pronto para continuar?</span>
+            <button onClick={onLogout} className="btn btn-outline btn-sm">Sair</button>
           </div>
           <div className="nav-toggle">
             <i className="fas fa-bars"></i>
@@ -64,7 +64,8 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
           <div className="app-header">
             <h1 className="app-title fade-in">Briefing Organizer</h1>
             <p className="app-subtitle fade-in">
-              Transform your project briefings with AI-powered analysis
+              Organize e analise seus briefings com Inteligência Artificial
+
             </p>
           </div>
 
@@ -74,16 +75,16 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
               <div className="section-card">
                 <div className="section-header">
                   <h2 className="section-title">
-                    <i className="fas fa-edit"></i> Project Briefing
+                    <i className="fas fa-edit"></i> Detalhes do Projeto
                   </h2>
-                  <p className="section-subtitle">Enter your project details below</p>
+                  <p className="section-subtitle">Insira as informações essenciais do seu briefing para análise inteligente.</p>
                 </div>
 
                 <form className="briefing-form">
                   {/* Project Title */}
                   <div className="form-group">
                     <label htmlFor="project-title" className="form-label">
-                      Project Title
+                      Título do Projeto
                     </label>
                     <input
                       type="text"
@@ -98,7 +99,7 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
                   {/* Client Name */}
                   <div className="form-group">
                     <label htmlFor="client-name" className="form-label">
-                      Client Name
+                      Nome do Cliente
                     </label>
                     <input
                       type="text"
@@ -113,7 +114,7 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
                   {/* Briefing Content */}
                   <div className="form-group">
                     <label htmlFor="briefing-content" className="form-label">
-                      Briefing Content
+                      Conteúdo do Briefing
                     </label>
                     <textarea
                       id="briefing-content"
@@ -125,8 +126,9 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
                     />
                     <div className="form-help">
                       <span className="form-help-text">
-                        <i className="fas fa-info-circle"></i> The more detailed your briefing,
-                        the better our AI can help organize and analyze it.
+                        <i className="fas fa-info-circle"></i> Inclua objetivos, prazos, orçamento e requisitos para resultados mais precisos.
+
+
                       </span>
                     </div>
                   </div>
@@ -134,7 +136,7 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
                   {/* File Upload */}
                   <div className="form-group">
                     <label htmlFor="file-upload" className="form-label">
-                      Additional Files
+                      Arquivos Adicionais
                     </label>
                     <div className="file-upload-area">
                       <input
@@ -148,7 +150,7 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
                       <label htmlFor="file-upload" className="file-label">
                         <i className="fas fa-cloud-upload-alt"></i>
                         <span className="file-text">
-                          <strong>Click to upload files</strong> or drag and drop
+                          <strong>Envie</strong> ou arraste arquivos
                         </span>
                         <span className="file-hint">TXT, DOC, DOCX, PDF up to 10MB</span>
                       </label>
@@ -158,10 +160,10 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
                   {/* Form Actions */}
                   <div className="form-actions">
                     <button type="submit" className="btn btn-primary btn-lg">
-                      <i className="fas fa-magic"></i> Analyze Briefing
+                      <i className="fas fa-magic"></i> Analisar Briefing 
                     </button>
                     <button type="reset" className="btn btn-outline">
-                      <i className="fas fa-redo"></i> Clear Form
+                      <i className="fas fa-redo"></i> Limpar
                     </button>
                   </div>
                 </form>
@@ -173,9 +175,9 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
               <div className="section-card">
                 <div className="section-header">
                   <h2 className="section-title">
-                    <i className="fas fa-chart-line"></i> Analysis Results
+                    <i className="fas fa-chart-line"></i> Resultados da Análise
                   </h2>
-                  <p className="section-subtitle">AI-powered briefing analysis and suggestions</p>
+                  <p className="section-subtitle">Acompanhe insights gerados automaticamente pela Inteligência Artificial:</p>
                 </div>
 
                 {/* Empty State */}
@@ -183,23 +185,33 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
                   <div className="empty-icon">
                     <i className="fas fa-search-plus"></i>
                   </div>
-                  <h3 className="empty-title">Ready for Analysis</h3>
+                  <h3 className="empty-title">Preencha e Analise com IA
+</h3>
                   <p className="empty-description">
-                    Fill out the form on the left and click "Analyze Briefing" to get started. Our AI
-                    will structure your briefing, identify gaps, and suggest helpful questions.
+                    Complete o formulário, clique em “Analisar Briefing” e nossa IA vai organizar seu conteúdo, detectar lacunas e sugerir perguntas essenciais.
+
+
+
+
+
+
+
+
+
+
                   </p>
                   <div className="empty-features">
                     <div className="empty-feature">
                       <i className="fas fa-check-circle"></i>
-                      <span>Automatic categorization</span>
+                      <span>Classificação automática</span>
                     </div>
                     <div className="empty-feature">
                       <i className="fas fa-check-circle"></i>
-                      <span>Gap detection</span>
+                      <span>Identificação de lacunas</span>
                     </div>
                     <div className="empty-feature">
                       <i className="fas fa-check-circle"></i>
-                      <span>Question suggestions</span>
+                      <span>Sugestões de perguntas</span>
                     </div>
                   </div>
                 </div>
