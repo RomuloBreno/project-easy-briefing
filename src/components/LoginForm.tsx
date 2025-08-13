@@ -17,7 +17,7 @@ export function LoginForm({ onLogin, isLoading, error }: LoginFormProps) {
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email) {
-      setEmailError('Email is required');
+      setEmailError('O e-mail é obrigatório');
       return false;
     }
     if (!emailRegex.test(email)) {
@@ -30,11 +30,11 @@ export function LoginForm({ onLogin, isLoading, error }: LoginFormProps) {
 
   const validatePassword = (password: string) => {
     if (!password) {
-      setPasswordError('Password is required');
+      setPasswordError('A senha é obrigatória');
       return false;
     }
     if (password.length < 6) {
-      setPasswordError('Password must be at least 6 characters');
+      setPasswordError('A senha deve ter pelo menos 6 caracteres');
       return false;
     }
     setPasswordError('');
@@ -59,8 +59,10 @@ export function LoginForm({ onLogin, isLoading, error }: LoginFormProps) {
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full mb-4">
             <User className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Welcome Back</h1>
-          <p className="text-gray-600">Sign in to your account to continue</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Bem-vindo de volta</h1>
+          <p className="text-gray-600">Entre na sua conta para continuar
+
+</p>
         </div>
 
         {error && (
@@ -73,7 +75,8 @@ export function LoginForm({ onLogin, isLoading, error }: LoginFormProps) {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-              Email Address
+              Endereço de e-mail
+
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -93,7 +96,7 @@ export function LoginForm({ onLogin, isLoading, error }: LoginFormProps) {
                     ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
                     : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
                 }`}
-                placeholder="Enter your email"
+                placeholder="email"
                 disabled={isLoading}
               />
             </div>
@@ -107,7 +110,7 @@ export function LoginForm({ onLogin, isLoading, error }: LoginFormProps) {
 
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-              Password
+              Senha
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -127,7 +130,7 @@ export function LoginForm({ onLogin, isLoading, error }: LoginFormProps) {
                     ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
                     : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
                 }`}
-                placeholder="Enter your password"
+                placeholder="Senha"
                 disabled={isLoading}
               />
               <button
@@ -158,14 +161,16 @@ export function LoginForm({ onLogin, isLoading, error }: LoginFormProps) {
                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 disabled={isLoading}
               />
-              <span className="ml-2 text-sm text-gray-600">Remember me</span>
+              <span className="ml-2 text-sm text-gray-600">Lembrar de mim</span>
             </label>
             <button
               type="button"
               className="text-sm text-blue-600 hover:text-blue-500 font-medium"
               disabled={isLoading}
             >
-              Forgot password?
+              Esqueceu sua senha?
+
+
             </button>
           </div>
 
@@ -180,16 +185,16 @@ export function LoginForm({ onLogin, isLoading, error }: LoginFormProps) {
                 Signing in...
               </>
             ) : (
-              'Sign In'
+              'Entrar'
             )}
           </button>
         </form>
 
         <div className="mt-8 text-center">
           <p className="text-sm text-gray-600">
-            Don't have an account?{' '}
+            Não tem uma conta?{' '}
             <button className="font-medium text-blue-600 hover:text-blue-500">
-              Sign up here
+              Cadastre-se aqui
             </button>
           </p>
         </div>
