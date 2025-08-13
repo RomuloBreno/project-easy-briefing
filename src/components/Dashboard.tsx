@@ -185,20 +185,9 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
                   <div className="empty-icon">
                     <i className="fas fa-search-plus"></i>
                   </div>
-                  <h3 className="empty-title">Preencha e Analise com IA
-</h3>
+                  <h3 className="empty-title">Preencha e Analise com IA</h3>
                   <p className="empty-description">
                     Complete o formulário, clique em “Analisar Briefing” e nossa IA vai organizar seu conteúdo, detectar lacunas e sugerir perguntas essenciais.
-
-
-
-
-
-
-
-
-
-
                   </p>
                   <div className="empty-features">
                     <div className="empty-feature">
