@@ -1,6 +1,3 @@
-import React from 'react';
-import { LogOut, User, Settings, Bell, Home, BarChart3, Users, FileText } from 'lucide-react';
-
 interface DashboardProps {
   user: { email: string };
   onLogout: () => void;
