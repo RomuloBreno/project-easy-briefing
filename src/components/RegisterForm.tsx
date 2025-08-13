@@ -1,29 +1,25 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, Lock, Mail, User, AlertCircle, CheckCircle } from 'lucide-react';
-import { RegisterForm } from './RegisterForm';
 
-interface LoginFormProps {
-  onLogin: (email: string, password: string) => Promise<void>;
+interface RegisterFormProps {
+  onRegister: (name:string, email: string, password: string) => Promise<void>;
   isLoading: boolean;
   error: string | null;
 }
 
-export function LoginForm({ onLogin, isLoading, error }: LoginFormProps) {
+export function RegisterForm({onRegister, isLoading, error }: RegisterFormProps) {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [emailError, setEmailError] = useState('');
-  const [needRegister, setNeedRegister] = useState(false);
+  const [nameError, setNameError] = useState('');
   const [passwordError, setPasswordError] = useState('');
-  
-  const handleRegister = async  () => {
-    setNeedRegister(!needRegister ? true : false);
-  };
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email) {
-      setEmailError('O e-mail é obrigatório');
+      setEmailError('Email is required');
       return false;
     }
     if (!emailRegex.test(email)) {
@@ -36,32 +32,43 @@ export function LoginForm({ onLogin, isLoading, error }: LoginFormProps) {
 
   const validatePassword = (password: string) => {
     if (!password) {
-      setPasswordError('A senha é obrigatória');
+      setPasswordError('Password is required');
       return false;
     }
     if (password.length < 6) {
-      setPasswordError('A senha deve ter pelo menos 6 caracteres');
+      setPasswordError('Password must be at least 6 characters');
       return false;
     }
     setPasswordError('');
     return true;
   };
 
+  const validateName = (name: string) => {
+    if (!name) {
+      setNameError('name is required');
+      return false;
+    }
+    if (name.length < 6) {
+      ('name must be at least 6 characters');
+      return false;
+    }
+    setNameError('');
+    setName(name);
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    const isNameValid = validateName(name);
     const isEmailValid = validateEmail(email);
     const isPasswordValid = validatePassword(password);
     
-    if (isEmailValid && isPasswordValid) {
-      await onLogin(email, password);
+    if (isNameValid && isEmailValid && isPasswordValid) {
+      await onRegister(name,email, password);
     }
   };
 
-
-  if(needRegister) {
-    return <RegisterForm onRegister={handleRegister} isLoading={false} error={null}/>
-  }
   return (
     <div className="w-full max-w-md mx-auto">
       <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
@@ -69,10 +76,8 @@ export function LoginForm({ onLogin, isLoading, error }: LoginFormProps) {
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full mb-4">
             <User className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Bem-vindo de volta</h1>
-          <p className="text-gray-600">Entre na sua conta para continuar
-
-</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Welcome Back</h1>
+          <p className="text-gray-600">Sign in to your account to continue</p>
         </div>
 
         {error && (
@@ -83,10 +88,43 @@ export function LoginForm({ onLogin, isLoading, error }: LoginFormProps) {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
+           <div>
+            <label htmlFor="Name" className="block text-sm font-medium text-gray-700 mb-2">
+              Nome
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Mail className="h-5 w-5 text-gray-400" />
+              </div>
+              <input
+                id="nome"
+                type="nome"
+                value={name}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (nameError) validateName(e.target.value);
+                }}
+                onBlur={() => validateName(name)}
+                className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-colors ${
+                  nameError
+                    ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
+                    : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
+                }`}
+                placeholder="Enter your email"
+                disabled={isLoading}
+              />
+            </div>
+            {emailError && (
+              <p className="mt-2 text-sm text-red-600 flex items-center gap-1">
+                <AlertCircle className="w-4 h-4" />
+                {emailError}
+              </p>
+            )}
+          </div>
+
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-              Endereço de e-mail
-
+              Email Address
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -106,7 +144,7 @@ export function LoginForm({ onLogin, isLoading, error }: LoginFormProps) {
                     ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
                     : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
                 }`}
-                placeholder="email"
+                placeholder="Enter your email"
                 disabled={isLoading}
               />
             </div>
@@ -120,7 +158,7 @@ export function LoginForm({ onLogin, isLoading, error }: LoginFormProps) {
 
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-              Senha
+              Password
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -140,7 +178,7 @@ export function LoginForm({ onLogin, isLoading, error }: LoginFormProps) {
                     ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
                     : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
                 }`}
-                placeholder="Senha"
+                placeholder="Enter your password"
                 disabled={isLoading}
               />
               <button
@@ -171,16 +209,14 @@ export function LoginForm({ onLogin, isLoading, error }: LoginFormProps) {
                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 disabled={isLoading}
               />
-              <span className="ml-2 text-sm text-gray-600">Lembrar de mim</span>
+              <span className="ml-2 text-sm text-gray-600">Remember me</span>
             </label>
             <button
               type="button"
               className="text-sm text-blue-600 hover:text-blue-500 font-medium"
               disabled={isLoading}
             >
-              Esqueceu sua senha?
-
-
+              Forgot password?
             </button>
           </div>
 
@@ -195,16 +231,16 @@ export function LoginForm({ onLogin, isLoading, error }: LoginFormProps) {
                 Signing in...
               </>
             ) : (
-              'Entrar'
+              'Sign In'
             )}
           </button>
         </form>
 
         <div className="mt-8 text-center">
           <p className="text-sm text-gray-600">
-            Não tem uma conta?{' '}
-            <button onClick={handleRegister} className="font-medium text-blue-600 hover:text-blue-500">
-              Cadastre-se aqui
+            Don't have an account?{' '}
+            <button className="font-medium text-blue-600 hover:text-blue-500">
+              Sign up here
             </button>
           </p>
         </div>
