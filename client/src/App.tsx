@@ -128,7 +128,7 @@ function App() {
                     <nav className="nav container">
                         <div className="nav-brand">
                             <i className="fas fa-clipboard-list nav-logo-icon"></i>
-                            <span className="nav-logo-text">izyBriefing</span>
+                            <span className="nav-logo-text">Briefing Organizer</span>
                         </div>
                         <ul className="nav-menu">
                             <li><a href="#home" className="nav-link">Início</a></li>
@@ -444,7 +444,7 @@ function App() {
                             <div className="footer-brand">
                                 <div className="nav-brand">
                                     <i className="fas fa-clipboard-list nav-logo-icon"></i>
-                                    <span className="nav-logo-text">izyBriefing</span>
+                                    <span className="nav-logo-text">Briefing Organizer</span>
                                 </div>
                                 <p className="footer-description">
                                     Transforme briefings desorganizados em projetos claros e ágeis com análise avançada.
@@ -487,7 +487,7 @@ function App() {
                             </div>
                         </div>
                         <div className="footer-bottom">
-                            <p className="footer-copyright">© 2025 Automatic izyBriefing. All rights reserved.</p>
+                            <p className="footer-copyright">© 2025 Automatic Briefing Organizer. All rights reserved.</p>
                         </div>
                     </div>
                 </footer>
