@@ -1,33 +1,54 @@
-# Estágio de build para o front-end
-FROM node:18-alpine AS build
+# --- Estágio 1: Build do Front-end (Cliente) ---
+FROM node:18-alpine AS client-build
 
-# Define o diretório de trabalho para o front-end
 WORKDIR /app/client
 
-# Copia os arquivos de configuração do npm
 COPY client/package*.json ./
-
-# Instala as dependências
 RUN npm ci
 
-# Copia o código-fonte
 COPY client .
-
-# Roda o script de build do Vite
 RUN npm run build
 
-# --- Estágio para servir com Nginx ---
-FROM nginx:alpine
 
-# Remove a configuração padrão
-RUN rm /etc/nginx/conf.d/default.conf
+# --- Estágio 2: Build do Back-end (Servidor) ---
+FROM node:18-alpine AS server-build
 
-# Copia a configuração customizada do Nginx
-COPY client/nginx.conf /etc/nginx/conf.d/
+WORKDIR /app/server
 
-# Copia os arquivos buildados do Vite para o Nginx
-COPY --from=build /app/client/dist /usr/share/nginx/html
+COPY server/package*.json ./
+RUN npm ci
 
-EXPOSE 80
+COPY server .
 
-CMD ["nginx", "-g", "daemon off;"]
+# Roda o script de build para compilar o TypeScript
+RUN npm run build
+
+
+# --- Estágio 3: Imagem Final (Produção) ---
+# Usa uma imagem Node.js mais leve para o runtime do servidor
+FROM node:18-alpine AS final
+
+WORKDIR /app
+
+# Copia os arquivos do servidor compilados do estágio anterior
+COPY --from=server-build /app/server/dist /app/server/dist
+
+# Copia os arquivos do front-end buildados do estágio anterior
+COPY --from=client-build /app/client/dist /app/client/dist
+
+# Copia os arquivos de configuração do servidor
+COPY server/package*.json /app/server/
+COPY server/package-lock.json /app/server/
+COPY server/.env /app/server/
+
+# Define os diretórios de trabalho
+WORKDIR /app/server
+
+# Instala as dependências de produção para o servidor
+RUN npm ci --only=production
+
+# Expõe as portas necessárias
+EXPOSE 3000
+
+# Comando para iniciar o servidor, que servirá o front-end
+CMD ["npm", "start"]
