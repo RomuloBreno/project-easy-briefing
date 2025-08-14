@@ -91,7 +91,7 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
                       id="project-title"
                       name="project-title"
                       className="form-input"
-                      placeholder="Enter your project title..."
+                      placeholder="Coloque o titulo do seu projeto aqui..."
                       required
                     />
                   </div>

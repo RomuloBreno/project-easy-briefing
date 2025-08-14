@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useState } from 'react';
-import { LoginForm } from './components/LoginForm';
+import { AuthForm } from './components/LoginForm';
 import { Dashboard } from './components/Dashboard';
+import axios from 'axios';
 
 interface User {
+    id: string;
+    name: string;
     email: string;
 }
 
@@ -11,32 +14,95 @@ function App() {
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [needLogin, setNeedLogin] = useState(false);
+    const [tokenIsValid, settokenIsValid] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const API_URL = import.meta.env.API_URL || 'http://localhost:3000/api';
 
-    // Demo credentials for testing
-    const DEMO_EMAIL = 'demo@example.com';
-    const DEMO_PASSWORD = 'password123';
+    useEffect(() => {
+        validateToken();
+    }, [tokenIsValid]);
+
+    useEffect(() => {
+    }, [user]);
+    // URL da API definida no .env
 
     const handlerButtonClick = () => {
         setNeedLogin(!needLogin ? true : false);
     };
+    const validateToken = () => {
+        if (!localStorage.getItem("token")) {
+            settokenIsValid(false);
+        } else {
+            const token = localStorage.getItem("token");
+            if (token) {
+                setIsLoading(true);
+                try {
+                    axios.post(`${API_URL}/token`, { token }).then((response) => {
+                        const user = response.data.token;
+                        if (response.status !== 200) {
+                            settokenIsValid(false);
+                            // setNeedLogin(true);
+                            setError('Faça login novamente');
+                            setUser(null);
+                        }
+                        const userNew: User = {
+                            id: user?.id?.toString() || '',
+                            name: user?.nameUser || '',
+                            email: user?.email || ''
+                        };
+                        setUser(userNew);
+                    });
+                    setIsLoading(false);
+                } catch (err: any) {
+                    setError('Faça login novamente');
+                } finally {
+                    setIsLoading(false);
+                }
+            }
+        }
 
+
+
+    }
+
+    // Função para login
     const handleLogin = async (email: string, password: string) => {
         setIsLoading(true);
         setError(null);
 
         try {
-            // Simulate API call delay
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            const response = await axios.post(`${API_URL}/login`, { email, password });
+            const user = response.data.token;
+            const userNew: User = {
+                id: user?.id?.toString() || '',
+                name: user?.nameUser || '',
+                email: user?.email || ''
+            };
+            setUser(userNew);
+        } catch (err: any) {
+            setError(err.response?.data?.error || 'Login failed');
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
-            // Demo authentication logic
-            if (email === DEMO_EMAIL && password === DEMO_PASSWORD) {
-                setUser({ email });
-            } else {
-                throw new Error('Invalid email or password. Try demo@example.com / password123');
-            }
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Login failed');
+    // Função para registro
+    const handleRegister = async (name: string, email: string, password: string) => {
+        setIsLoading(true);
+        setError(null);
+
+        try {
+            const response = await axios.post(`${API_URL}/register`, { name, email, password });
+            const user = response.data.token;
+            localStorage.setItem("token", user.token); // Garantir que o token esteja presente
+            const userNew: User = {
+                id: user?.id?.toString() || '',
+                name: user?.nameUser || '',
+                email: user?.email || ''
+            };
+            setUser(userNew);
+        } catch (err: any) {
+            setError(err.response?.data?.error || 'Registration failed');
         } finally {
             setIsLoading(false);
         }
@@ -45,9 +111,11 @@ function App() {
     const handleLogout = () => {
         setUser(null);
         setError(null);
+        localStorage.removeItem("token"); // Limpar o token do armazenamento local
+        setNeedLogin(true); // Redefinir o estado de login
     };
 
-    if (user) {
+    if (user !== null) {
         return <Dashboard user={user} onLogout={handleLogout} />;
     }
 
@@ -69,7 +137,10 @@ function App() {
                             <li><a href="#faqs" className="nav-link">FAQs</a></li>
                             <li><a href="#contact" className="nav-link">Contato</a></li>
                         </ul>
-                        <button onClick={handlerButtonClick} className="btn btn-primary">Teste Grátis</button>
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                            <button onClick={handlerButtonClick} className="btn btn-primary">Teste Grátis</button>
+                            <button onClick={handlerButtonClick} className="btn btn-secondary">Entrar</button>
+                        </div>
                         <div className="nav-toggle">
                             <i className="fas fa-bars"></i>
                         </div>
@@ -83,7 +154,7 @@ function App() {
                                 <div className="hero-text fade-in">
                                     <h1 className="hero-title">Organizador de Briefing</h1>
                                     <p className="hero-subtitle">
-O Organizador de Briefing ajuda você a reunir, organizar e agilizar briefings de forma simples. Ideal para agências, designers, freelancers e empresas, ele usa IA para identificar lacunas, sugerir perguntas e garantir projetos mais claros e rápidos.
+                                        O Organizador de Briefing ajuda você a reunir, organizar e agilizar briefings de forma simples. Ideal para agências, designers, freelancers e empresas, ele usa IA para identificar lacunas, sugerir perguntas e garantir projetos mais claros e rápidos.
                                     </p>
                                     <div className="hero-buttons">
                                         <a href="app.html" className="btn btn-primary btn-lg">Testar Grátis Agora</a>
@@ -123,7 +194,7 @@ O Organizador de Briefing ajuda você a reunir, organizar e agilizar briefings d
                             <div className="section-header">
                                 <h2 className="section-title">Recursos Inteligentes do Organizador de Briefing
 
-</h2>
+                                </h2>
                             </div>
                             <div className="features-grid">
                                 <div className="feature-card">
@@ -131,9 +202,9 @@ O Organizador de Briefing ajuda você a reunir, organizar e agilizar briefings d
                                         <i className="fas fa-search-plus"></i>
                                     </div>
                                     <h3 className="feature-title">Análise Automática com IA
-</h3>
+                                    </h3>
                                     <p className="feature-description">
-Organize e categorize seus briefings automaticamente com inteligência artificial para mais clareza e rapidez.
+                                        Organize e categorize seus briefings automaticamente com inteligência artificial para mais clareza e rapidez.
 
 
 
@@ -144,9 +215,9 @@ Organize e categorize seus briefings automaticamente com inteligência artificia
                                         <i className="fas fa-exclamation-triangle"></i>
                                     </div>
                                     <h3 className="feature-title">Detecção de Lacunas
-</h3>
+                                    </h3>
                                     <p className="feature-description">
-Encontre informações faltantes e garanta que nenhum detalhe do projeto seja esquecido.
+                                        Encontre informações faltantes e garanta que nenhum detalhe do projeto seja esquecido.
 
 
 
@@ -157,9 +228,9 @@ Encontre informações faltantes e garanta que nenhum detalhe do projeto seja es
                                         <i className="fas fa-question-circle"></i>
                                     </div>
                                     <h3 className="feature-title">Sugestões Inteligentes
-</h3>
+                                    </h3>
                                     <p className="feature-description">
-Receba perguntas personalizadas para deixar seus briefings completos e eficientes.
+                                        Receba perguntas personalizadas para deixar seus briefings completos e eficientes.
 
 
 
@@ -170,7 +241,7 @@ Receba perguntas personalizadas para deixar seus briefings completos e eficiente
                                         <i className="fas fa-cloud"></i>
                                     </div>
                                     <h3 className="feature-title">Integração com Plataformas
-</h3>
+                                    </h3>
                                     <p className="feature-description">
                                         Conecte-se ao Google Drive, Dropbox e outros para gerenciar arquivos na nuvem.
 
@@ -182,7 +253,7 @@ Receba perguntas personalizadas para deixar seus briefings completos e eficiente
                                         <i className="fas fa-download"></i>
                                     </div>
                                     <h3 className="feature-title">Exportação em Diversos Formatos
-</h3>
+                                    </h3>
                                     <p className="feature-description">
                                         Baixe seus briefings prontos em PDF, Word e mais, prontos para compartilhar.
 
@@ -194,7 +265,7 @@ Receba perguntas personalizadas para deixar seus briefings completos e eficiente
                                         <i className="fas fa-globe"></i>
                                     </div>
                                     <h3 className="feature-title">Suporte Multilíngue
-</h3>
+                                    </h3>
                                     <p className="feature-description">
                                         Crie e gerencie briefings em vários idiomas para projetos globais.
 
@@ -208,7 +279,7 @@ Receba perguntas personalizadas para deixar seus briefings completos e eficiente
                         <div className="container">
                             <div className="section-header">
                                 <h2 className="section-title">Escolha o plano perfeito para o seu ritmo de trabalho
-</h2>
+                                </h2>
                             </div>
                             <div className="pricing-grid">
                                 <div className="pricing-card">
@@ -226,7 +297,7 @@ Receba perguntas personalizadas para deixar seus briefings completos e eficiente
                                         <li><i className="fas fa-check"></i> Detecção básica de lacunas</li>
                                         <li><i className="fas fa-check"></i> Exportação em PDF</li>
                                     </ul>
-                                    <a href="app.html" className="btn btn-outline btn-full">Get Started</a>
+                                    <a href="app.html" className="btn btn-outline btn-full">Clique para Começar</a>
                                 </div>
 
                                 <div className="pricing-card pricing-card-popular">
@@ -235,7 +306,7 @@ Receba perguntas personalizadas para deixar seus briefings completos e eficiente
                                         <h3 className="pricing-title">Plano Profissional</h3>
                                         <p className="pricing-subtitle">O Mais Popular</p>
                                         <div className="pricing-price">
-                                            <span className="pricing-amount">R$ 29,90</span>
+                                            <span className="pricing-amount"><span style={{ fontSize: '80%' }}>R$</span> 29,90</span>
                                             <span className="pricing-period">/mês</span>
                                         </div>
                                     </div>
@@ -246,7 +317,7 @@ Receba perguntas personalizadas para deixar seus briefings completos e eficiente
                                         <li><i className="fas fa-check"></i> Histórico e controle de versões</li>
                                         <li><i className="fas fa-check"></i> Armazenamento expandido (até 10 GB)</li>
                                     </ul>
-                                    <a href="app.html" className="btn btn-primary btn-full">Get Started</a>
+                                    <a href="app.html" className="btn btn-primary btn-full">Clique para Começar</a>
                                 </div>
 
                                 <div className="pricing-card">
@@ -265,7 +336,7 @@ Receba perguntas personalizadas para deixar seus briefings completos e eficiente
                                         <li><i className="fas fa-check"></i> Gerente de conta dedicado</li>
                                         <li><i className="fas fa-check"></i> SLA com suporte 24/7</li>
                                     </ul>
-                                    <a href="app.html" className="btn btn-outline btn-full">Get Started</a>
+                                    <a href="app.html" className="btn btn-outline btn-full">Clique para Começar</a>
                                 </div>
                             </div>
                         </div>
@@ -275,7 +346,7 @@ Receba perguntas personalizadas para deixar seus briefings completos e eficiente
                             <div className="section-header">
                                 <h2 className="section-title">Perguntas Frequentes sobre o Organizador de Briefing
 
-</h2>
+                                </h2>
                             </div>
                             <div className="faqs-grid">
                                 <div className="faq-item">
@@ -331,9 +402,9 @@ Receba perguntas personalizadas para deixar seus briefings completos e eficiente
                                 <h2 className="section-title">Organize Seus Briefings com Inteligência Artificial
 
 
-</h2>
+                                </h2>
                                 <p className="section-subtitle">
-Otimize seu processo, evite erros e acelere resultados usando o poder da IA.
+                                    Otimize seu processo, evite erros e acelere resultados usando o poder da IA.
 
 
 
@@ -348,7 +419,7 @@ Otimize seu processo, evite erros e acelere resultados usando o poder da IA.
                             <div className="contact-content">
                                 <a href="app.html" className="btn btn-primary btn-lg">Teste Grátis por 7 Dias
 
-</a>
+                                </a>
                                 <p className="contact-note">Sem cartão de crédito • Acesse todos os recursos
 
 
@@ -361,7 +432,7 @@ Otimize seu processo, evite erros e acelere resultados usando o poder da IA.
 
 
 
-</p>
+                                </p>
                             </div>
                         </div>
                     </section>
@@ -426,7 +497,8 @@ Otimize seu processo, evite erros e acelere resultados usando o poder da IA.
         return (
             <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
                 <div className="w-full max-w-md">
-                    <LoginForm
+                    <AuthForm
+                        onRegister={handleRegister}
                         onLogin={handleLogin}
                         isLoading={isLoading}
                         error={error}
@@ -438,15 +510,6 @@ Otimize seu processo, evite erros e acelere resultados usando o poder da IA.
                         >
                             {needLogin ? 'Voltar para a página inicial' : 'Precisa fazer login?'}
                         </button>
-                    </div>
-
-                    {/* Demo Credentials Helper */}
-                    <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                        <h4 className="text-sm font-medium text-blue-900 mb-2">Demo Credentials</h4>
-                        <div className="text-xs text-blue-700 space-y-1">
-                            <p><strong>Email:</strong> demo@example.com</p>
-                            <p><strong>Password:</strong> password123</p>
-                        </div>
                     </div>
                 </div>
             </div>
