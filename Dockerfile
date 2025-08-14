@@ -16,7 +16,7 @@ RUN npm run install:all
 COPY . .
 
 # Expor portas do backend e frontend
-EXPOSE 3000 5173
+EXPOSE 3000 80
 
 # Rodar ambos usando o script prd
 CMD ["npm", "run", "prd"]
