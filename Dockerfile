@@ -27,4 +27,4 @@ EXPOSE 3000 80
 
 # Usar a forma de shell para o comando
 # Isso garante que o shell (como /bin/sh) procure o comando npm no PATH
-CMD npm run start
+CMD npm run start:server
