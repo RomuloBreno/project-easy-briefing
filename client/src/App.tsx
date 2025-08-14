@@ -16,7 +16,7 @@ function App() {
     const [needLogin, setNeedLogin] = useState(false);
     const [tokenIsValid, settokenIsValid] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const API_URL = import.meta.env.API_URL || 'http://localhost:3000/api';
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
     useEffect(() => {
         validateToken();
