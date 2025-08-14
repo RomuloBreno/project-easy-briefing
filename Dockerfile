@@ -1,25 +1,32 @@
-# Build da aplicação
+# Estágio de build para o front-end
 FROM node:18-alpine AS build
 
-WORKDIR /app
+# Define o diretório de trabalho para o front-end
+WORKDIR /app/client
 
-COPY package*.json ./
+# Copia os arquivos de configuração do npm
+COPY client/package*.json ./
+
+# Instala as dependências
 RUN npm ci
 
-COPY . .
+# Copia o código-fonte
+COPY client .
+
+# Roda o script de build do Vite
 RUN npm run build
 
-# Servir build estática com nginx
+# --- Estágio para servir com Nginx ---
 FROM nginx:alpine
 
-# Remover configuração default
+# Remove a configuração padrão
 RUN rm /etc/nginx/conf.d/default.conf
 
-# Copiar configuração customizada do nginx para lidar com SPA
+# Copia a configuração customizada do Nginx
 COPY client/nginx.conf /etc/nginx/conf.d/
 
-# Copiar os arquivos buildados do Vite para pasta pública do nginx
-COPY --from=build /app/dist /usr/share/nginx/html
+# Copia os arquivos buildados do Vite para o Nginx
+COPY --from=build /app/client/dist /usr/share/nginx/html
 
 EXPOSE 80
 
