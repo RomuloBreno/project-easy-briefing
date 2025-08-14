@@ -19,7 +19,7 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
         <nav className="nav container">
           <div className="nav-brand">
             <i className="fas fa-clipboard-list nav-logo-icon"></i>
-            <span className="nav-logo-text">Briefing Organizer</span>
+            <span className="nav-logo-text">izyBriefing</span>
           </div>
           <ul className="nav-menu">
             <li>
@@ -62,7 +62,7 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
       <main className="app-main">
         <div className="container">
           <div className="app-header">
-            <h1 className="app-title fade-in">Briefing Organizer</h1>
+            <h1 className="app-title fade-in">izyBriefing</h1>
             <p className="app-subtitle fade-in">
               Organize e analise seus briefings com Inteligência Artificial
 
@@ -253,7 +253,7 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
         <div className="container">
           <p className="app-footer-text">
             Prototype • Made with{" "}
-            <i className="fas fa-heart" style={{ color: "#e74c3c" }}></i> — Briefing Organizer
+            <i className="fas fa-heart" style={{ color: "#e74c3c" }}></i> — izyBriefing
           </p>
         </div>
       </footer>
