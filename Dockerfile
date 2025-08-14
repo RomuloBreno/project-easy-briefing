@@ -25,4 +25,4 @@ RUN mkdir -p server/public && cp -r client/dist/* server/public/
 EXPOSE 3000 80
 
 # Rodar apenas o backend (frontend já está no public)
-CMD ["npm", "run", "start:prod", "--prefix", "server"]
+CMD ["npm", "run", "start:server",]
