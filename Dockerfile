@@ -15,8 +15,14 @@ RUN npm run install:all
 # Copiar todo o restante do código
 COPY . .
 
-# Expor portas do backend e frontend
+# Build do frontend (Vite)
+RUN npm run build --prefix client
+
+# Copiar build do frontend para o backend servir
+RUN mkdir -p server/public && cp -r client/dist/* server/public/
+
+# Expor apenas a porta do backend (que também serve o frontend)
 EXPOSE 3000 80
 
-# Rodar ambos usando o script prd
-CMD ["npm", "run", "prd"]
+# Rodar apenas o backend (frontend já está no public)
+CMD ["npm", "run", "start:server"]
