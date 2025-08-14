@@ -1,35 +1,52 @@
+# Etapa de construção (Build Stage)
 FROM node:22 AS build-stage
+
+# Define o diretório de trabalho dentro do container
 WORKDIR /project
 
-# Copia apenas os arquivos de dependências para aproveitar cache
-COPY client/package*.json ./client/
+# Copia apenas os arquivos de dependência do servidor para aproveitar o cache
 COPY server/package*.json ./server/
 
-# Instala dependências separadamente para cache eficiente
-RUN npm install --prefix server
-RUN npm install --prefix client
+# Copia apenas os arquivos de dependência do cliente para aproveitar o cache
+COPY client/package*.json ./client/
 
-# Copia o restante do código
-COPY . .
+# Instala as dependências do servidor
+WORKDIR /project/server
+RUN npm install
 
-# Build do frontend e cópia para o backend
-RUN npm run build --prefix client
-RUN mkdir -p server/public && cp -r client/dist/* server/public/
+# Instala as dependências do cliente
+WORKDIR /project/client
+RUN npm install
 
-# Etapa final de produção
-FROM node:22 AS production-stage
+# Volta para o diretório raiz do projeto
 WORKDIR /project
 
-# Copia apenas o backend já com o build do frontend
-COPY --from=build-stage /project/server ./server
+# Copia o restante do código da aplicação
+COPY . .
 
-# Garante que o package.json esteja no lugar antes de instalar dependências
+# Constrói o frontend
+RUN npm run build --prefix client
+
+# Cria o diretório public no servidor e copia os arquivos construídos do cliente para lá
+RUN mkdir -p server/public && cp -r client/dist/* server/public/
+
+# Etapa final de produção (Production Stage)
+FROM node:22 AS production-stage
+
+# Define o diretório de trabalho dentro do container
 WORKDIR /project/server
+
+# Copia os arquivos de dependência do servidor da etapa de construção
 COPY --from=build-stage /project/server/package*.json ./
 
-# Instala apenas dependências de produção
+# Instala apenas as dependências de produção do servidor
 RUN npm install --production
 
+# Copia o restante do código do servidor, incluindo o frontend construído
+COPY --from=build-stage /project/server/ ./
+
+# Expõe a porta em que o servidor irá rodar
 EXPOSE 3000
 
+# Comando para iniciar a aplicação
 CMD npm run start
