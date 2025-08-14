@@ -39,7 +39,6 @@ COPY --from=client-build /app/client/dist /app/client/dist
 # Copia os arquivos de configuração do servidor
 COPY server/package*.json /app/server/
 COPY server/package-lock.json /app/server/
-COPY server/.env /app/server/
 
 # Define os diretórios de trabalho
 WORKDIR /app/server
