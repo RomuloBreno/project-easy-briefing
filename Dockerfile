@@ -22,7 +22,11 @@ COPY . .
 # Constrói o aplicativo frontend usando Vite.
 # O '--prefix client' indica que o comando deve ser executado no diretório 'client'.
 # O resultado da build (arquivos estáticos) será geralmente colocado em 'client/dist'.
+# Build do frontend (Vite)
 RUN npm run build --prefix client
+
+# Copiar build do frontend para o diretório que o backend vai servir
+RUN mkdir -p server/public && cp -r client/dist/* server/public/
 
 # --- Etapa de Produção (para um container menor e mais seguro) ---
 # Você pode usar a mesma imagem node:22 ou uma imagem mais leve como node:22-alpine
