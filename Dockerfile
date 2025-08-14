@@ -11,9 +11,6 @@ RUN npm run build
 
 
 # --- Estágio 2: Build do Back-end (Servidor) ---
-FROM node:18-alpine AS server-build
-
-WORKDIR /app/server
 
 COPY server/package*.json ./
 RUN npm ci
@@ -21,12 +18,11 @@ RUN npm ci
 COPY server .
 
 # Roda o script de build para compilar o TypeScript
-RUN npm run build
+RUN npm run start
 
 
 # --- Estágio 3: Imagem Final (Produção) ---
 # Usa uma imagem Node.js mais leve para o runtime do servidor
-FROM node:18-alpine AS final
 
 WORKDIR /app
 
