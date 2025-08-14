@@ -1,49 +1,22 @@
-# --- Estágio 1: Build do Front-end (Cliente) ---
-FROM node:18-alpine AS client-build
+FROM node:22
 
-WORKDIR /app/client
+# Definir diretório de trabalho
+WORKDIR /project
 
-COPY client/package*.json ./
-RUN npm ci
+# Copiar arquivos de configuração primeiro para aproveitar cache de build
+COPY package*.json ./
+COPY client/package*.json ./client/
+COPY server/package*.json ./server/
 
-COPY client .
-RUN npm run build
+# Instalar dependências de todos os pacotes
+RUN npm install
+RUN npm run install:all
 
+# Copiar todo o restante do código
+COPY . .
 
-# --- Estágio 2: Build do Back-end (Servidor) ---
+# Expor portas do backend e frontend
+EXPOSE 3000 5173
 
-COPY server/package*.json ./
-RUN npm ci
-
-COPY server .
-
-# Roda o script de build para compilar o TypeScript
-RUN npm run start
-
-
-# --- Estágio 3: Imagem Final (Produção) ---
-# Usa uma imagem Node.js mais leve para o runtime do servidor
-
-WORKDIR /app
-
-# Copia os arquivos do servidor compilados do estágio anterior
-COPY --from=server-build /app/server/dist /app/server/dist
-
-# Copia os arquivos do front-end buildados do estágio anterior
-COPY --from=client-build /app/client/dist /app/client/dist
-
-# Copia os arquivos de configuração do servidor
-COPY server/package*.json /app/server/
-COPY server/package-lock.json /app/server/
-
-# Define os diretórios de trabalho
-WORKDIR /app/server
-
-# Instala as dependências de produção para o servidor
-RUN npm ci --only=production
-
-# Expõe as portas necessárias
-EXPOSE 3000
-
-# Comando para iniciar o servidor, que servirá o front-end
-CMD ["npm", "start"]
+# Rodar ambos usando o script prd
+CMD ["npm", "run", "prd"]
