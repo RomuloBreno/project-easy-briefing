@@ -16,7 +16,7 @@ FROM nginx:alpine
 RUN rm /etc/nginx/conf.d/default.conf
 
 # Copiar configuração customizada do nginx para lidar com SPA
-COPY nginx.conf /etc/nginx/conf.d/
+COPY client/nginx.conf /etc/nginx/conf.d/
 
 # Copiar os arquivos buildados do Vite para pasta pública do nginx
 COPY --from=build /app/dist /usr/share/nginx/html
