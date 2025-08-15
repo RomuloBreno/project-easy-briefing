@@ -15,14 +15,14 @@ const app = express();
 const allowedOrigins = process.env.FRONT_URL ? process.env.FRONT_URL.split(',') : [];
 const corsOptions: cors.CorsOptions = {
   origin: (origin, callback) => {
-    // Permitir requisições sem "origin" (como no caso de file:// ou requisições do mesmo domínio)
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      // Apenas para depuração, você pode logar a origem que está sendo bloqueada
-      console.error(`CORS block: Origin "${origin}" not allowed.`);
-      callback(new Error('Acesso não permitido por CORS'));
-    }
+    // // Permitir requisições sem "origin" (como no caso de file:// ou requisições do mesmo domínio)
+    // if (!origin || allowedOrigins.includes(origin)) {
+    //   callback(null, true);
+    // } else {
+    //   // Apenas para depuração, você pode logar a origem que está sendo bloqueada
+    //   console.error(`CORS block: Origin "${origin}" not allowed.`);
+    //   callback(new Error('Acesso não permitido por CORS'));
+    // }
   }
 };
 
