@@ -16,14 +16,14 @@ function App() {
     const [needLogin, setNeedLogin] = useState(false);
     const [tokenIsValid, settokenIsValid] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const API_URL = import.meta.env.VITE_API_URL || 'https://izy-briefing.up.railway.app/api';
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
     useEffect(() => {
         validateToken();
     }, [tokenIsValid]);
 
     useEffect(() => {
-    }, [user]);
+    }, [user, needLogin]);
     // URL da API definida no .env
 
     const handlerButtonClick = () => {
@@ -73,6 +73,7 @@ function App() {
         try {
             const response = await axios.post(`${API_URL}/login`, { email, password });
             const user = response.data.token;
+            localStorage.setItem("token", user.token);
             const userNew: User = {
                 id: user?.id?.toString() || '',
                 name: user?.nameUser || '',

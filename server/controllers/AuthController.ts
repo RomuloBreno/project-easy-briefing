@@ -31,7 +31,7 @@ export class AuthController {
 
     async validToken(body: Request, res: Response): Promise<Response> {
     try {
-      const credentials: string = body.token;
+      const credentials: string = body.body.token;
       const token = await this.authService.validToken(credentials);
       return res.json({ token });
     } catch (error: unknown) {
