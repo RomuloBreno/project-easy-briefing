@@ -26,7 +26,7 @@ WORKDIR /project/server
 COPY --from=build-stage /project/server ./
 
 # Instalar só dependências de produção
-RUN npm install
+RUN npm install --production
 
 EXPOSE 3000
 
