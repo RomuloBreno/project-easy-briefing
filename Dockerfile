@@ -12,7 +12,7 @@ RUN npm run build
 
 # Estágio de produção
 FROM node:22
-WORKDIR /app
+WORKDIR /project
 
 # 1. Instala apenas o backend
 COPY server/package*.json ./server/
