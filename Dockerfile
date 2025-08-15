@@ -1,52 +1,32 @@
-# Etapa de construção (Build Stage)
-FROM node:22 AS build-stage
-
-# Define o diretório de trabalho dentro do container
-WORKDIR /project
-
-# Copia apenas os arquivos de dependência do servidor para aproveitar o cache
-COPY server/package*.json ./server/
-
-# Copia apenas os arquivos de dependência do cliente para aproveitar o cache
-COPY client/package*.json ./client/
-
-# Instala as dependências do servidor
-WORKDIR /project/server
-RUN npm install
-
-# Instala as dependências do cliente
+# Estágio de construção do frontend
+FROM node:22 AS frontend-builder
 WORKDIR /project/client
+
+# Copia e instala dependências do frontend
+COPY client/package*.json ./
 RUN npm install
 
-# Volta para o diretório raiz do projeto
-WORKDIR /project
+# Copia e build do frontend
+COPY client .
+RUN npm run build
 
-# Copia o restante do código da aplicação
-COPY . .
+# Estágio de produção
+FROM node:22
+WORKDIR /app
 
-# Constrói o frontend
-RUN npm run build --prefix client
-
-# Cria o diretório public no servidor e copia os arquivos construídos do cliente para lá
-RUN mkdir -p server/public && cp -r client/dist/* server/public/
-
-# Etapa final de produção (Production Stage)
-FROM node:22 AS production-stage
-
-# Define o diretório de trabalho dentro do container
+# 1. Instala apenas o backend
+COPY server/package*.json ./server/
 WORKDIR /project/server
-
-# Copia os arquivos de dependência do servidor da etapa de construção
-COPY --from=build-stage /project/server/package*.json ./
-
-# Instala apenas as dependências de produção do servidor
 RUN npm install --production
 
-# Copia o restante do código do servidor, incluindo o frontend construído
-COPY --from=build-stage /project/server/ ./
+# 2. Copia o backend
+COPY server .
 
-# Expõe a porta em que o servidor irá rodar
-EXPOSE 3000
+# 3. Copia o frontend construído
+COPY --from=frontend-builder /project/client/dist ./public
 
-# Comando para iniciar a aplicação
-CMD npm run start
+# 4. Verificação rápida
+RUN ls -la public && \
+    [ -f public/index.html ] || (echo "Erro: index.html não encontrado" && exit 1)
+
+CMD ["node", "server.js"]

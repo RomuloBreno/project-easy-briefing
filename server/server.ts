@@ -27,7 +27,7 @@ const corsOptions: cors.CorsOptions = {
 };
 
 
-app.use(cors(corsOptions));
+// app.use(cors(corsOptions));
 app.use(express.json());
 
 // Configuração de caminhos para o Docker
