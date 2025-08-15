@@ -1,52 +1,52 @@
-# Estágio de construção do frontend
-FROM node:22 AS frontend-builder
-WORKDIR /project/client
+# Etapa de construção (Build Stage)
+FROM node:22 AS build-stage
 
-# 1. Copia arquivos de dependência primeiro (otimização de cache)
-COPY client/package*.json ./
-COPY client/vite.config.ts ./
-
-# 2. Instala dependências com verificação
-RUN npm install || (echo "❌ Falha na instalação das dependências" && exit 1)
-
-# 3. Copia o restante do código fonte
-COPY client .
-
-# 4. Executa o build com verificação em etapas
-RUN echo "Iniciando build do frontend..." && \
-    npm run build || (echo "❌ Build script falhou" && exit 1) && \
-    echo "Verificando arquivos gerados..." && \
-    ls -la dist && \
-    if [ ! -f dist/index.html ]; then \
-      echo "❌ index.html não encontrado após build"; \
-      echo "Conteúdo do diretório dist:"; \
-      ls -la dist; \
-      exit 1; \
-    fi && \
-    echo "✅ Build do frontend concluído com sucesso"
-
-# Estágio de produção
-FROM node:22
+# Define o diretório de trabalho dentro do container
 WORKDIR /project
 
-# 1. Cria estrutura de diretórios
-RUN mkdir -p server/public
-
-# 2. Instala backend
+# Copia apenas os arquivos de dependência do servidor para aproveitar o cache
 COPY server/package*.json ./server/
+
+# Copia apenas os arquivos de dependência do cliente para aproveitar o cache
+COPY client/package*.json ./client/
+
+# Instala as dependências do servidor
 WORKDIR /project/server
+RUN npm install
+
+# Instala as dependências do cliente
+WORKDIR /project/client
+RUN npm install
+
+# Volta para o diretório raiz do projeto
+WORKDIR /project
+
+# Copia o restante do código da aplicação
+COPY . .
+
+# Constrói o frontend
+RUN npm run build --prefix client
+
+# Cria o diretório public no servidor e copia os arquivos construídos do cliente para lá
+RUN mkdir -p server/public && cp -r client/dist/* server/public/
+
+# Etapa final de produção (Production Stage)
+FROM node:22 AS production-stage
+
+# Define o diretório de trabalho dentro do container
+WORKDIR /project/server
+
+# Copia os arquivos de dependência do servidor da etapa de construção
+COPY --from=build-stage /project/server/package*.json ./
+
+# Instala apenas as dependências de produção do servidor
 RUN npm install --production
 
-# 3. Copia backend
-COPY server .
+# Copia o restante do código do servidor, incluindo o frontend construído
+COPY --from=build-stage /project/server/ ./
 
-# 4. Copia frontend construído
-COPY --from=frontend-builder /project/client/dist ./public
-
-# 5. Verificação final
-RUN echo "Verificando arquivos estáticos finais..." && \
-    ls -la public && \
-    [ -f public/index.html ] || (echo "❌ Arquivo index.html não encontrado" && exit 1)
-
+# Expõe a porta em que o servidor irá rodar
 EXPOSE 3000
-CMD ["node", "server.js"]
+
+# Comando para iniciar a aplicação
+CMD npm run start
