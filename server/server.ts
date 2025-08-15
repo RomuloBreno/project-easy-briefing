@@ -52,8 +52,8 @@ async function initializeApp() {
       await authController.register(req, res);
     } catch (error) {
       if (!res.headersSent) {
-        res.status(500).json({ 
-          error: 'Erro interno do servidor', 
+        res.status(500).json({
+          error: 'Erro interno do servidor',
           details: error instanceof Error ? error.message : 'Erro desconhecido'
         });
       }
@@ -90,12 +90,31 @@ async function initializeApp() {
     res.json({ message: 'API is running' });
   });
 
-  // --- Rota Curinga para o Frontend ---
+  // Configuração para servir arquivos estáticos
+  app.use(express.static(publicPath, {
+    // Força o MIME type correto para arquivos JS/CSS
+    setHeaders: (res, filePath) => {
+      if (filePath.endsWith('.js')) {
+        res.setHeader('Content-Type', 'application/javascript');
+      } else if (filePath.endsWith('.css')) {
+        res.setHeader('Content-Type', 'text/css');
+      }
+    }
+  }));
+
+  // Rota curinga para SPA
   app.get('*', (req, res) => {
     if (req.path.startsWith('/api')) {
       return res.status(404).json({ error: 'Recurso da API não encontrado.' });
     }
-    res.sendFile(path.join(publicPath, 'index.html'));
+
+    // Verifica se o arquivo existe antes de enviar
+    res.sendFile(path.join(publicPath, 'index.html'), (err) => {
+      if (err) {
+        console.error('Erro ao enviar index.html:', err);
+        res.status(500).send('Erro ao carregar a aplicação');
+      }
+    });
   });
 
   const PORT = process.env.PORT || 3000;
