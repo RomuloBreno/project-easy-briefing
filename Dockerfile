@@ -2,16 +2,15 @@
 FROM node:22
 WORKDIR /project
 
-# Copia e instala dependências do cliente
-COPY client/package*.json ./client/
-RUN cd client && npm install && npm run build
+RUN cd client
 
-WORKDIR /project/server
+RUN npm install && npm run build
 
-# Copia e instala dependências do servidor
-COPY server/package*.json ./server/
+RUN cd ..
+
 RUN cd server && npm install --production
 
 EXPOSE 3000
 # Comando para iniciar a aplicação
+
 CMD npm run start
