@@ -21,7 +21,7 @@ export class AuthController {
 
   async login(body: Request, res: Response): Promise<Response> {
     try {
-      const credentials: LoginDTO = body;
+      const credentials: LoginDTO = body.body;
       const token = await this.authService.login(credentials.email, credentials.password);
       return res.json({ token });
     } catch (error: unknown) {
