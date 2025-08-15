@@ -2,35 +2,51 @@
 FROM node:22 AS frontend-builder
 WORKDIR /project/client
 
-# 1. Copia primeiro apenas o necessário para instalação
+# 1. Copia arquivos de dependência primeiro (otimização de cache)
 COPY client/package*.json ./
-RUN npm install
+COPY client/vite.config.ts ./
 
-# 2. Copia o restante do código e executa o build
+# 2. Instala dependências com verificação
+RUN npm install || (echo "❌ Falha na instalação das dependências" && exit 1)
+
+# 3. Copia o restante do código fonte
 COPY client .
-RUN npm run build && \
+
+# 4. Executa o build com verificação em etapas
+RUN echo "Iniciando build do frontend..." && \
+    npm run build || (echo "❌ Build script falhou" && exit 1) && \
+    echo "Verificando arquivos gerados..." && \
     ls -la dist && \
-    [ -f dist/index.html ] || (echo "❌ Build do frontend falhou - index.html não encontrado" && exit 1)
+    if [ ! -f dist/index.html ]; then \
+      echo "❌ index.html não encontrado após build"; \
+      echo "Conteúdo do diretório dist:"; \
+      ls -la dist; \
+      exit 1; \
+    fi && \
+    echo "✅ Build do frontend concluído com sucesso"
 
 # Estágio de produção
 FROM node:22
 WORKDIR /project
 
-# 1. Instala apenas o backend
+# 1. Cria estrutura de diretórios
+RUN mkdir -p server/public
+
+# 2. Instala backend
 COPY server/package*.json ./server/
 WORKDIR /project/server
 RUN npm install --production
 
-# 2. Copia o backend
+# 3. Copia backend
 COPY server .
 
-# 3. Cria diretório public e copia o frontend
-RUN mkdir -p public
+# 4. Copia frontend construído
 COPY --from=frontend-builder /project/client/dist ./public
 
-# 4. Verificação final
-RUN ls -la public && \
-    [ -f public/index.html ] || (echo "❌ Arquivos do frontend não encontrados" && exit 1)
+# 5. Verificação final
+RUN echo "Verificando arquivos estáticos finais..." && \
+    ls -la public && \
+    [ -f public/index.html ] || (echo "❌ Arquivo index.html não encontrado" && exit 1)
 
 EXPOSE 3000
 CMD ["node", "server.js"]
