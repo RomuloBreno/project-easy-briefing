@@ -1,52 +1,36 @@
-# Etapa de construção (Build Stage)
+# Etapa de build do frontend
 FROM node:22 AS build-stage
 
-# Define o diretório de trabalho dentro do container
-WORKDIR /project
+WORKDIR /app
 
-# Copia apenas os arquivos de dependência do servidor para aproveitar o cache
-COPY server/package*.json ./server/
-
-# Copia apenas os arquivos de dependência do cliente para aproveitar o cache
+# Copia e instala dependências do cliente
 COPY client/package*.json ./client/
+RUN cd client && npm install
 
-# Instala as dependências do servidor
-WORKDIR /project/server
-RUN npm install
+# Copia e instala dependências do servidor
+COPY server/package*.json ./server/
+RUN cd server && npm install
 
-# Instala as dependências do cliente
-WORKDIR /project/client
-RUN npm install
-
-# Volta para o diretório raiz do projeto
-WORKDIR /project
-
-# Copia o restante do código da aplicação
+# Copia todo o restante do código
 COPY . .
 
-# Constrói o frontend
-RUN npm run build --prefix client
+# Build do frontend
+RUN cd client && npm run build
 
-# Cria o diretório public no servidor e copia os arquivos construídos do cliente para lá
+# Move o build do frontend para a pasta public do servidor
 RUN mkdir -p server/public && cp -r client/dist/* server/public/
 
-# Etapa final de produção (Production Stage)
+# Etapa final (produção)
 FROM node:22 AS production-stage
 
-# Define o diretório de trabalho dentro do container
-WORKDIR /project/server
+WORKDIR /app/server
 
-# Copia os arquivos de dependência do servidor da etapa de construção
-COPY --from=build-stage /project/server/package*.json ./
+# Copia o servidor com o build do cliente
+COPY --from=build-stage /app/server ./
 
-# Instala apenas as dependências de produção do servidor
+# Instala apenas dependências de produção
 RUN npm install --production
 
-# Copia o restante do código do servidor, incluindo o frontend construído
-COPY --from=build-stage /project/server/ ./
-
-# Expõe a porta em que o servidor irá rodar
 EXPOSE 3000
-
 # Comando para iniciar a aplicação
 CMD npm run start
