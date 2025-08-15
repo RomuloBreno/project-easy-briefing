@@ -11,7 +11,7 @@ export class AuthController {
 
   async register(body: Request, res: Response): Promise<Response> {
     try {
-      const dto: CreateUserDTO = body;
+      const dto: CreateUserDTO = body.body;
       const token = await this.authService.register(dto);
       return res.status(201).json({ token });
     } catch (error: unknown) {
