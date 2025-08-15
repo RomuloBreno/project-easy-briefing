@@ -1,7 +1,7 @@
 # Etapa de build do frontend
 FROM node:22 AS build-stage
 
-WORKDIR /app
+WORKDIR /project
 
 # Copia e instala dependências do cliente
 COPY client/package*.json ./client/
@@ -17,16 +17,13 @@ COPY . .
 # Build do frontend
 RUN cd client && npm run build
 
-# Move o build do frontend para a pasta public do servidor
-RUN mkdir -p server/public && cp -r client/dist/* server/public/
-
 # Etapa final (produção)
 FROM node:22 AS production-stage
 
-WORKDIR /app/server
+WORKDIR /project/server
 
 # Copia o servidor com o build do cliente
-COPY --from=build-stage /app/server ./
+COPY --from=build-stage /project/server ./
 
 # Instala apenas dependências de produção
 RUN npm install --production
