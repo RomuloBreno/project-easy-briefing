@@ -46,6 +46,13 @@ async function initializeApp() {
   const authService = new AuthService(userRepository);
   const authController = new AuthController(authService);
 
+
+  //TODO
+  //criar rotas para planos de assinatura
+  //criar rotas para pagamentos
+  //criar metodos no service para editar o coluna plano do usuário
+  //validar se o usuário tem plano ativo no metodo de autenticação
+  
   // --- Rotas da API ---
   app.post('/api/register', async (req, res) => {
     try {
@@ -86,9 +93,36 @@ async function initializeApp() {
     }
   });
 
+  app.get('/api/plan/:plan', async (req, res) => {
+   try {
+      const { plan } = req.params;
+      await authController.validPlan(plan, res);
+    } catch (error) {
+      if (!res.headersSent) {
+        res.status(500).json({
+          error: 'Erro interno do servidor',
+          details: error instanceof Error ? error.message : 'Erro desconhecido'
+        });
+      }
+    }
+  });
+  app.post('/api/purchase', async (req, res) => {
+   try {
+      await authController.setNewUserPlan(req, res);
+    } catch (error) {
+      if (!res.headersSent) {
+        res.status(500).json({
+          error: 'Erro interno do servidor',
+          details: error instanceof Error ? error.message : 'Erro desconhecido'
+        });
+      }
+    }
+  });
+
   app.get('/api/health', (req, res) => {
     res.json({ message: 'API is running' });
   });
+
 
   // Configuração para servir arquivos estáticos
   app.use(express.static(publicPath, {

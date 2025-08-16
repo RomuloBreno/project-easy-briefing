@@ -1,10 +1,11 @@
-import type { Db, WithId } from "mongodb";
+import type { Db, ObjectId, UpdateResult, WithId } from "mongodb";
 import 'dotenv/config';
 import { IUser} from "../interfaces/IUser.ts";
 import { CreateUserDTO } from '../DTO/CreateUserDTO.ts';
 import { LoginDTO } from '../DTO/LoginDTO.ts';
 import type { IUserRepository } from "../interfaces/IUserRepository.ts";
 import bcrypt from 'bcrypt';
+import { UserPlanDTO } from "../DTO/UserPlanDTO.ts";
 
 export class UserRepository implements IUserRepository {
   private readonly collectionName = 'users';
@@ -54,6 +55,20 @@ export class UserRepository implements IUserRepository {
       }
       throw error;
     }
+  }
+
+  async update(dto: UserPlanDTO): Promise<UpdateResult<IUser> | null> {
+      return this.db.collection<IUser>(this.collectionName)
+      .updateOne(
+        { email: dto.email },
+        { $set: { planId: dto.planId, paymentMethod: dto.paymentMethod } }
+    );
+  }
+
+  async findById(_id: ObjectId): Promise<WithId<IUser> | null> {
+    return this.db
+      .collection<IUser>(this.collectionName)
+      .findOne({ _id },{ projection: { passwordHash: 0 } } );
   }
 
   async findByEmail(email: string): Promise<WithId<IUser> | null> {

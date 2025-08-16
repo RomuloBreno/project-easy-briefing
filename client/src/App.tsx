@@ -6,14 +6,16 @@ import axios from 'axios';
 
 interface User {
     id: string;
-    name: string;
+    nameUser: string;
     email: string;
+    plan?: number;
 }
 
 function App() {
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [needLogin, setNeedLogin] = useState(false);
+    const [needPurchase, setNeedPurchase] = useState(true);
     const [tokenIsValid, settokenIsValid] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const API_URL = import.meta.env.VITE_API_URL || 'https://izy-briefing.up.railway.app/api';
@@ -23,9 +25,19 @@ function App() {
     }, [tokenIsValid]);
 
     useEffect(() => {
-    }, [user, needLogin]);
-    // URL da API definida no .env
+    }, [user, needLogin, needPurchase]);
 
+    useEffect(() => {
+    }, [needPurchase]);
+    
+    useEffect(() => {
+    }, []);
+
+
+    const handlerPurshaseClick = () => {
+        console.log('handlerPurshaseClick');
+        setNeedPurchase(!needPurchase ? true : false);
+    };
     const handlerButtonClick = () => {
         setNeedLogin(!needLogin ? true : false);
     };
@@ -47,7 +59,7 @@ function App() {
                         }
                         const userNew: User = {
                             id: user?.id?.toString() || '',
-                            name: user?.nameUser || '',
+                            nameUser: user?.nameUser || '',
                             email: user?.email || ''
                         };
                         setUser(userNew);
@@ -76,7 +88,7 @@ function App() {
             localStorage.setItem("token", user.token);
             const userNew: User = {
                 id: user?.id?.toString() || '',
-                name: user?.nameUser || '',
+                nameUser: user?.nameUser || '',
                 email: user?.email || ''
             };
             setUser(userNew);
@@ -98,7 +110,7 @@ function App() {
             localStorage.setItem("token", user.token); // Garantir que o token esteja presente
             const userNew: User = {
                 id: user?.id?.toString() || '',
-                name: user?.nameUser || '',
+                nameUser: user?.nameUser || '',
                 email: user?.email || ''
             };
             setUser(userNew);
@@ -116,6 +128,45 @@ function App() {
         setNeedLogin(true); // Redefinir o estado de login
     };
 
+    //TODO
+    //metodo de pagamento
+    //metodo para regitrar plano no usuário que espera o pagamento
+    const handlePurchase = async (value:number) => {
+        setIsLoading(true);
+        setError(null);
+
+        try {
+            const token = localStorage.getItem("token");
+            if (token) {
+                const response = await axios.post(`${API_URL}/purchase`, { 
+                    //mock
+                        email: "novo1@exemplo.com",
+                        paymentMethod: "pix",
+                        planId: user?.plan || '',
+                        plan: value || "1",
+                        }
+);
+                const userNew: User = {
+                    id: user?.id?.toString() || '',
+                    nameUser: user?.nameUser || '',
+                    email: user?.email || '',
+                    plan: response.data.token.plan
+                };
+                setUser(userNew);
+                setNeedPurchase(false);
+            } else {
+                setError('Token not found. Please log in again.');
+            }
+        } catch (err: any) {
+            setError(err.response?.data?.error || 'Purchase failed');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    //Compra
+    if(needPurchase === true) {
+        console.log('Shop');
+    }
     if (user !== null) {
         return <Dashboard user={user} onLogout={handleLogout} />;
     }
@@ -298,7 +349,7 @@ function App() {
                                         <li><i className="fas fa-check"></i> Detecção básica de lacunas</li>
                                         <li><i className="fas fa-check"></i> Exportação em PDF</li>
                                     </ul>
-                                    <a href="app.html" className="btn btn-outline btn-full">Clique para Começar</a>
+                                    <button onClick={handlerPurshaseClick} className="btn btn-outline btn-full">Clique para Começar</button>
                                 </div>
 
                                 <div className="pricing-card pricing-card-popular">
@@ -318,7 +369,7 @@ function App() {
                                         <li><i className="fas fa-check"></i> Histórico e controle de versões</li>
                                         <li><i className="fas fa-check"></i> Armazenamento expandido (até 10 GB)</li>
                                     </ul>
-                                    <a href="app.html" className="btn btn-primary btn-full">Clique para Começar</a>
+                                   <button onClick={handlerPurshaseClick} className="btn btn-outline btn-full">Clique para Começar</button>
                                 </div>
 
                                 <div className="pricing-card">
@@ -337,7 +388,7 @@ function App() {
                                         <li><i className="fas fa-check"></i> Gerente de conta dedicado</li>
                                         <li><i className="fas fa-check"></i> SLA com suporte 24/7</li>
                                     </ul>
-                                    <a href="app.html" className="btn btn-outline btn-full">Clique para Começar</a>
+                                    <button onClick={handlerPurshaseClick} className="btn btn-outline btn-full">Clique para Começar</button>
                                 </div>
                             </div>
                         </div>
