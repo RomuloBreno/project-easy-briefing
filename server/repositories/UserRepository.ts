@@ -1,11 +1,13 @@
-import type { Db, ObjectId, UpdateResult, WithId } from "mongodb";
+// src/repositories/UserRepository.ts
+import { Db, ObjectId } from "mongodb";
 import 'dotenv/config';
-import { IUser} from "../interfaces/IUser.ts";
 import { CreateUserDTO } from '../DTO/CreateUserDTO.ts';
-import { LoginDTO } from '../DTO/LoginDTO.ts';
 import type { IUserRepository } from "../interfaces/IUserRepository.ts";
 import bcrypt from 'bcrypt';
-import { UserPlanDTO } from "../DTO/UserPlanDTO.ts";
+import { User } from "../model/User.ts";
+
+import type { IUser } from "../interfaces/IUser.ts";
+import { UserRequest } from "../model/UserRequest.ts";
 
 export class UserRepository implements IUserRepository {
   private readonly collectionName = 'users';
@@ -29,70 +31,91 @@ export class UserRepository implements IUserRepository {
     }
   }
 
-  async create(dto: CreateUserDTO): Promise<string> {
-    try {
-      const passwordHash = await this.hashPassword(dto.password);
-      
-      const user: IUser = {
-        nameUser: dto.nameUser,
-        email: dto.email,
-        passwordHash,
-        createOn: new Date(),
-      };
+  async create(dto: IUser, password:string): Promise<User> {
+    const passwordHash = await this.hashPassword(password);
+    const user: IUser = {
+      nameUser: dto.nameUser,
+      email: dto.email,
+      passwordHash,
+      createOn: new Date(),
+      plan: 0,
+      planId: '',
+      isVerified: false
+    };
 
-      const result = await this.db
-        .collection<IUser>(this.collectionName)
-        .insertOne(user);
-
-      if (!result.acknowledged) {
-        throw new Error('Falha ao criar usuário');
-      }
-
-      return result.insertedId.toString();
-    } catch (error) {
-      if (error instanceof Error && error.message.includes('duplicate key')) {
-        throw new Error('Email já está em uso');
-      }
-      throw error;
+    const result = await this.db.collection<IUser>(this.collectionName).insertOne(user);
+    return result as unknown as User;
+  }
+  
+  
+  async updateAuthenticationEmail(email:string): Promise<User | null> {
+         const user = await this.db.collection<IUser>(this.collectionName).findOne({email:email})
+         if(!user)
+          return null
+         const result = await this.db.collection<IUser>(this.collectionName).updateOne(
+          {email:email},
+          {$set: {isVerified: true}});
+          return result as unknown as User;
     }
+
+  async update(user: Partial<User>): Promise<User | null> {
+    if (!user.email) return null;
+
+    const updateResult = await this.db
+      .collection<User>(this.collectionName)
+      .findOneAndUpdate(
+        { email: user.email },
+        { $set: user },
+        { returnDocument: 'after' }
+      );
+
+    return updateResult as unknown as User | null;
   }
 
-  async update(dto: UserPlanDTO): Promise<UpdateResult<IUser> | null> {
-      return this.db.collection<IUser>(this.collectionName)
-      .updateOne(
-        { email: dto.email },
-        { $set: { planId: dto.planId, paymentMethod: dto.paymentMethod } }
+  async updatePlan(dto: User): Promise<User | null> {
+    const result = await this.db.collection<User>(this.collectionName).findOneAndUpdate(
+      { email: dto.email },
+      { $set: { planId: dto.planId, paymentMethod: dto.paymentMethod } },
+      { returnDocument: 'after' }
     );
+
+    return result as unknown as User | null;
+  }
+    
+  async findById(id: string): Promise<User | null> {
+    const result = await this.db.collection<User>(this.collectionName).findOne(
+      { _id: new ObjectId(id) },
+      { projection: { passwordHash: 0 } }
+    );
+
+    return result as unknown as User | null;
   }
 
-  async findById(_id: ObjectId): Promise<WithId<IUser> | null> {
-    return this.db
-      .collection<IUser>(this.collectionName)
-      .findOne({ _id },{ projection: { passwordHash: 0 } } );
+  async findByEmail(email: string): Promise<User | null> {
+    const result = await this.db.collection<User>(this.collectionName).findOne(
+      { email },
+      { projection: { passwordHash: 0 } }
+    );
+
+    return result as unknown as User | null;
   }
 
-  async findByEmail(email: string): Promise<WithId<IUser> | null> {
-    return this.db
-      .collection<IUser>(this.collectionName)
-      .findOne({ email },{ projection: { passwordHash: 0 } } );
-  }
-  async findByEmailToLogin(email: string): Promise<WithId<IUser> | null> {
-    return this.db
-      .collection<IUser>(this.collectionName)
-      .findOne({ email });
+  async findByEmailToLogin(email: string): Promise<User | null> {
+    const result = await this.db.collection<User>(this.collectionName).findOne({ email });
+    return result as unknown as User | null;
   }
 
-  async list(): Promise<WithId<IUser>[]> {
-    return this.db
-      .collection<IUser>(this.collectionName)
-      .find({ projection: { passwordHash: 0 } })
+  async list(): Promise<User[]> {
+    const results = await this.db.collection<User>(this.collectionName)
+      .find({}, { projection: { passwordHash: 0 } })
       .toArray();
+
+    return results as unknown as User[];
   }
 
   async verifyPassword(email: string, password: string): Promise<boolean> {
     const user = await this.findByEmailToLogin(email);
     if (!user) return false;
-    
     return bcrypt.compare(password, user.passwordHash);
   }
 

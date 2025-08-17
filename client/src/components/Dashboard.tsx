@@ -1,9 +1,20 @@
+import { useState } from "react";
+import { ProfileForm } from "./ProfileForm";
+import { sendEmail } from "../api";
+
 interface DashboardProps {
-  user: { email: string };
+  user: {
+    nameUser: string;
+    email: string;
+    plan?: number;
+    PlanId?: boolean;
+    isVerified?:boolean
+  } | null;
   onLogout: () => void;
-  
+
 }
-export function Dashboard({ user, onLogout }: DashboardProps) {
+export function Dashboard({ user, onLogout}: DashboardProps) {
+  const [editProfile, setEditProfile] = useState(Boolean)
   if (!user || !user.email) {
     return (
       <div className="text-center mt-10">
@@ -11,10 +22,44 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
       </div>
     );
   }
+  const [selectedOption, setSelectedOption] = useState('');
+
+  const handleSelectChange = (event: any) => {
+    setSelectedOption(event?.target?.value);
+  };
+  const handleChangeProfile = () => {
+    setEditProfile(!editProfile ? true: false);
+  };
+
+  const handleButtonNewEmail = async () =>{
+      sendEmail(user.email, user.nameUser)
+  }
+
+   if (editProfile) {
+        return <ProfileForm onCancel={() => handleChangeProfile()} />;
+    }
 
   return (
     <>
       {/* Header */}
+        { !user?.isVerified &&
+                    <span
+                      style={{
+                        backgroundColor: '#8b7575ff',
+                        color: 'rgba(0, 0, 0, 0.31)',
+                        border: '1px solid #8b7575ff',
+                        padding: '10px 15px',
+                        borderRadius: '5px',
+                        marginTop: '10px',
+                        display: 'block', // Para que ele ocupe a largura total
+                        fontSize: '14px'
+                      }}
+                    >
+                      Faça a Autenticação por email e valide sua conta 
+
+                      <button onClick={handleButtonNewEmail}>Enviar novo email</button>
+                    </span>
+                   }
       <header className="header">
         <nav className="nav container">
           <div className="nav-brand">
@@ -51,6 +96,8 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
           <div className="nav-user">
             <span className="user-name">Pronto para continuar?</span>
             <button onClick={onLogout} className="btn btn-outline btn-sm">Sair</button>
+            <button onClick={handleChangeProfile} className="btn btn-sm">Perfil</button>
+
           </div>
           <div className="nav-toggle">
             <i className="fas fa-bars"></i>
@@ -98,17 +145,70 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
 
                   {/* Client Name */}
                   <div className="form-group">
-                    <label htmlFor="client-name" className="form-label">
-                      Nome do Cliente
+                    <label htmlFor="prompt-manipulation" className="form-label">
+                      Seu Prompt de manipulação 
                     </label>
-                    <input
-                      type="text"
-                      id="client-name"
-                      name="client-name"
+                    <textarea
+                      id="prompt-manipulation"
+                      name="prompt-manipulation"
                       className="form-input"
-                      placeholder="Enter client name..."
+                      placeholder="Digite Seu Prompt de manipulação aqui..."
                       required
-                    />
+                      disabled={!user?.PlanId && user?.plan == 0}
+                    /> { !user?.PlanId && user?.plan == 0 &&
+                    <span
+                      style={{
+                        backgroundColor: '#ffdddd',
+                        color: 'rgba(0, 0, 0, 0.31)',
+                        border: '1px solid #ffdddd',
+                        padding: '10px 15px',
+                        borderRadius: '5px',
+                        marginTop: '10px',
+                        display: 'block', // Para que ele ocupe a largura total
+                        fontSize: '14px'
+                      }}
+                    >
+                      Assine o plano <strong>PRO</strong> para acessar mais recursos e análises avançadas!
+                    </span>
+                   }
+                  </div>
+
+                  {/* Dropdown com o mesmo estilo */}
+                  <div className="form-group">
+                    <label htmlFor="plan-select" className="form-label">
+                      Selecione o Nicho
+                    </label>
+                    <select
+                      id="plan-select"
+                      name="plan-select"
+                      className="form-input"
+                      value={selectedOption}
+                      onChange={handleSelectChange}
+                      required
+                    disabled={!user?.PlanId && user?.plan == 0}
+                    >
+                      <option value="" disabled>Selecione uma opção...</option>
+                      <option value="001">Educaçao</option>
+                      <option value="002">Financeiro</option>
+                      <option value="003">Industrial</option>
+                      <option value="003">Audio/Visual</option>
+                    </select>
+                     { !user?.PlanId && user?.plan == 0 &&
+                    <span
+                      style={{
+                        backgroundColor: '#ffdddd',
+                        color: 'rgba(0, 0, 0, 0.31)',
+                        border: '1px solid #ffdddd',
+                        padding: '10px 15px',
+                        borderRadius: '5px',
+                        marginTop: '10px',
+                        display: 'block', // Para que ele ocupe a largura total
+                        fontSize: '14px'
+                      }}
+                    >
+                      Assine o plano <strong>PRO</strong> para acessar mais recursos e análises avançadas!
+                    </span>
+                   }
                   </div>
 
                   {/* Briefing Content */}
@@ -120,7 +220,7 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
                       id="briefing-content"
                       name="briefing-content"
                       className="form-textarea"
-                      placeholder="Paste or type your project briefing here. Include all available information about the project requirements, objectives, timeline, budget, and any other relevant details..."
+                      placeholder=""
                       rows={12}
                       required
                     />
@@ -160,7 +260,7 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
                   {/* Form Actions */}
                   <div className="form-actions">
                     <button type="submit" className="btn btn-primary btn-lg">
-                      <i className="fas fa-magic"></i> Analisar Briefing 
+                      <i className="fas fa-magic"></i> Analisar Briefing
                     </button>
                     <button type="reset" className="btn btn-outline">
                       <i className="fas fa-redo"></i> Limpar

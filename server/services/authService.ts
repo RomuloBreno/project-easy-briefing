@@ -1,151 +1,174 @@
 // services/AuthService.ts
 import jwt from 'jsonwebtoken';
-import { UserRepository } from "../repositories/UserRepository.ts";
-import { CreateUserDTO } from '../DTO/CreateUserDTO.ts';
-import { UserPlanDTO } from '../DTO/UserPlanDTO.ts';
-import { LoginDTO } from '../DTO/LoginDTO.ts';
-import { IUser } from '../interfaces/IUser.ts';
+import type { IUserRepository } from "../interfaces/IUserRepository.ts";
+import type { CreateUserDTO } from '../DTO/CreateUserDTO.ts';
+import type { IUser } from '../interfaces/IUser.ts';
+import { User } from '../model/User.ts'; // Importa a classe de modelo de negócio
+import { UserResponse } from '../model/UserResponse.ts';
+import { sendWelcomeEmail } from './emailService.ts';
 import { ObjectId } from 'mongodb';
+import { UserRequest } from '../model/UserRequest.ts';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'secret';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '1d';
+const FRONT_URL = process.env.FRONT_URL || '';
 
 export class AuthService {
-  public userRepository: UserRepository;
+    public userRepository: IUserRepository;
 
-  constructor(userRepository: UserRepository) {
-    this.userRepository = userRepository;
-  }
-
-  async purchase(dto: UserPlanDTO) : Promise<string | null> {
-    const { email, paymentMethod, plan } = dto;
-    if (!email || !paymentMethod) {
-      return null;
+    constructor(userRepository: IUserRepository) {
+        this.userRepository = userRepository;
     }
 
-    const validPayment = true; // Simulação de pagamento bem-sucedido
-    if (!validPayment) {
-      return null;
+    async findByEmail(email: string): Promise<User | null> {
+        return this.userRepository.findByEmail(email);
+    }
+    // Assumindo que este é o método na sua classe AuthService
+    // Ele recebe um UserRequest do frontend
+    async register(dto: CreateUserDTO): Promise<UserResponse> {
+        const existingUser = await this.userRepository.findByEmail(dto.email);
+        if (existingUser) {
+            throw new Error('Email já está em uso');
+        }
+
+        // Cria um DTO para a camada de serviço/repositório
+        // A senha é separada aqui para ser tratada
+        const id = new ObjectId()
+        const token = this.generateToken(id.toString(), dto.email);
+        const userToCreate: IUser = {
+            _id:id,
+            nameUser: dto.nameUser,
+            email: dto.email,
+            passwordHash: '',
+            plan: 0,
+            verificationCode:token
+        };
+        // Chama o método create do repositório
+        // O repositório ou o serviço de autenticação cuidará do hash da senha
+        const userId = await this.userRepository.create(userToCreate, dto.password);
+
+        if (!userId) {
+            throw new Error('Falha ao criar o usuário.');
+        }
+        await this.sendEmail(dto, token)
+
+        // Retorna o token para o front-end
+        return {
+            "token": token,
+            "email": userId?.email,
+            "nameUser": userId?.nameUser,
+            "plan": userId.plan,
+            "isVerified": userId.isVerified
+        };
     }
 
-    const resultado = `${plan}${email}${Date.now()}`;
-    return resultado;
-  }
-
-  validPlan(resultado: string): UserPlanDTO | null {
-    // Como sabemos que validPayment é sempre true (simulação),
-    // podemos assumir que o primeiro caractere é 'true'
-    const validPayment = resultado.startsWith("true");
-
-    // Remover o 'true' inicial
-    const resto = resultado.replace(/^true/, "");
-
-    // O email é uma string, então precisamos saber até onde ele vai.
-    // Para simplificar, podemos assumir que o `plan` é um número pequeno (ex: 1, 2, 3)
-    // e o restante será o timestamp (Date.now()).
-
-    // Vamos procurar a última parte (timestamp em milissegundos → número grande)
-    const timestampMatch = resto.match(/\d{10,}$/); // pega número de pelo menos 10 dígitos
-    if (!timestampMatch) return null;
-
-    const timestamp = Number(timestampMatch[0]);
-
-    // Removendo timestamp do resto
-    const semTimestamp = resto.replace(timestampMatch[0], "");
-
-    // O plan será o último dígito antes do timestamp
-    const email = semTimestamp.slice(1);
-
-    // O restante é o email
-    const plan = Number(semTimestamp.slice(0, 1));
-
-    return {
-      validPayment,
-      email,
-      plan,
-      timestamp: new Date(timestamp),
-    };
-  }
-
-  async setNewUserPlan(dto: UserPlanDTO): Promise<UserPlanDTO | null> {
-    const existingUser = await this.userRepository.findByEmail(dto.email);
-    if (!existingUser) {
-      throw new Error('Usuário não existente');
-    }
-    if (existingUser != null && existingUser?.planId == dto.planId) {  
-      throw new Error('Já existe um plano deste ativo para este usuário');
+    async update(user: User): Promise<User | null> {
+        return this.userRepository.update(user);
     }
 
-    const purchase = await this.purchase(dto);
+    // Método que cuida da lógica de validação e atualização do plano
+    async updateUserPlan(user: User): Promise<User | null> {
+        // Verifica se o plano do usuário é válido (chamada a um serviço externo)
+        const isPlanValid = await user.validPlan();
 
-    if (!purchase || purchase === null) {
-      throw new Error('Erro no processo de compra');
+        if (!isPlanValid) {
+            // Se o plano não for válido, inicie um novo processo de compra
+            // Em uma arquitetura de microserviços, isso seria uma chamada para um serviço de pagamento
+            const newPurchaseId = await this.purchase(user);
+
+            if (!newPurchaseId) {
+                throw new Error('Erro no processo de compra');
+            }
+
+            // Atualiza o usuário no banco de dados com o novo plano
+            user.planId = newPurchaseId !== user.planId ? newPurchaseId : user.planId;
+            const updatedUser = await this.userRepository.updatePlan(user);
+
+            if (!updatedUser) {
+                throw new Error('Falha ao atualizar plano do usuário.');
+            }
+
+            return updatedUser
+        }
+
+        return user;
+    }
+    async purchase(dto: any): Promise<string> {
+        if (!dto.email) {
+            return '';
+        }
+        // Simulação de chamada de API para processar o pagamento e gerar um ID
+        const paymentId = `mercadopago_${Date.now()}`;
+        return paymentId;
+    }
+    async login(email: string, password: string): Promise<UserResponse | null> {
+        const user: User | null = await this.userRepository.findByEmail(email);
+        if (!user) {
+            throw new Error('Credenciais inválidas');
+        }
+
+        const isValid = await this.userRepository.verifyPassword(user.email, password);
+        if (!isValid) {
+            throw new Error('Credenciais inválidas');
+        }
+
+        // Delega a validação e atualização do plano para a classe User
+        const validPlan = await new User(user).validPlan()
+
+        if (!user?._id?.toString()) {
+            throw new Error('ID do usuário não encontrado.');
+        }
+        const token = this.generateToken(user?._id?.toString(), user?.email)
+
+        return {
+            "token": token,
+            "email": user?.email,
+            "nameUser": user?.nameUser,
+            "planId": validPlan,
+            "plan": user.plan,
+            "isVerified": user.isVerified
+        };
     }
 
-    dto.planId = purchase;
-    const userUpdate = await this.userRepository.update(dto);
-    if (!userUpdate || userUpdate === null) {
-      throw new Error('Falha ao atualizar plano do usuário');
+    private generateToken(userId: string, email: string): string {
+        return jwt.sign(
+            { id: userId, email },
+            JWT_SECRET,
+            { expiresIn: JWT_EXPIRES_IN }
+        );
     }
 
-    // const userId = await this.userRepository.findById(userUpdate?.upsertedId || new ObjectId());
-    return {
-      "email": dto.email,
-      "planId": dto.planId,
+    async validToken(token: string): Promise<UserResponse | null> {
+        try {
+            const decoded = jwt.verify(token, JWT_SECRET);
+            let userbyTokenEmail = await this.userRepository.findByEmail(decoded.email);
 
-    };
-  }
+            if (!userbyTokenEmail) {
+                throw new Error('Usuário não encontrado');
+            }
 
-  async register(dto: CreateUserDTO){
-    const existingUser = await this.userRepository.findByEmail(dto.email);
-    if (existingUser) {
-      throw new Error('Email já está em uso');
+            // Delega a validação e atualização do plano para a classe User
+            const validPlan = await new User(userbyTokenEmail).validPlan();
+
+            if (!decoded && decoded.email == userbyTokenEmail.email )
+                throw new Error('Token Rejeitado');
+
+            return {
+                "email": userbyTokenEmail?.email,
+                "nameUser": userbyTokenEmail?.nameUser,
+                "planId": validPlan,
+                "plan": userbyTokenEmail.plan,
+                "isVerified": userbyTokenEmail.isVerified
+            };
+        } catch (error) {
+            throw new Error('Token Expirado');
+        }
     }
+        async sendEmail(dto: UserRequest, token: string): Promise<void> {
+            // Gera o token após a criação bem-sucedida
+            const linkGenerate = (`${process.env.FRONT_URL}/check/token=${token}`);
+            // Envio do e-mail
+            await sendWelcomeEmail(dto.email, dto.nameUser, linkGenerate);
 
-    const userId = await this.userRepository.create(dto);
-    return {
-      "token": this.generateToken(userId, dto.email),
-      "email": dto.email,
-      "nameUser": dto.nameUser
-    };
-  }
-
-  async login(email: string, password: string){
-    const user = await this.userRepository.findByEmail(email);
-    if (!user) {
-      throw new Error('Credenciais inválidas');
-    }
-
-    const isValid = await this.userRepository.verifyPassword(user.email, password);
-    if (!isValid) {
-      throw new Error('Credenciais inválidas');
-    }
-
-    if (!user._id?.toString())
-      return null;
-    return {
-      "token": this.generateToken(user._id?.toString(), user.email),
-      "userId": user._id?.toString(),
-      "email": user.email,
-      "nameUser": user.nameUser
-    };
-  }
-
-  private generateToken(userId: string, email: string): string {
-    return jwt.sign(
-      { id: userId, email },
-      JWT_SECRET,
-      { expiresIn: JWT_EXPIRES_IN }
-    );
-  }
-
-  async validToken(token: string): Promise<IUser | null> {
-    try {
-      const decoded = jwt.verify(token, JWT_SECRET);
-      decoded;
-      return this.userRepository.findByEmail(decoded.email);
-    } catch (error) {
-      throw new Error('Token inválido');
-    }
-  }
+        }
 }
