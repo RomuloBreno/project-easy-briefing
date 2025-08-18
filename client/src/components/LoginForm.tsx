@@ -132,7 +132,7 @@ function RegisterForm({
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [passwordRepet, setPasswordRepet] = useState("");
+  const [passwordRepet] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   const [nameError, setNameError] = useState("");
@@ -145,6 +145,16 @@ function RegisterForm({
     setNameError("");
     return true;
   };
+
+  const setPasswordRepet = (value:string)=>{
+     if (!value) return setPasswordError("A senha é obrigatória"), false;
+    if (value.length < 6)
+      return setPasswordError("A senha deve ter pelo menos 6 caracteres"), false;
+    if (value !== passwordRepet)
+      return setPasswordError("As senhas devem ser iguais"), false;
+    setPasswordError("");
+    return true;
+  }
 
   const validateEmail = (value: string) => {
     if (!value) return setEmailError("O e-mail é obrigatório"), false;
@@ -160,15 +170,6 @@ function RegisterForm({
       return setPasswordError("A senha deve ter pelo menos 6 caracteres"), false;
     setPasswordError("");
     setPasswordRepet(value);
-    return true;
-  };
-  const validatePasswordRepet = (value: string) => {
-    if (!value) return setPasswordError("A senha é obrigatória"), false;
-    if (value.length < 6)
-      return setPasswordError("A senha deve ter pelo menos 6 caracteres"), false;
-    if (value !== passwordRepet)
-      return setPasswordError("As senhas devem ser iguais"), false;
-    setPasswordError("");
     return true;
   };
 
@@ -215,7 +216,7 @@ function RegisterForm({
           label="Senha"
           value={password}
           onChange={setPassword}
-          onBlur={() => validatePasswordRepet(password)}
+          onBlur={() => validatePassword(password)}
           error={passwordError}
           showPassword={showPassword}
           toggleShowPassword={() => setShowPassword(!showPassword)}
