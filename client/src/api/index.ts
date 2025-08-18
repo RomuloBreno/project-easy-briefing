@@ -3,6 +3,18 @@
 import axiosInstance from './axiosInstance';
 import { User } from '../types/user';
 
+
+// NOVO: Função para enviar um briefing para a IA
+export const sendBriefingToAiApi = async (briefingText: any): Promise<string> => {
+    try {
+        const response = await axiosInstance.post('/ai/briefing', { briefingText });
+        // Supondo que o backend retorna a resposta da IA em um campo 'response'
+        return response.data.response; 
+    } catch (error: any) {
+        throw new Error(error.response?.data?.error || 'Falha ao enviar o briefing para a IA.');
+    }
+};
+
 // Nova função para atualizar o nome do usuário
 export const updateProfileApi = async (nameUser: string): Promise<User> => {
     try {

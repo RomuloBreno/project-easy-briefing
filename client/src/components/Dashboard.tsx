@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ProfileForm } from "./ProfileForm";
-import { sendEmail } from "../api";
+import { sendBriefingToAiApi, sendEmail } from "../api";
 
 interface DashboardProps {
   user: {
@@ -34,7 +34,54 @@ export function Dashboard({ user, onLogout}: DashboardProps) {
   const handleButtonNewEmail = async () =>{
       sendEmail(user.email, user.nameUser)
   }
+      // ESTADOS DO FORMULÁRIO
+    const [projectTitle, setProjectTitle] = useState('');
+    const [promptManipulation, setPromptManipulation] = useState('');
+    const [selectedNiche, setSelectedNiche] = useState('');
+    const [briefingContent, setBriefingContent] = useState('');
 
+    // ESTADOS DA IA
+    const [aiResponse, setAiResponse] = useState<string | null>(null);
+    const [isAiLoading, setIsAiLoading] = useState(false);
+    const [aiError, setAiError] = useState<string | null>(null);
+
+    const isFreePlan = user?.plan === 0;
+
+    const handleFormSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        // Combina todos os dados em um único objeto
+        const briefingData = {
+            projectTitle,
+            promptManipulation: isFreePlan ? '' : promptManipulation,
+            niche: isFreePlan ? '' : selectedNiche,
+            briefingContent,
+        };
+
+        // Reseta o estado da resposta e erro
+        setAiResponse(null);
+        setAiError(null);
+        setIsAiLoading(true);
+
+        try {
+            const response = await sendBriefingToAiApi(briefingData);
+            setAiResponse(response);
+        } catch (err: any) {
+            setAiError(err.message);
+        } finally {
+            setIsAiLoading(false);
+        }
+    };
+    
+    // Opcional: Função para limpar o formulário
+    const handleFormReset = () => {
+        setProjectTitle('');
+        setPromptManipulation('');
+        setSelectedNiche('');
+        setBriefingContent('');
+        setAiResponse(null);
+        setAiError(null);
+    };
    if (editProfile) {
         return <ProfileForm onCancel={() => handleChangeProfile()} />;
     }
@@ -80,247 +127,218 @@ export function Dashboard({ user, onLogout}: DashboardProps) {
       </header>
 
       {/* Main App Content */}
-      <main className="app-main">
-        <div className="container">
-          <div className="app-header">
-            <h1 className="app-title fade-in">Briefing Organizer</h1>
-            <p className="app-subtitle fade-in">
-              Organize e analise seus briefings com Inteligência Artificial
-
-            </p>
-          </div>
-
-          <div className="app-content">
-            {/* Left Section: Input Form */}
-            <div className="app-section app-input fade-in">
-              <div className="section-card">
-                <div className="section-header">
-                  <h2 className="section-title">
-                    <i className="fas fa-edit"></i> Detalhes do Projeto
-                  </h2>
-                  <p className="section-subtitle">Insira as informações essenciais do seu briefing para análise inteligente.</p>
+    <main className="app-main">
+            <div className="container">
+                <div className="app-header">
+                    <h1 className="app-title fade-in">Briefing Organizer</h1>
+                    <p className="app-subtitle fade-in">
+                        Organize e analise seus briefings com Inteligência Artificial
+                    </p>
                 </div>
 
-                <form className="briefing-form">
-                  {/* Project Title */}
-                  <div className="form-group">
-                    <label htmlFor="project-title" className="form-label">
-                      Título do Projeto
-                    </label>
-                    <input
-                      type="text"
-                      id="project-title"
-                      name="project-title"
-                      className="form-input"
-                      placeholder="Coloque o titulo do seu projeto aqui..."
-                      required
-                    />
-                  </div>
+                <div className="app-content">
+                    {/* Left Section: Input Form */}
+                    <div className="app-section app-input fade-in">
+                        <div className="section-card">
+                            <div className="section-header">
+                                <h2 className="section-title">
+                                    <i className="fas fa-edit"></i> Detalhes do Projeto
+                                </h2>
+                                <p className="section-subtitle">Insira as informações essenciais do seu briefing para análise inteligente.</p>
+                            </div>
 
-                  {/* Client Name */}
-                  <div className="form-group">
-                    <label htmlFor="prompt-manipulation" className="form-label">
-                      Seu Prompt de manipulação 
-                    </label>
-                    <textarea
-                      id="prompt-manipulation"
-                      name="prompt-manipulation"
-                      className="form-input"
-                      placeholder="Digite Seu Prompt de manipulação aqui..."
-                      required
-                      disabled={!user?.PlanId && user?.plan == 0}
-                    /> { !user?.PlanId && user?.plan == 0 &&
-                    <span
-                      style={{
-                        backgroundColor: '#ffdddd',
-                        color: 'rgba(0, 0, 0, 0.31)',
-                        border: '1px solid #ffdddd',
-                        padding: '10px 15px',
-                        borderRadius: '5px',
-                        marginTop: '10px',
-                        display: 'block', // Para que ele ocupe a largura total
-                        fontSize: '14px'
-                      }}
-                    >
-                      Assine o plano <strong>PRO</strong> para acessar mais recursos e análises avançadas!
-                    </span>
-                   }
-                  </div>
+                            <form className="briefing-form" onSubmit={handleFormSubmit}>
+                                {/* Project Title */}
+                                <div className="form-group">
+                                    <label htmlFor="project-title" className="form-label">
+                                        Título do Projeto
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id="project-title"
+                                        name="project-title"
+                                        className="form-input"
+                                        placeholder="Coloque o titulo do seu projeto aqui..."
+                                        value={projectTitle}
+                                        onChange={(e) => setProjectTitle(e.target.value)}
+                                        required
+                                    />
+                                </div>
 
-                  {/* Dropdown com o mesmo estilo */}
-                  <div className="form-group">
-                    <label htmlFor="plan-select" className="form-label">
-                      Selecione o Nicho
-                    </label>
-                    <select
-                      id="plan-select"
-                      name="plan-select"
-                      className="form-input"
-                      value={selectedOption}
-                      onChange={handleSelectChange}
-                      required
-                    disabled={!user?.PlanId && user?.plan == 0}
-                    >
-                      <option value="" disabled>Selecione uma opção...</option>
-                      <option value="001">Educaçao</option>
-                      <option value="002">Financeiro</option>
-                      <option value="003">Industrial</option>
-                      <option value="003">Audio/Visual</option>
-                    </select>
-                     { !user?.PlanId && user?.plan == 0 &&
-                    <span
-                      style={{
-                        backgroundColor: '#ffdddd',
-                        color: 'rgba(0, 0, 0, 0.31)',
-                        border: '1px solid #ffdddd',
-                        padding: '10px 15px',
-                        borderRadius: '5px',
-                        marginTop: '10px',
-                        display: 'block', // Para que ele ocupe a largura total
-                        fontSize: '14px'
-                      }}
-                    >
-                      Assine o plano <strong>PRO</strong> para acessar mais recursos e análises avançadas!
-                    </span>
-                   }
-                  </div>
+                                {/* Prompt Manipulation */}
+                                <div className="form-group">
+                                    <label htmlFor="prompt-manipulation" className="form-label">
+                                        Seu Prompt de manipulação 
+                                    </label>
+                                    <textarea
+                                        id="prompt-manipulation"
+                                        name="prompt-manipulation"
+                                        className="form-input"
+                                        placeholder="Digite Seu Prompt de manipulação aqui..."
+                                        value={promptManipulation}
+                                        onChange={(e) => setPromptManipulation(e.target.value)}
+                                        required
+                                        disabled={isFreePlan}
+                                    />
+                                    {isFreePlan &&
+                                        <span className="form-hint-pro">
+                                            Assine o plano <strong>PRO</strong> para acessar mais recursos e análises avançadas!
+                                        </span>
+                                    }
+                                </div>
 
-                  {/* Briefing Content */}
-                  <div className="form-group">
-                    <label htmlFor="briefing-content" className="form-label">
-                      Conteúdo do Briefing
-                    </label>
-                    <textarea
-                      id="briefing-content"
-                      name="briefing-content"
-                      className="form-textarea"
-                      placeholder=""
-                      rows={12}
-                      required
-                    />
-                    <div className="form-help">
-                      <span className="form-help-text">
-                        <i className="fas fa-info-circle"></i> Inclua objetivos, prazos, orçamento e requisitos para resultados mais precisos.
+                                {/* Niche Dropdown */}
+                                <div className="form-group">
+                                    <label htmlFor="plan-select" className="form-label">
+                                        Selecione o Nicho
+                                    </label>
+                                    <select
+                                        id="plan-select"
+                                        name="plan-select"
+                                        className="form-input"
+                                        value={selectedNiche}
+                                        onChange={handleSelectChange}
+                                        required
+                                        disabled={isFreePlan}
+                                    >
+                                        <option value="" disabled>Selecione uma opção...</option>
+                                        <option value="Educação">Educaçao</option>
+                                        <option value="Financeiro">Financeiro</option>
+                                        <option value="Industrial">Industrial</option>
+                                        <option value="Audio/Visual">Audio/Visual</option>
+                                    </select>
+                                    {isFreePlan &&
+                                        <span className="form-hint-pro">
+                                            Assine o plano <strong>PRO</strong> para acessar mais recursos e análises avançadas!
+                                        </span>
+                                    }
+                                </div>
 
+                                {/* Briefing Content */}
+                                <div className="form-group">
+                                    <label htmlFor="briefing-content" className="form-label">
+                                        Conteúdo do Briefing
+                                    </label>
+                                    <textarea
+                                        id="briefing-content"
+                                        name="briefing-content"
+                                        className="form-textarea"
+                                        value={briefingContent}
+                                        onChange={(e) => setBriefingContent(e.target.value)}
+                                        rows={12}
+                                        required
+                                    />
+                                    <div className="form-help">
+                                        <span className="form-help-text">
+                                            <i className="fas fa-info-circle"></i> Inclua objetivos, prazos, orçamento e requisitos para resultados mais precisos.
+                                        </span>
+                                    </div>
+                                </div>
 
-                      </span>
+                                {/* File Upload - Lógica mais avançada, deixada como está */}
+                                <div className="form-group">
+                                    <label htmlFor="file-upload" className="form-label">
+                                        Arquivos Adicionais
+                                    </label>
+                                    <div className="file-upload-area">
+                                        <input
+                                            type="file"
+                                            id="file-upload"
+                                            name="file-upload"
+                                            className="file-input"
+                                            accept=".txt,.doc,.docx,.pdf"
+                                            multiple
+                                        />
+                                        <label htmlFor="file-upload" className="file-label">
+                                            <i className="fas fa-cloud-upload-alt"></i>
+                                            <span className="file-text">
+                                                <strong>Envie</strong> ou arraste arquivos
+                                            </span>
+                                            <span className="file-hint">TXT, DOC, DOCX, PDF up to 10MB</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                {/* Form Actions */}
+                                <div className="form-actions">
+                                    <button 
+                                        type="submit" 
+                                        className="btn btn-primary btn-lg"
+                                        disabled={isAiLoading}
+                                    >
+                                        {isAiLoading ? 'Analisando...' : 'Analisar Briefing'}
+                                    </button>
+                                    <button 
+                                        type="button" 
+                                        className="btn btn-outline"
+                                        onClick={handleFormReset}
+                                    >
+                                        <i className="fas fa-redo"></i> Limpar
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
-                  </div>
 
-                  {/* File Upload */}
-                  <div className="form-group">
-                    <label htmlFor="file-upload" className="form-label">
-                      Arquivos Adicionais
-                    </label>
-                    <div className="file-upload-area">
-                      <input
-                        type="file"
-                        id="file-upload"
-                        name="file-upload"
-                        className="file-input"
-                        accept=".txt,.doc,.docx,.pdf"
-                        multiple
-                      />
-                      <label htmlFor="file-upload" className="file-label">
-                        <i className="fas fa-cloud-upload-alt"></i>
-                        <span className="file-text">
-                          <strong>Envie</strong> ou arraste arquivos
-                        </span>
-                        <span className="file-hint">TXT, DOC, DOCX, PDF up to 10MB</span>
-                      </label>
+                    {/* Right Section: Analysis Results */}
+                    <div className="app-section app-results">
+                        <div className="section-card">
+                            <div className="section-header">
+                                <h2 className="section-title">
+                                    <i className="fas fa-chart-line"></i> Resultados da Análise
+                                </h2>
+                                <p className="section-subtitle">Acompanhe insights gerados automaticamente pela Inteligência Artificial:</p>
+                            </div>
+
+                            {/* Renderização Condicional do Conteúdo */}
+                            {isAiLoading && (
+                                <div className="results-loading">
+                                    <div className="loading-spinner">
+                                        <div className="spinner"></div>
+                                    </div>
+                                    <h3 className="loading-title">Analisando seu Briefing...</h3>
+                                    <p className="loading-description">
+                                        Nossa IA está processando seu conteúdo e identificando insights chave.
+                                    </p>
+                                </div>
+                            )}
+
+                            {aiError && (
+                                <div className="results-content">
+                                    <div className="result-section">
+                                        <h3 className="result-title">Erro na Análise</h3>
+                                        <p className="text-red-500">{aiError}</p>
+                                    </div>
+                                </div>
+                            )}
+                            
+                            {aiResponse && !isAiLoading && (
+                                <div className="results-content">
+                                    <div className="result-section">
+                                        <h3 className="result-title">
+                                            <i className="fas fa-clipboard-check"></i> Análise Completa
+                                        </h3>
+                                        <div className="result-placeholder" dangerouslySetInnerHTML={{ __html: aiResponse }} />
+                                    </div>
+                                </div>
+                            )}
+
+                            {!isAiLoading && !aiResponse && !aiError && (
+                                <div className="results-empty">
+                                    <div className="empty-icon">
+                                        <i className="fas fa-search-plus"></i>
+                                    </div>
+                                    <h3 className="empty-title">Preencha e Analise com IA</h3>
+                                    <p className="empty-description">
+                                        Complete o formulário, clique em “Analisar Briefing” e nossa IA vai organizar seu conteúdo, detectar lacunas e sugerir perguntas essenciais.
+                                    </p>
+                                </div>
+                            )}
+                        </div>
                     </div>
-                  </div>
-
-                  {/* Form Actions */}
-                  <div className="form-actions">
-                    <button type="submit" className="btn btn-primary btn-lg">
-                      <i className="fas fa-magic"></i> Analisar Briefing
-                    </button>
-                    <button type="reset" className="btn btn-outline">
-                      <i className="fas fa-redo"></i> Limpar
-                    </button>
-                  </div>
-                </form>
-              </div>
+                </div>
             </div>
-
-            {/* Right Section: Analysis Results */}
-            <div className="app-section app-results">
-              <div className="section-card">
-                <div className="section-header">
-                  <h2 className="section-title">
-                    <i className="fas fa-chart-line"></i> Resultados da Análise
-                  </h2>
-                  <p className="section-subtitle">Acompanhe insights gerados automaticamente pela Inteligência Artificial:</p>
-                </div>
-
-                {/* Empty State */}
-                <div className="results-empty">
-                  <div className="empty-icon">
-                    <i className="fas fa-search-plus"></i>
-                  </div>
-                  <h3 className="empty-title">Preencha e Analise com IA</h3>
-                  <p className="empty-description">
-                    Complete o formulário, clique em “Analisar Briefing” e nossa IA vai organizar seu conteúdo, detectar lacunas e sugerir perguntas essenciais.
-                  </p>
-                  <div className="empty-features">
-                    <div className="empty-feature">
-                      <i className="fas fa-check-circle"></i>
-                      <span>Classificação automática</span>
-                    </div>
-                    <div className="empty-feature">
-                      <i className="fas fa-check-circle"></i>
-                      <span>Identificação de lacunas</span>
-                    </div>
-                    <div className="empty-feature">
-                      <i className="fas fa-check-circle"></i>
-                      <span>Sugestões de perguntas</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Loading State (hidden by default) */}
-                <div className="results-loading" style={{ display: "none" }}>
-                  <div className="loading-spinner">
-                    <div className="spinner"></div>
-                  </div>
-                  <h3 className="loading-title">Analyzing Your Briefing...</h3>
-                  <p className="loading-description">
-                    Our AI is processing your content and identifying key insights.
-                  </p>
-                </div>
-
-                {/* Results Content (hidden by default) */}
-                <div className="results-content" style={{ display: "none" }}>
-                  {/* This would be populated with actual analysis results */}
-                  <div className="result-section">
-                    <h3 className="result-title">
-                      <i className="fas fa-clipboard-check"></i> Structured Information
-                    </h3>
-                    <div className="result-placeholder">Analysis results will appear here...</div>
-                  </div>
-
-                  <div className="result-section">
-                    <h3 className="result-title">
-                      <i className="fas fa-exclamation-triangle"></i> Identified Gaps
-                    </h3>
-                    <div className="result-placeholder">Missing information will be highlighted here...</div>
-                  </div>
-
-                  <div className="result-section">
-                    <h3 className="result-title">
-                      <i className="fas fa-question-circle"></i> Suggested Questions
-                    </h3>
-                    <div className="result-placeholder">
-                      Recommended questions for the client will appear here...
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </main>
+        </main>
 
       {/* Fixed Footer */}
       <footer className="app-footer">
