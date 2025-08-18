@@ -381,7 +381,8 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
                                             <h3 className="result-title">
                                                 <i className="fas fa-clipboard-check"></i> Análise Completa
                                             </h3>
-                                            <div className="result-placeholder" dangerouslySetInnerHTML={{ __html: aiResponse }} />
+                                            <div className="result-placeholder" />
+                                            {aiResponse} 
                                         </div>
                                     </div>
                                 )}

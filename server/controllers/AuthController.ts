@@ -4,7 +4,7 @@ import { CreateUserDTO } from '../DTO/CreateUserDTO.ts';
 import { LoginDTO } from '../DTO/LoginDTO.ts';
 import { User } from '../model/User.ts';
 import { UserRequest } from '../model/UserRequest.ts';
-import openai from 'openai';
+import openai, { OpenAI } from 'openai';
 export class AuthController {
     private readonly authService: AuthService;
 
@@ -134,77 +134,19 @@ export class AuthController {
 
                         ### Retorne um corpo JSON para um boa passagem da usa resposta para o frontend
                         `;
+              const connectIA = new OpenAI()              
+            const completion = await connectIA.responses.create({
+                model: ModelBasedPlan,
+                input: [
+                    { role: 'system', content: process.env.SYSTEM_PROMPT! },
+                    { role: 'user', content: userPrompt },
+                ],
+            });
 
-            // const completion = await openai.OpenAI.Chat.Completions.caller({
-            //     model: ModelBasedPlan,
-            //     messages: [
-            //         { role: 'system', content: process.env.SYSTEM_PROMPT! },
-            //         { role: 'user', content: userPrompt },
-            //     ],
-            // });
+            const aiResponseContent = completion.output_text;
 
-            // const aiResponseContent = completion.choices[0].message.content;
-
-            //mock
-            res.json({ response: {
-  "analise_geral": {
-    "data_analise": "18-08-2025",
-    "periodo_analisado": "Últimos 30 dias",
-    "desempenho_geral": "O ChatGPT demonstrou uma performance robusta e consistente, com alta taxa de acertos em tarefas de geração de texto e respostas a perguntas. Houve uma pequena queda na precisão em tópicos muito específicos, indicando a necessidade de um ajuste fino no modelo.",
-    "principais_conclusoes": [
-      "Aumento na velocidade de processamento das requisições.",
-      "Melhora na coerência e fluidez em diálogos mais longos.",
-      "Identificação de viés leve em respostas sobre finanças, mas sem impacto significativo.",
-      "Adoção crescente em setores como atendimento ao cliente e criação de conteúdo."
-    ]
-  },
-  "metricas_chave": {
-    "taxa_acertos": {
-      "valor": 95.8,
-      "unidade": "%",
-      "tendencia": "Estável"
-    },
-    "taxa_rejeicao": {
-      "valor": 2.1,
-      "unidade": "%",
-      "tendencia": "Diminuindo"
-    },
-    "tempo_resposta_medio": {
-      "valor": 1.2,
-      "unidade": "segundos",
-      "tendencia": "Diminuindo"
-    },
-    "satisfacao_usuario": {
-      "valor": 4.7,
-      "unidade": "de 5 estrelas",
-      "tendencia": "Aumentando"
-    }
-  },
-  "sugestoes_otimizacao": [
-    {
-      "prioridade": "Alta",
-      "descricao": "Treinar o modelo com um conjunto de dados mais diversificado sobre tópicos financeiros para mitigar o viés identificado."
-    },
-    {
-      "prioridade": "Média",
-      "descricao": "Implementar um sistema de 'feedback direto' para que os usuários possam corrigir respostas imprecisas em tempo real."
-    },
-    {
-      "prioridade": "Baixa",
-      "descricao": "Explorar novas arquiteturas de modelo para melhorar a compreensão de sarcasmo e ironia."
-    }
-  ],
-  "casos_de_uso_destaque": [
-    {
-      "setor": "Marketing Digital",
-      "descricao": "Geração de ideias de conteúdo para blogs e redes sociais, com aumento de 20% na produtividade."
-    },
-    {
-      "setor": "Educação",
-      "descricao": "Criação de resumos e planos de estudo personalizados para alunos do ensino superior."
-    }
-  ]
-} });
+          
+            res.json({ response:  aiResponseContent});
 
         } catch (error) {
             console.error('Erro na requisição:', error);
