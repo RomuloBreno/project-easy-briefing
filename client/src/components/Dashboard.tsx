@@ -184,9 +184,9 @@ export function Dashboard({ user,  onLogout, onShop }: DashboardProps) {
                             }
 
                     </div>
-                    <div className="nav-toggle">
+                    {/* <div className="nav-toggle">
                         <i className="fas fa-bars"></i>
-                    </div>
+                    </div> */}
                 </nav>
             </header>
 

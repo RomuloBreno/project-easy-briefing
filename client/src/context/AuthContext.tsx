@@ -15,7 +15,7 @@ interface AuthContextType {
     user: User | null;
     isLoading: boolean;
     error: string | null;
-    successPay: string | null;
+    successPay: boolean;
     login: (email: string, password: string) => Promise<void>;
     register: (name: string, email: string, password: string) => Promise<void>;
     logout: () => void;
@@ -30,7 +30,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [successPay, setSuccessPay] = useState<string | null>(null);
+    const [successPay, setSuccessPay] = useState<boolean>(false);
 
     useEffect(() => {
         const token = localStorage.getItem('token');

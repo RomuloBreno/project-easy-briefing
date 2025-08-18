@@ -1183,7 +1183,7 @@ p {
     }
     
     .nav-user {
-        display: none;
+        display: block;
     }
     
     /* Typography */

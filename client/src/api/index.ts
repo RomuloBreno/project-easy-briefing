@@ -1,10 +1,16 @@
 // src/api/index.ts
 
-import axiosInstance from './axiosInstance';
 import { User } from '../types/user';
 
+// Interface para as opções da requisição para 'fetch'
+// Extendendo RequestInit para cobrir as opções padrão do fetch,
+// e adicionando headers de forma mais específica se necessário.
+interface CustomRequestOptions extends RequestInit {
+    headers?: { [key: string]: string }; // Permite que 'headers' seja um objeto com chaves e valores string
+}
+
 export interface BriefingDataWithFiles {
-    email:string,
+    email: string,
     projectTitle: string;
     promptManipulation: string;
     niche: string;
@@ -12,97 +18,151 @@ export interface BriefingDataWithFiles {
     file?: string[]; // Array de strings Base64
 }
 
-// NOVO: Função para enviar um briefing para a IA
+// Função utilitária centralizada para fazer requisições à API usando fetch
+const apiFetch = async (url: string, options: CustomRequestOptions = {}) => {
+    const token = localStorage.getItem('authToken');
+
+    const headers = {
+        'Content-Type': 'application/json',
+        ...(token && { 'Authorization': `Bearer ${token}` }), // Adiciona o header se houver token
+        ...(options.headers || {}), // Garante que headers seja um objeto para spread
+    };
+
+    try {
+        const response = await fetch(url, { ...options, headers: new Headers(headers) }); // Envolve headers em new Headers() para fetch
+
+        if (response.status === 401) {
+            console.log('Erro 401: Sessão expirada ou não autorizado. Redirecionando para a página de login.');
+            localStorage.removeItem('authToken'); // Limpa o token inválido
+            // IMPORTANTE: Para redirecionar aqui, você precisará de uma forma de acessar a navegação
+            // (ex: window.location.href = '/login'; ou usar um hook de navegação do React Router em um contexto superior).
+            throw new Error('Unauthorized'); // Lança um erro para ser capturado no chamador
+        }
+
+        if (!response.ok) { // Trata status HTTP que não são 2xx (ex: 400, 500, etc.)
+            const errorData = await response.json().catch(() => ({ message: 'Erro desconhecido.' }));
+            throw new Error(errorData.message || `Erro do servidor: ${response.status}`);
+        }
+
+        // Se a resposta for OK (status 2xx), tenta retornar o JSON
+        // Algumas respostas podem não ter corpo (ex: 204 No Content), então verificamos.
+        if (response.headers.get('content-type')?.includes('application/json')) {
+            return await response.json();
+        } else {
+            return response.text(); // Ou retorne o texto se não for JSON
+        }
+
+    } catch (error: any) {
+        console.error('Erro na requisição API:', error);
+        // Relança o erro para que as funções de API o capturem e o tratem ou o propaguem
+        throw error;
+    }
+};
+
+// Funções de API que agora usam apiFetch
 export const sendBriefingToAiApi = async (briefingText: BriefingDataWithFiles): Promise<string> => {
     try {
-        const response = await axiosInstance.post('/briefing', { briefingText });
-        // Supondo que o backend retorna a resposta da IA em um campo 'response'
-        return response.data.response; 
+        const response = await apiFetch('/briefing', {
+            method: 'POST',
+            body: JSON.stringify({ briefingText }),
+        });
+        return response.response; // Supondo que o backend retorna a resposta da IA em um campo 'response'
     } catch (error: any) {
-        throw new Error(error.response?.data?.error || 'Falha ao enviar o briefing para a IA.');
+        throw new Error(error.message || 'Falha ao enviar o briefing para a IA.');
     }
 };
 
-
-// Nova função para atualizar o nome do usuário
 export const updateProfileApi = async (nameUser: string): Promise<User> => {
     try {
-        const response = await axiosInstance.patch('/profile', { nameUser });
-        return response.data.user; // Assumindo que o backend retorna o usuário atualizado
+        const response = await apiFetch('/profile', {
+            method: 'PATCH',
+            body: JSON.stringify({ nameUser }),
+        });
+        return response.user; // Assumindo que o backend retorna o usuário atualizado
     } catch (error: any) {
-        throw new Error(error.response?.data?.error || 'Falha ao atualizar o perfil.');
+        throw new Error(error.message || 'Falha ao atualizar o perfil.');
     }
 };
 
-// Nova função para solicitar a alteração de email
 export const requestEmailChangeApi = async (newEmail: string): Promise<void> => {
     try {
-        await axiosInstance.post('/request-email-change', { newEmail });
+        await apiFetch('/request-email-change', {
+            method: 'POST',
+            body: JSON.stringify({ newEmail }),
+        });
     } catch (error: any) {
-        throw new Error(error.response?.data?.error || 'Falha ao solicitar a mudança de email.');
+        throw new Error(error.message || 'Falha ao solicitar a mudança de email.');
     }
 };
 
 export const validateTokenApi = async (token: string): Promise<User> => {
     try {
-        const response = await axiosInstance.post('/token', { token });
-        // O backend deve retornar os dados do usuário se o token for válido
-        return response.data.user;
-    } catch (error) {
-        throw new Error('Token inválido ou expirado.');
+        const response = await apiFetch('/token', {
+            method: 'POST',
+            body: JSON.stringify({ token }),
+        });
+        return response.user; // O backend deve retornar os dados do usuário se o token for válido
+    } catch (error: any) {
+        throw new Error(error.message || 'Token inválido ou expirado.');
     }
 };
-export const sendEmail = async (email: string, name:string): Promise<User> => {
-    try {
 
-        const response = await axiosInstance.post('/token-to-email', {
-        nameUser: name,
-        email: email
+export const sendEmail = async (email: string, name: string): Promise<User> => {
+    try {
+        const response = await apiFetch('/token-to-email', {
+            method: 'POST',
+            body: JSON.stringify({ nameUser: name, email: email }),
         });
-        console.log("loginApi", response)
-        // O backend deve retornar os dados do usuário se o token for válido
-        return response.data;
-    } catch (error) {
-        throw new Error('Token inválido ou expirado.');
+        console.log("sendEmail response:", response); // Log para depuração
+        return response;
+    } catch (error: any) {
+        throw new Error(error.message || 'Falha ao enviar e-mail.');
     }
 };
 
 export const loginApi = async (email: string, password: string): Promise<any> => {
     try {
-        const response = await axiosInstance.post('/login', { email, password });
-        console.log("loginApi", response)
-        return {
-            response: response.data
-        };
+        const response = await apiFetch('/login', {
+            method: 'POST',
+            body: JSON.stringify({ email, password }),
+        });
+        console.log("loginApi response:", response); // Log para depuração
+        return { response };
     } catch (error: any) {
-        throw new Error(error.response?.data?.error || 'Login falhou.');
+        throw new Error(error.message || 'Login falhou.');
     }
 };
 
 export const registerApi = async (name: string, email: string, password: string): Promise<{ user: User; token: string }> => {
     try {
-        const response = await axiosInstance.post('/register', { name, email, password });
-        console.log("registerApi", response)
+        const response = await apiFetch('/register', {
+            method: 'POST',
+            body: JSON.stringify({ name, email, password }),
+        });
+        console.log("registerApi response:", response); // Log para depuração
         return {
-            user: response.data.user,
-            token: response.data.token,
+            user: response.user,
+            token: response.token,
         };
     } catch (error: any) {
-        throw new Error(error.response?.data?.error || 'Registro falhou.');
+        throw new Error(error.message || 'Registro falhou.');
     }
 };
 
 export const purchaseApi = async (email: string, plan: number): Promise<User> => {
     try {
-        const apiPayResult = "mercadopago_" + new Date().getMilliseconds;
-        const response = await axiosInstance.post('/purchase', { 
-            email, 
-            paymentMethod: "pix", 
-            plan,
-            planId: apiPayResult
+        const apiPayResult = "mercadopago_" + new Date().getMilliseconds();
+        const response = await apiFetch('/purchase', {
+            method: 'POST',
+            body: JSON.stringify({
+                email,
+                paymentMethod: "pix",
+                plan,
+                planId: apiPayResult
+            }),
         });
-        return response.data.user;
+        return response.user;
     } catch (error: any) {
-        throw new Error(error.response?.data?.error || 'Falha na compra.');
+        throw new Error(error.message || 'Falha na compra.');
     }
 };

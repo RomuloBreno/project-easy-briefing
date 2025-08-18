@@ -12,7 +12,6 @@ function AppContent() {
     const [needUpdatePlan, setNeedUpdatePlan] = useState(false);
     const [dashboard, setDashboard] = useState(false);
     useEffect(()=>{
-    if(needUpdatePlan) return
     if(user?.email)
         dashboardPage()
     },[user,needUpdatePlan])
