@@ -95,8 +95,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             if (!user) {
                 throw new Error('Usuário não autenticado.');
             }
-            const updatedUser = await purchaseApi(user.email, plan);
-            setUser(updatedUser);
+            //Mock time
+            console.log("ABRIR MODAL DE PAGAEMENTO")
+            setTimeout(async ()=>{
+                const updatedUser = await purchaseApi(user.email, plan);
+                setUser(updatedUser);
+            },5000)
         } catch (err: any) {
             setError(err.message);
         } finally {

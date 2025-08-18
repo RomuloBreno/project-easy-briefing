@@ -41,7 +41,7 @@ function AppContent() {
             </div>
         );
     }
-   if (user == null ) return <LandingPage onLoginClick={() => setNeedLogin(true)} onPurchaseClick={purchase} />;
+   if (user == null ) return <LandingPage onLoginClick={() => setNeedLogin(true)} onPurchaseClick={purchase} onloading={isLoading} user={user} />;
 }
 
 // O componente App principal envolve tudo no AuthProvider

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ProfileForm } from "./ProfileForm";
 import { BriefingDataWithFiles, sendBriefingToAiApi, sendEmail } from "../api";
 
@@ -13,7 +13,7 @@ interface DashboardProps {
     onLogout: () => void;
 
 }
-export function Dashboard({ user, onLogout }: DashboardProps) {
+export function Dashboard({ user,  onLogout }: DashboardProps) {
     const [editProfile, setEditProfile] = useState(Boolean)
     if (!user || !user.email) {
         return (
@@ -22,6 +22,9 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
             </div>
         );
     }
+    useEffect(()=>{
+
+    },[user])
     // const [selectedOption, setSelectedOption] = useState('');
 
     // const handleSelectChange = (event: any) => {
@@ -170,7 +173,8 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
                         </li>
                     </ul>
                     <div className="nav-user">
-                        <button onClick={handleChangeProfile} className="btn btn-sm" disabled>{user.nameUser == '' ? "Usuário" : user.nameUser}</button>
+                        {user && <button className="btn btn-primary">{ user?.plan == 0 ? "Free": user?.plan == 1 ? "Starter" : user?.plan == 2 ? "Pro" : "Teste Grátis"}</button>}
+                            <button className="btn btn-secondary">{ user?.nameUser !== ''? user?.nameUser : "Entrar"}</button>
                         <button onClick={onLogout} className="btn btn-outline btn-sm">Sair</button>
 
                     </div>

@@ -94,10 +94,12 @@ export const registerApi = async (name: string, email: string, password: string)
 
 export const purchaseApi = async (email: string, plan: number): Promise<User> => {
     try {
+        const apiPayResult = "mercadopago_" + new Date().getMilliseconds;
         const response = await axiosInstance.post('/purchase', { 
             email, 
             paymentMethod: "pix", 
             plan,
+            planId: apiPayResult
         });
         return response.data.user;
     } catch (error: any) {
