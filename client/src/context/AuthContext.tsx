@@ -60,7 +60,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         try {
             const result = await loginApi(email, password);
             const { token, ...user} = result.response
-            console.log("login",token, user)
             localStorage.setItem('token', token);
             setUser(user);
         } catch (err: any) {

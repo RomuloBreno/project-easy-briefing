@@ -22,12 +22,10 @@ function AppContent() {
     },[successPay])
 
     const updatePlan = () => {
-        console.log("Shop")
         setNeedUpdatePlan(true)
         setDashboard(false)
     }
     const dashboardPage = () =>{
-        console.log("Dashboard")
         setNeedUpdatePlan(false)
         setDashboard(true)
     }

@@ -50,7 +50,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({user, onLoginClick, onP
                             {user?.email ? 
                             <>
                             <button onClick={onDashboard} className="btn btn-primary">{ user?.plan == 0 ? "Free": user?.plan == 1 ? "Starter" : user?.plan == 2 ? "Pro" : 'Conheça Mais'}</button>
-                            <button className="btn btn-outline btn-sm">{user.nameUser}</button>
+                            <button className="btn btn-outline btn-sm">{user.nameUser !== '' ? "User":user.nameUser}</button>
                             <button onClick={onLogout} className="btn btn-outline btn-sm">Sair</button>
                             </>
                             :
@@ -59,9 +59,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({user, onLoginClick, onP
                             <button onClick={onLoginClick} className="btn btn-secondary">Entrar</button>
                             </>
                             }
-                        </div>
-                        <div className="nav-toggle">
-                            <i className="fas fa-bars"></i>
                         </div>
                     </nav>
                 </header>
@@ -216,7 +213,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({user, onLoginClick, onP
                                         <li><i className="fas fa-check"></i> Detecção básica de lacunas</li>
                                         <li><i className="fas fa-check"></i> Exportação em PDF</li>
                                     </ul>
-                                    <button onClick={() => onPurchaseClick(1)} className="btn btn-outline btn-full">Clique para Começar</button>
+                                   {user?.plan == 1 ? <span>Em breve</span> :  <button onClick={() => onPurchaseClick(1)} className="btn btn-outline btn-full">Clique para Começar</button>}
                                 </div>
 
                                 <div className="pricing-card pricing-card-popular">
@@ -236,7 +233,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({user, onLoginClick, onP
                                         <li><i className="fas fa-check"></i> Histórico e controle de versões</li>
                                         <li><i className="fas fa-check"></i> Armazenamento expandido (até 10 GB)</li>
                                     </ul>
-                                   <button onClick={() => onPurchaseClick(2)} className="btn btn-outline btn-full">Clique para Começar</button>
+                                    {user?.plan == 2 ? <span>Em breve</span> :  <button onClick={() => onPurchaseClick(1)} className="btn btn-outline btn-full">Clique para Começar</button>}
                                 </div>
 
                                 <div className="pricing-card">

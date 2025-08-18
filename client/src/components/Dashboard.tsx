@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { ProfileForm } from "./ProfileForm";
 import { BriefingDataWithFiles, sendBriefingToAiApi, sendEmail } from "../api";
+import { AIResponse } from "../types/iaResponse";
+import AnalysisResults from "./AIResponse";
 
 interface DashboardProps {
     user: {
@@ -14,6 +16,7 @@ interface DashboardProps {
     onShop: () => void;
 
 }
+
 export function Dashboard({ user,  onLogout, onShop }: DashboardProps) {
     const [editProfile, setEditProfile] = useState(Boolean)
     if (!user || !user.email) {
@@ -80,7 +83,7 @@ export function Dashboard({ user,  onLogout, onShop }: DashboardProps) {
     const [briefingContent, setBriefingContent] = useState('');
     const [inputOrFile, setInputOrFile] = useState(false);
     // ESTADOS DA IA
-    const [aiResponse, setAiResponse] = useState<string | null>(null);
+    const [aiResponse, setAiResponse] = useState<AIResponse|null>(null);
     const [isAiLoading, setIsAiLoading] = useState(false);
     const [aiError, setAiError] = useState<string | null>(null);
 
@@ -167,13 +170,6 @@ export function Dashboard({ user,  onLogout, onShop }: DashboardProps) {
                         <i className="fas fa-clipboard-list nav-logo-icon"></i>
                         <span className="nav-logo-text">izyBriefing</span>
                     </div>
-                    {/* <ul className="nav-menu">
-                        <li>
-                            <a href="index.html" className="nav-link">
-                                Início
-                            </a>
-                        </li>
-                    </ul> */}
                     <div className="nav-user">
                                {user?.email &&
                             <>
@@ -184,9 +180,6 @@ export function Dashboard({ user,  onLogout, onShop }: DashboardProps) {
                             }
 
                     </div>
-                    {/* <div className="nav-toggle">
-                        <i className="fas fa-bars"></i>
-                    </div> */}
                 </nav>
             </header>
 
@@ -241,7 +234,6 @@ export function Dashboard({ user,  onLogout, onShop }: DashboardProps) {
                                             placeholder="Digite Seu Prompt de manipulação aqui..."
                                             value={promptManipulation}
                                             onChange={(e) => setPromptManipulation(e.target.value)}
-                                            required
                                             disabled={isFreePlan}
                                         />
                                         {isFreePlan &&
@@ -261,7 +253,6 @@ export function Dashboard({ user,  onLogout, onShop }: DashboardProps) {
                                             name="plan-select"
                                             className="form-input"
                                             value={selectedNiche}
-                                            required
                                             disabled={isFreePlan}
                                         >
                                             <option value="" disabled>Selecione uma opção...</option>
@@ -392,15 +383,7 @@ export function Dashboard({ user,  onLogout, onShop }: DashboardProps) {
                                 )}
 
                                 {aiResponse && !isAiLoading && (
-                                    <div className="results-content">
-                                        <div className="result-section">
-                                            <h3 className="result-title">
-                                                <i className="fas fa-clipboard-check"></i> Análise Completa
-                                            </h3>
-                                            <div className="result-placeholder" />
-                                            {aiResponse} 
-                                        </div>
-                                    </div>
+                                  <AnalysisResults aiResponse={aiResponse}/>
                                 )}
 
                                 {!isAiLoading && !aiResponse && !aiError && (

@@ -62,13 +62,14 @@ async function initializeApp() {
 
   // Rota para definir/atualizar plano do usuário (compra/assinatura)
   app.post('/api/purchase', (req, res) => authController.setNewUserPlan(req, res));
+  
+  app.post('/api/briefing', async (req, res) => authController.getAnalysis(req,res));
 
   // Rota de health check
   app.get('/api/health', (req, res) => {
     res.json({ message: 'API is running' });
   });
 
-  app.post('/api/briefing', async (req, res) => authController.getAnalysis(req,res));
 
 
   app.get('/check', (req, res) => {

@@ -1,5 +1,6 @@
 // src/api/index.ts
 
+import { AIResponse } from '../types/iaResponse';
 import { User } from '../types/user';
 
 // Interface para as opções da requisição para 'fetch'
@@ -29,10 +30,17 @@ const apiFetch = async (url: string, options: CustomRequestOptions = {}) => {
     };
 
     try {
-        const response = await fetch(url, { ...options, headers: new Headers(headers) }); // Envolve headers em new Headers() para fetch
-
+        const response = await fetch("/api"+ url, { ...options, headers: new Headers(headers) }); // Envolve headers em new Headers() para fetch
         if (response.status === 401) {
-            console.log('Erro 401: Sessão expirada ou não autorizado. Redirecionando para a página de login.');
+            console.warn('Sessão expirada ou não autorizado. Redirecionando para a página de login.');
+            localStorage.removeItem('authToken'); // Limpa o token inválido
+            // IMPORTANTE: Para redirecionar aqui, você precisará de uma forma de acessar a navegação
+            // (ex: window.location.href = '/login'; ou usar um hook de navegação do React Router em um contexto superior).
+            throw new Error('Unauthorized'); // Lança um erro para ser capturado no chamador
+        }
+
+        if (response.status === 500) {
+            console.warn('Tivemos um erro inesperado, sintimos muito pelo imprevisto');
             localStorage.removeItem('authToken'); // Limpa o token inválido
             // IMPORTANTE: Para redirecionar aqui, você precisará de uma forma de acessar a navegação
             // (ex: window.location.href = '/login'; ou usar um hook de navegação do React Router em um contexto superior).
@@ -60,12 +68,13 @@ const apiFetch = async (url: string, options: CustomRequestOptions = {}) => {
 };
 
 // Funções de API que agora usam apiFetch
-export const sendBriefingToAiApi = async (briefingText: BriefingDataWithFiles): Promise<string> => {
+export const sendBriefingToAiApi = async (briefingText: BriefingDataWithFiles): Promise<AIResponse> => {
     try {
         const response = await apiFetch('/briefing', {
             method: 'POST',
             body: JSON.stringify({ briefingText }),
         });
+         console.log("FETCH /briefing:", response)
         return response.response; // Supondo que o backend retorna a resposta da IA em um campo 'response'
     } catch (error: any) {
         throw new Error(error.message || 'Falha ao enviar o briefing para a IA.');
@@ -78,6 +87,7 @@ export const updateProfileApi = async (nameUser: string): Promise<User> => {
             method: 'PATCH',
             body: JSON.stringify({ nameUser }),
         });
+        console.log("FETCH /profile:", response)
         return response.user; // Assumindo que o backend retorna o usuário atualizado
     } catch (error: any) {
         throw new Error(error.message || 'Falha ao atualizar o perfil.');
@@ -86,10 +96,11 @@ export const updateProfileApi = async (nameUser: string): Promise<User> => {
 
 export const requestEmailChangeApi = async (newEmail: string): Promise<void> => {
     try {
-        await apiFetch('/request-email-change', {
+        const response = await apiFetch('/request-email-change', {
             method: 'POST',
             body: JSON.stringify({ newEmail }),
         });
+        console.log("FETCH /request-email-change:", response)
     } catch (error: any) {
         throw new Error(error.message || 'Falha ao solicitar a mudança de email.');
     }
@@ -101,6 +112,7 @@ export const validateTokenApi = async (token: string): Promise<User> => {
             method: 'POST',
             body: JSON.stringify({ token }),
         });
+        console.log("FETCH /token:", response)
         return response.user; // O backend deve retornar os dados do usuário se o token for válido
     } catch (error: any) {
         throw new Error(error.message || 'Token inválido ou expirado.');
@@ -113,7 +125,7 @@ export const sendEmail = async (email: string, name: string): Promise<User> => {
             method: 'POST',
             body: JSON.stringify({ nameUser: name, email: email }),
         });
-        console.log("sendEmail response:", response); // Log para depuração
+        console.log("FETCH /token-to-email:", response); // Log para depuração
         return response;
     } catch (error: any) {
         throw new Error(error.message || 'Falha ao enviar e-mail.');
@@ -126,7 +138,7 @@ export const loginApi = async (email: string, password: string): Promise<any> =>
             method: 'POST',
             body: JSON.stringify({ email, password }),
         });
-        console.log("loginApi response:", response); // Log para depuração
+        console.log("FETCH /login:", response); // Log para depuração
         return { response };
     } catch (error: any) {
         throw new Error(error.message || 'Login falhou.');
@@ -139,7 +151,7 @@ export const registerApi = async (name: string, email: string, password: string)
             method: 'POST',
             body: JSON.stringify({ name, email, password }),
         });
-        console.log("registerApi response:", response); // Log para depuração
+        console.log("FETCH /register:", response); // Log para depuração
         return {
             user: response.user,
             token: response.token,
@@ -161,6 +173,7 @@ export const purchaseApi = async (email: string, plan: number): Promise<User> =>
                 planId: apiPayResult
             }),
         });
+        console.log("FETCH /purchase:", response)
         return response.user;
     } catch (error: any) {
         throw new Error(error.message || 'Falha na compra.');
