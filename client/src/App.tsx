@@ -1,6 +1,6 @@
 // src/App.tsx
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { LandingPage } from './components/LandingPage';
 import { AuthForm } from './components/LoginForm';
@@ -9,17 +9,19 @@ import { Dashboard } from './components/Dashboard';
 function AppContent() {
     const { user, isLoading, error, login, register, logout, purchase } = useAuth();
     const [needLogin, setNeedLogin] = useState(false);
+    useEffect(()=>{
+        console.log(user)
+    },[user])
+
 
     if (isLoading) {
         return <div>Carregando...</div>;
     }
-
-
-
+    
     if (user) {
-        return <Dashboard user={user} onLogout={logout} />;
+        if (user.email)
+            return <Dashboard user={user} onLogout={logout} />;
     }
-
     if (needLogin) {
         return (
             <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
@@ -39,8 +41,7 @@ function AppContent() {
             </div>
         );
     }
-
-    return <LandingPage onLoginClick={() => setNeedLogin(true)} onPurchaseClick={purchase} />;
+   if (user == null ) return <LandingPage onLoginClick={() => setNeedLogin(true)} onPurchaseClick={purchase} />;
 }
 
 // O componente App principal envolve tudo no AuthProvider

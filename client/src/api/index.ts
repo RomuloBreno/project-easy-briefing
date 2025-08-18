@@ -26,7 +26,7 @@ export const validateTokenApi = async (token: string): Promise<User> => {
     try {
         const response = await axiosInstance.post('/token', { token });
         // O backend deve retornar os dados do usuário se o token for válido
-        return response.data;
+        return response.data.user;
     } catch (error) {
         throw new Error('Token inválido ou expirado.');
     }
@@ -38,6 +38,7 @@ export const sendEmail = async (email: string, name:string): Promise<User> => {
         nameUser: name,
         email: email
         });
+        console.log("loginApi", response)
         // O backend deve retornar os dados do usuário se o token for válido
         return response.data;
     } catch (error) {
@@ -45,12 +46,12 @@ export const sendEmail = async (email: string, name:string): Promise<User> => {
     }
 };
 
-export const loginApi = async (email: string, password: string): Promise<{ user: User; token: string }> => {
+export const loginApi = async (email: string, password: string): Promise<any> => {
     try {
         const response = await axiosInstance.post('/login', { email, password });
+        console.log("loginApi", response)
         return {
-            user: response.data.user,
-            token: response.data.token,
+            response: response.data
         };
     } catch (error: any) {
         throw new Error(error.response?.data?.error || 'Login falhou.');
@@ -60,6 +61,7 @@ export const loginApi = async (email: string, password: string): Promise<{ user:
 export const registerApi = async (name: string, email: string, password: string): Promise<{ user: User; token: string }> => {
     try {
         const response = await axiosInstance.post('/register', { name, email, password });
+        console.log("registerApi", response)
         return {
             user: response.data.user,
             token: response.data.token,

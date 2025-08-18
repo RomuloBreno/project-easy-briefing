@@ -43,23 +43,18 @@ export function Dashboard({ user, onLogout}: DashboardProps) {
     <>
       {/* Header */}
         { !user?.isVerified &&
-                    <span
-                      style={{
-                        backgroundColor: '#8b7575ff',
-                        color: 'rgba(0, 0, 0, 0.31)',
-                        border: '1px solid #8b7575ff',
+                   <button onClick={handleButtonNewEmail} className="btn btn-outline" style={{
+                        backgroundColor: '#ffffffff',
+                        color: 'rgba(0, 0, 0, 1)',
+                        border: '1px solid ##6f42c1',
                         padding: '10px 15px',
                         borderRadius: '5px',
                         marginTop: '10px',
                         display: 'block', // Para que ele ocupe a largura total
                         fontSize: '14px'
-                      }}
-                    >
-                      Faça a Autenticação por email e valide sua conta 
-
-                      <button onClick={handleButtonNewEmail}>Enviar novo email</button>
-                    </span>
+                      }}>Faça a Autenticação por email e valide sua conta </button>
                    }
+                   <br/>
       <header className="header">
         <nav className="nav container">
           <div className="nav-brand">
@@ -94,9 +89,8 @@ export function Dashboard({ user, onLogout}: DashboardProps) {
             </li>
           </ul>
           <div className="nav-user">
-            <span className="user-name">Pronto para continuar?</span>
+            <button onClick={handleChangeProfile} className="btn btn-sm" disabled>{user.nameUser || "Usuário"}</button>
             <button onClick={onLogout} className="btn btn-outline btn-sm">Sair</button>
-            <button onClick={handleChangeProfile} className="btn btn-sm">Perfil</button>
 
           </div>
           <div className="nav-toggle">

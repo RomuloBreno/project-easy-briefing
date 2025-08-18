@@ -40,8 +40,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const validateToken = async (token: string) => {
         setIsLoading(true);
         try {
-            const user = await validateTokenApi(token);
-            setUser(user);
+            const result = await validateTokenApi(token);
+            localStorage.setItem('token', token);
+            setUser(result);
         } catch (err: any) {
             setError(err.message || 'Token inválido ou expirado.');
             setUser(null);
@@ -55,7 +56,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsLoading(true);
         setError(null);
         try {
-            const { user, token } = await loginApi(email, password);
+            const result = await loginApi(email, password);
+            const { token, ...user} = result.response
+            console.log("login",token, user)
             localStorage.setItem('token', token);
             setUser(user);
         } catch (err: any) {

@@ -135,6 +135,7 @@ function RegisterForm({
   const [showPassword, setShowPassword] = useState(false);
 
   const [nameError, setNameError] = useState("");
+  const [passwordRepet, setPasswordRepet] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
 
@@ -157,6 +158,16 @@ function RegisterForm({
     if (!value) return setPasswordError("A senha é obrigatória"), false;
     if (value.length < 6)
       return setPasswordError("A senha deve ter pelo menos 6 caracteres"), false;
+    setPasswordError("");
+    setPasswordRepet(value);
+    return true;
+  };
+  const validatePasswordRepet = (value: string) => {
+    if (!value) return setPasswordError("A senha é obrigatória"), false;
+    if (value.length < 6)
+      return setPasswordError("A senha deve ter pelo menos 6 caracteres"), false;
+    if (value !== passwordRepet)
+      return setPasswordError("As senhas devem ser iguais"), false;
     setPasswordError("");
     return true;
   };
@@ -184,6 +195,7 @@ function RegisterForm({
           onBlur={() => validateName(name)}
           error={nameError}
           disabled={isLoading}
+          required
         />
 
         <InputField
@@ -195,10 +207,23 @@ function RegisterForm({
           onBlur={() => validateEmail(email)}
           error={emailError}
           disabled={isLoading}
+          required
         />
 
         <PasswordField
           id="password"
+          label="Senha"
+          value={password}
+          onChange={setPassword}
+          onBlur={() => validatePasswordRepet(password)}
+          error={passwordError}
+          showPassword={showPassword}
+          toggleShowPassword={() => setShowPassword(!showPassword)}
+          disabled={isLoading}
+          required
+        />
+        <PasswordField
+          id="password-repet"
           label="Senha"
           value={password}
           onChange={setPassword}
@@ -207,6 +232,7 @@ function RegisterForm({
           showPassword={showPassword}
           toggleShowPassword={() => setShowPassword(!showPassword)}
           disabled={isLoading}
+          required
         />
 
         <button
