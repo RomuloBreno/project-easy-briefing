@@ -275,9 +275,11 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
                                             />
                                               Usar input ou arquivo
                                         </label>
-                                        <span className="form-hint-pro">
+                                       {isFreePlan &&
+                                            <span className="form-hint-pro">
                                                 Assine o plano <strong>PRO</strong> para acessar mais recursos e análises avançadas!
-                                        </span>
+                                            </span>
+                                        }
                                     </div>}
                                     {/* Briefing Content */}
                                     {inputOrFile ? 
