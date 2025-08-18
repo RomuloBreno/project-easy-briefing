@@ -5,13 +5,14 @@ import { User } from "../model/User.ts";
 import { UserRequest } from "../model/UserRequest.ts";
 
 export interface IUserRepository {
-    create(usuario: IUser, pass:string): Promise<User>;
+    create(dto: IUser, pass:string): Promise<User>;
     
     // Adicionado o método para atualizar o plano do usuário
     updatePlan(dto: User): Promise<User | null>
     
     // Adicionado o método genérico de atualização
     update(user: Partial<IUser>): Promise<User | null>;
+    updatePass(dto: IUser, pass:string): Promise<User | null>;
     
     updateAuthenticationEmail(email:string): Promise<User | null>;
 

@@ -1,15 +1,18 @@
 import React, { useState } from "react";
 import { Eye, EyeOff, Lock, Mail, User, AlertCircle } from "lucide-react";
+import PasswordResetForm from './PassResetForm';
 
 interface AuthFormProps {
   onLogin: (email: string, password: string) => Promise<void>;
   onRegister: (name: string, email: string, password: string) => Promise<void>;
+  onPasswordRequest: (email: string) => Promise<void>;
   isLoading: boolean;
   error: string | null;
 }
 
-export function AuthForm({ onLogin, onRegister, isLoading, error }: AuthFormProps) {
+export function AuthForm({ onPasswordRequest, onLogin, onRegister, isLoading, error }: AuthFormProps) {
   const [isRegister, setIsRegister] = useState(false);
+  const [isPassReset, setIsPassReset] = useState(false);
 
   return (
     <div className="w-full max-w-md mx-auto">
@@ -19,30 +22,125 @@ export function AuthForm({ onLogin, onRegister, isLoading, error }: AuthFormProp
           isLoading={isLoading}
           error={error}
           switchToLogin={() => setIsRegister(false)}
+          switchResetPass={() => setIsPassReset(false)}
         />
-      ) : (
+      ) : isPassReset? 
+        <PasswordRequestForm
+            onPasswordRequest={onPasswordRequest}isLoading={isLoading}
+          error={error}
+          switchToLogin={() => setIsRegister(false)}
+          />
+      : (
         <LoginForm
           onLogin={onLogin}
           isLoading={isLoading}
           error={error}
           switchToRegister={() => setIsRegister(true)}
+          switchResetPass={() => setIsPassReset(false)}
         />
       )}
     </div>
   );
 }
 
+/* ------------------- FORM RESETPASS ------------------- */
+function PasswordRequestForm({
+  onPasswordRequest,
+  isLoading,
+  error,
+  switchToLogin
+}: {
+  onPasswordRequest: (email: string) => Promise<void>;
+  isLoading: boolean;
+  error: string | null;
+  switchToLogin: () => void; // Para voltar para a tela de login
+}) {
+  const [email, setEmail] = useState("");
+  const [emailError, setEmailError] = useState<string | null>(null);
+
+  /**
+   * Valida o formato do e-mail.
+   * @param value O valor do e-mail a ser validado.
+   * @returns true se o e-mail for válido, false caso contrário.
+   */
+  const validateEmail = (value: string): boolean => {
+    if (!value) {
+      setEmailError("O e-mail é obrigatório.");
+      return false;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+      setEmailError("Digite um e-mail válido.");
+      return false;
+    }
+    setEmailError(null);
+    return true;
+  };
+
+  /**
+   * Lida com o envio do formulário.
+   * @param e O evento do formulário.
+   */
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (validateEmail(email)) {
+      await onPasswordRequest(email);
+    }
+  };
+
+  return (
+    <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100 w-full max-w-md mx-auto">
+      <Header
+        title="Esqueceu sua senha?"
+        subtitle="Digite seu e-mail para receber um link de redefinição."
+      />
+
+      {error && <ErrorMessage message={error} />}
+
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <InputField
+          id="email"
+          label="E-mail"
+          icon={<Mail className="h-5 w-5 text-gray-400" />}
+          value={email}
+          onChange={setEmail}
+          onBlur={() => validateEmail(email)}
+          error={emailError}
+          disabled={isLoading}
+          required
+        />
+
+        <button
+          type="submit"
+          disabled={isLoading || !email || emailError !== null}
+          className="w-full py-3 px-4 rounded-lg text-white bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 transition-all duration-200 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isLoading ? "Enviando..." : "Enviar Link de Redefinição"}
+        </button>
+      </form>
+
+      <SwitchAuth
+        text="Lembra sua senha?"
+        actionText="Voltar para o Login"
+        onClick={switchToLogin}
+      />
+    </div>
+  );
+}
+
+
 /* ------------------- FORM DE LOGIN ------------------- */
 function LoginForm({
   onLogin,
   isLoading,
   error,
-  switchToRegister
+  switchToRegister,
+  switchResetPass
 }: {
   onLogin: (email: string, password: string) => Promise<void>;
   isLoading: boolean;
   error: string | null;
   switchToRegister: () => void;
+  switchResetPass: () => void;
 }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -89,6 +187,7 @@ function LoginForm({
           onBlur={() => validateEmail(email)}
           error={emailError}
           disabled={isLoading}
+          required
         />
 
         <PasswordField
@@ -101,6 +200,7 @@ function LoginForm({
           showPassword={showPassword}
           toggleShowPassword={() => setShowPassword(!showPassword)}
           disabled={isLoading}
+          required
         />
 
         <button
@@ -113,6 +213,7 @@ function LoginForm({
       </form>
 
       <SwitchAuth text="Não tem uma conta?" actionText="Cadastre-se" onClick={switchToRegister} />
+      <SwitchAuth text="Esqueceu sua senha?" actionText="Refazer senha" onClick={switchResetPass} />
     </div>
   );
 }
@@ -122,12 +223,14 @@ function RegisterForm({
   onRegister,
   isLoading,
   error,
-  switchToLogin
+  switchToLogin,
+  switchResetPass
 }: {
   onRegister: (name: string, email: string, password: string) => Promise<void>;
   isLoading: boolean;
   error: string | null;
   switchToLogin: () => void;
+  switchResetPass: () => void;
 }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -247,6 +350,7 @@ function RegisterForm({
       </form>
 
       <SwitchAuth text="Já possui uma conta?" actionText="Entrar" onClick={switchToLogin} />
+      <SwitchAuth text="Esqueceu sua senha?" actionText="Refazer senha" onClick={switchResetPass} />
     </div>
   );
 }

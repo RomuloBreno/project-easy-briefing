@@ -51,32 +51,40 @@ async function initializeApp() {
   // --- Rotas da API ---
   // Rota de registro de usuário
   app.post('/api/register', (req, res) => authController.register(req, res));
+  app.patch('/api/update', (req, res) => authController.update(req, res));
 
   // Rota de login de usuário
   app.post('/api/login', (req, res) => authController.login(req, res));
 
   // Rota para validar token de autenticação
   app.post('/api/token', (req, res) => authController.getTokenValidation(req, res));
-
+  
   app.post('/api/token-to-email', (req, res) => authController.sendTokenEmail(req, res));
 
+  
   // Rota para definir/atualizar plano do usuário (compra/assinatura)
   app.post('/api/purchase', (req, res) => authController.setNewUserPlan(req, res));
   
   app.post('/api/briefing', async (req, res) => authController.getAnalysis(req,res));
-
+  
   // Rota de health check
   app.get('/api/health', (req, res) => {
     res.json({ message: 'API is running' });
   });
+  
+  //Valid urls by email
+  app.get('/api/resetyourpass', (req, res) =>{
+    const { token } = req.query;
+    if (token)
+      authController.verifyEmailResetPass(res, token)
 
-
-
+  });
   app.get('/check', (req, res) => {
     const { token } = req.query;
     if (token)
       authController.verifyEmail(res, token)
   });
+
 
 
   // Configuração para servir arquivos estáticos

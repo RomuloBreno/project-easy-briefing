@@ -5,7 +5,7 @@ import type { CreateUserDTO } from '../DTO/CreateUserDTO.ts';
 import type { IUser } from '../interfaces/IUser.ts';
 import { User } from '../model/User.ts'; // Importa a classe de modelo de negócio
 import { UserResponse } from '../model/UserResponse.ts';
-import { sendWelcomeEmail } from './emailService.ts';
+import { sendEmailResetPass, sendWelcomeEmail } from './emailService.ts';
 import { ObjectId } from 'mongodb';
 import { UserRequest } from '../model/UserRequest.ts';
 
@@ -37,6 +37,28 @@ export class AuthService {
     }
     // Assumindo que este é o método na sua classe AuthService
     // Ele recebe um UserRequest do frontend
+    async updatePass(dto: CreateUserDTO): Promise<UserResponse> {
+        const existingUser: User | null = await this.userRepository.findByEmail(dto.email);
+        if(!existingUser)
+            throw new Error('Falha ao criar o usuário.');
+        
+        const userId = new User(existingUser)
+        
+
+        const planId = await userId.validPlan()
+                // Retorna o token para o front-end
+
+        await this.userRepository.updatePass(userId, dto.password)
+                
+        return {
+            "token": this.generateToken(userId?._id?.toString() ||'', userId.email),
+            "email": userId?.email,
+            "nameUser": userId?.nameUser,
+            "plan": userId.plan,
+            "isVerified": userId.isVerified,
+            "planId": planId
+        };
+    }
     async register(dto: CreateUserDTO): Promise<UserResponse> {
         const existingUser = await this.userRepository.findByEmail(dto.email);
         if (existingUser) {
@@ -184,9 +206,18 @@ export class AuthService {
     }
         async sendEmail(dto: UserRequest, token: string): Promise<void> {
             // Gera o token após a criação bem-sucedida
+            
             const linkGenerate = (`${process.env.FRONT_URL}/check/token=${token}`);
             // Envio do e-mail
             await sendWelcomeEmail(dto.email, dto.nameUser, linkGenerate);
+
+        }
+        async sendEmailResetPass(dto: UserRequest, id:string): Promise<void> {
+            // Gera o token após a criação bem-sucedida
+            const token = this.generateToken(id, dto.email);
+            const linkGenerate = (`${process.env.FRONT_URL}/resetyourpass/token=${token}`);
+            // Envio do e-mail
+            await sendEmailResetPass(dto.email, linkGenerate);
 
         }
 }

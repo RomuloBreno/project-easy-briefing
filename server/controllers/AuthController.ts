@@ -27,12 +27,39 @@ export class AuthController {
             return res.status(500).json({ error: 'Erro interno do servidor.' });
         }
     }
+    async update(req: Request, res: Response): Promise<Response> {
+        try {
+            const dto: CreateUserDTO = req.body;
+            // The service now returns a message, not a token
+            const result = await this.authService.updatePass(dto);
+            return res.status(201).json({ message: result });
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                if (error.message.includes('Email já está em uso')) {
+                    return res.status(409).json({ error: error.message });
+                }
+            }
+            return res.status(500).json({ error: 'Erro interno do servidor.' });
+        }
+    }
 
     async sendTokenEmail(req: Request, res: Response): Promise<Response> {
         try {
             const dto: UserRequest = req.body;
             // The service now returns a message, not a token
             const result = await this.authService.sendEmail(dto, dto.token || '');
+            return res.status(201).json({ message: result });
+        } catch (error: unknown) {
+            return res.status(400).json({ error: 'Envio de link para email' });
+        }
+    }
+
+    async sendEmailResetPass(req: Request, res: Response): Promise<Response> {
+        try {
+            const dto: UserRequest = req.body;
+            const userId = await this.authService.findByEmail(dto.email)
+            // The service now returns a message, not a token
+            const result = await this.authService.sendEmailResetPass(dto, userId?._id?.toString() || '');
             return res.status(201).json({ message: result });
         } catch (error: unknown) {
             return res.status(400).json({ error: 'Envio de link para email' });
@@ -65,6 +92,25 @@ export class AuthController {
             this.authService.userRepository.updateAuthenticationEmail(decode?.email || '')
 
             return res.status(200).json({ message: 'E-mail verificado com sucesso. Você pode fechar esta página.' });
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                if (error.message.includes('Token Expirado')) {
+                    return res.status(401).json({ error: error.message });
+                }
+            }
+            return res.status(500).json({ error: 'Erro interno do servidor.' });
+        }
+    }
+
+    // New endpoint to verify the email with the token from the URL
+    async verifyEmailResetPass(res: Request, token: string): Promise<Response> {
+        try {
+            if (!token || typeof token !== 'string') {
+                return res.status(400).json({ error: 'Token de verificação inválido.' });
+            }
+            const decode = await this.authService.validToken(token);
+            if(decode?.email =='') return
+            return res.status(200).json({ message: true });
         } catch (error: unknown) {
             if (error instanceof Error) {
                 if (error.message.includes('Token Expirado')) {

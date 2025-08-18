@@ -7,7 +7,7 @@ import { AuthForm } from './components/LoginForm';
 import { Dashboard } from './components/Dashboard';
 
 function AppContent() {
-    const { user, isLoading, error, successPay, login, register, logout, purchase } = useAuth();
+    const { user, isLoading, error, successPay, login, register, resetPass, logout, purchase } = useAuth();
     const [needLogin, setNeedLogin] = useState(false);
     const [needUpdatePlan, setNeedUpdatePlan] = useState(false);
     const [dashboard, setDashboard] = useState(false);
@@ -61,6 +61,7 @@ function AppContent() {
                         onLogin={login}
                         isLoading={isLoading}
                         error={error}
+                        onPasswordRequest={resetPass}
                     />
                     <div className="text-center mt-4">
                         <button onClick={() => setNeedLogin(false)} className="text-sm text-blue-600 hover:underline">

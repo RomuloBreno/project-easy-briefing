@@ -52,3 +52,31 @@ export async function sendWelcomeEmail(recipientEmail: string, nameUser: string,
         throw new Error('Não foi possível enviar o e-mail de boas-vindas.');
     }
 }
+/**
+ * @description Envia um e-mail de boas-vindas para um novo usuário.
+ * @param {string} recipientEmail O e-mail do usuário que receberá a mensagem.
+ * @param {string} nameUser O nome do usuário para personalização do e-mail.
+ */
+export async function sendEmailResetPass(recipientEmail: string,link:string): Promise<void> {
+    try {
+        const mailOptions = {
+            from: `"IzyBriefing" <${SENDER_EMAIL_ADDRESS}>`,
+            to: recipientEmail,
+            subject: 'Bem-vindo(a) à nossa plataforma!',
+            html: `
+                <h3>Olá,<h3>
+                <p>Aqui esta seu link para refazer a senha</p>
+                <p>${link}</p>
+                <br/>
+                <p>Atenciosamente,</p>
+                <p>IzyBriefing</p>
+            `,
+        };
+
+       await transporter.sendMail(mailOptions);
+        
+    } catch (error) {
+        console.error('Erro ao enviar o e-mail:', error);
+        throw new Error('Não foi possível enviar o e-mail de boas-vindas.');
+    }
+}

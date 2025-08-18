@@ -131,6 +131,18 @@ export const sendEmail = async (email: string, name: string): Promise<User> => {
         throw new Error(error.message || 'Falha ao enviar e-mail.');
     }
 };
+export const sendEmailResetPass = async (email: string): Promise<void> => {
+    try {
+        const response = await apiFetch('/reset-pass', {
+            method: 'POST',
+            body: JSON.stringify({email: email}),
+        });
+        console.log("FETCH /reset-pass", response); // Log para depuração
+        return response;
+    } catch (error: any) {
+        throw new Error(error.message || 'Falha ao enviar e-mail.');
+    }
+};
 
 export const loginApi = async (email: string, password: string): Promise<any> => {
     try {
@@ -152,6 +164,22 @@ export const registerApi = async (name: string, email: string, password: string)
             body: JSON.stringify({ name, email, password }),
         });
         console.log("FETCH /register:", response); // Log para depuração
+        return {
+            user: response.user,
+            token: response.token,
+        };
+    } catch (error: any) {
+        throw new Error(error.message || 'Registro falhou.');
+    }
+};
+
+export const updateApi = async (email: string, password: string): Promise<{ user: User; token: string }> => {
+    try {
+        const response = await apiFetch('/register', {
+            method: 'PATCH',
+            body: JSON.stringify({email, password }),
+        });
+        console.log("FETCH update /register:", response); // Log para depuração
         return {
             user: response.user,
             token: response.token,

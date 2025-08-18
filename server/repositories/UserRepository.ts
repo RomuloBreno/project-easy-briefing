@@ -71,6 +71,19 @@ export class UserRepository implements IUserRepository {
 
     return updateResult as unknown as User | null;
   }
+  async updatePass(dto: IUser, password:string): Promise<User | null> {
+    if (!dto.email) return null;
+    const passwordHash = await this.hashPassword(password);
+    const updateResult = await this.db
+      .collection<User>(this.collectionName)
+      .findOneAndUpdate(
+        { email: dto.email },
+        { $set: {passwordHash: passwordHash} },
+        { returnDocument: 'after' }
+      );
+
+    return updateResult as unknown as User | null;
+  }
 
   async updatePlan(dto: User): Promise<User | null> {
     const result = await this.db.collection<User>(this.collectionName).findOneAndUpdate(

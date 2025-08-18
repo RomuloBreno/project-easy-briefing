@@ -8,7 +8,10 @@ import {
     registerApi, 
     purchaseApi,
     updateProfileApi,
-    requestEmailChangeApi
+    requestEmailChangeApi,
+    sendEmail,
+    sendEmailResetPass,
+    updateApi
 } from '../api';
 
 interface AuthContextType {
@@ -18,6 +21,8 @@ interface AuthContextType {
     successPay: boolean | null;
     login: (email: string, password: string) => Promise<void>;
     register: (name: string, email: string, password: string) => Promise<void>;
+    update: (email: string, password: string) => Promise<void>;
+    resetPass: (email: string) => Promise<void>;
     logout: () => void;
     purchase: (plan: number) => Promise<void>;
     updateProfile: (nameUser: string, email: string) => Promise<void>;
@@ -83,6 +88,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
+    const update = async (email: string, password: string) => {
+        setIsLoading(true);
+        setError(null);
+        try {
+            await updateApi(email, password);
+        } catch (err: any) {
+            setError(err.message);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    const resetPass = async (email: string) => {
+        setIsLoading(true);
+        setError(null);
+        try {
+             await sendEmailResetPass(email);
+        } catch (err: any) {
+            setError(err.message);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+
+
+
     const logout = () => {
         setUser(null);
         localStorage.removeItem('token');
@@ -147,7 +178,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     return (
-        <AuthContext.Provider value={{ user, isLoading, error, successPay, login, register, logout, purchase, updateProfile }}>
+        <AuthContext.Provider value={{ user, isLoading, error, successPay, login, register, resetPass, logout, purchase, updateProfile, update }}>
             {children}
         </AuthContext.Provider>
     );
