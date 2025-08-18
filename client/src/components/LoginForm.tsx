@@ -132,7 +132,7 @@ function RegisterForm({
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [passwordRepet] = useState("");
+  const [passwordRepet, setPasswordRepet] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   const [nameError, setNameError] = useState("");
@@ -146,16 +146,6 @@ function RegisterForm({
     return true;
   };
 
-  const setPasswordRepet = (value:string)=>{
-     if (!value) return setPasswordError("A senha é obrigatória"), false;
-    if (value.length < 6)
-      return setPasswordError("A senha deve ter pelo menos 6 caracteres"), false;
-    if (value !== passwordRepet)
-      return setPasswordError("As senhas devem ser iguais"), false;
-    setPasswordError("");
-    return true;
-  }
-
   const validateEmail = (value: string) => {
     if (!value) return setEmailError("O e-mail é obrigatório"), false;
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
@@ -168,14 +158,25 @@ function RegisterForm({
     if (!value) return setPasswordError("A senha é obrigatória"), false;
     if (value.length < 6)
       return setPasswordError("A senha deve ter pelo menos 6 caracteres"), false;
+    if (password !== value)
+      return setPasswordError("As senhas devem ser iguais"), false;
     setPasswordError("");
-    setPasswordRepet(value);
+    return true;
+  };
+  const validatePasswordRepet = (value: string) => {
+    setPasswordRepet(value)
+    if (!value) return setPasswordError("A senha é obrigatória"), false;
+    if (value.length < 6)
+      return setPasswordError("A senha deve ter pelo menos 6 caracteres"), false;
+    if (password !== value)
+      return setPasswordError("As senhas devem ser iguais"), false;
+    setPasswordError("");
     return true;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateName(name) && validateEmail(email) && validatePassword(password)) {
+    if (validateName(name) && validateEmail(email) && validatePassword(password) && validatePasswordRepet(passwordRepet)) {
       await onRegister(name, email, password);
     }
   };
@@ -226,9 +227,9 @@ function RegisterForm({
         <PasswordField
           id="password-repet"
           label="Senha"
-          value={password}
+          value={passwordRepet}
           onChange={setPasswordRepet}
-          onBlur={() => validatePassword(password)}
+          onBlur={() => validatePasswordRepet(passwordRepet)}
           error={passwordError}
           showPassword={showPassword}
           toggleShowPassword={() => setShowPassword(!showPassword)}
