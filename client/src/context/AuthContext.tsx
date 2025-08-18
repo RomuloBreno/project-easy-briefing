@@ -97,12 +97,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 throw new Error('Usuário não autenticado.');
             }
             if(!user.isVerified){
+                console.log("EMAIL NÃO VERIFICADO")
                 setSuccessPay(null);
                 return
             } 
                 
             //Mock time
-            console.log("ABRIR MODAL DE PAGAEMENTO")
+            console.log("ABRIR MODAL DE PAGMENTO")
             setTimeout(async ()=>{
                 const updatedUser = await purchaseApi(user.email, plan);
                 setUser(updatedUser);

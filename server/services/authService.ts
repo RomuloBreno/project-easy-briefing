@@ -82,8 +82,13 @@ export class AuthService {
     async updateUserPlan(user: User): Promise<User | null> {
         // Verifica se o plano do usuário é válido (chamada a um serviço externo)
         const userData = new User(user)
+        if(!userData.isVerified)
+            throw new Error('Erro no processo de compra, usuário deve validar o email com o link enviado');
+        
         const isPlanValid = await userData.validPlan();
         let updatedUser: User|null=null;
+        
+
         if (!isPlanValid) {
             // Se o plano não for válido, inicie um novo processo de compra
             // Em uma arquitetura de microserviços, isso seria uma chamada para um serviço de pagamento

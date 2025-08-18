@@ -93,9 +93,9 @@ export function Dashboard({ user,  onLogout, onShop }: DashboardProps) {
             reader.readAsDataURL(file);
         });
     };
-     const handleSelectChange = (event: any) => {
-        setSelectedNiche(event?.target?.value);
-    };
+    //  const handleSelectChange = (event: any) => {
+    //     setSelectedNiche(event?.target?.value);
+    // };
     const handleFormSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         const base64Files = await Promise.all(

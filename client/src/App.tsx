@@ -11,16 +11,6 @@ function AppContent() {
     const [needLogin, setNeedLogin] = useState(false);
     const [needUpdatePlan, setNeedUpdatePlan] = useState(false);
     const [dashboard, setDashboard] = useState(false);
-    useEffect(()=>{
-    if(user?.email)
-        dashboardPage()
-    },[user,needUpdatePlan])
-    
-    useEffect(()=>{
-        if(successPay)
-            setNeedUpdatePlan(false)
-    },[successPay])
-
     const updatePlan = () => {
         setNeedUpdatePlan(true)
         setDashboard(false)
@@ -29,6 +19,18 @@ function AppContent() {
         setNeedUpdatePlan(false)
         setDashboard(true)
     }
+
+    
+    useEffect(()=>{
+    if(user?.email){}
+        dashboardPage()
+    },[user])
+    
+    useEffect(()=>{
+        if(successPay==true)
+            setNeedUpdatePlan(false)
+    },[successPay])
+
 
     if (isLoading) {
         return <div>Carregando...</div>;
