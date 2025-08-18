@@ -29,11 +29,8 @@ export function Dashboard({ user,  onLogout, onShop }: DashboardProps) {
     useEffect(()=>{
 
     },[user])
-    // const [selectedOption, setSelectedOption] = useState('');
 
-    // const handleSelectChange = (event: any) => {
-    //     setSelectedOption(event?.target?.value);
-    // };
+
     const handleChangeProfile = () => {
         setEditProfile(!editProfile ? true : false);
     };
@@ -95,6 +92,9 @@ export function Dashboard({ user,  onLogout, onShop }: DashboardProps) {
             reader.onerror = reject;
             reader.readAsDataURL(file);
         });
+    };
+     const handleSelectChange = (event: any) => {
+        setSelectedNiche(event?.target?.value);
     };
     const handleFormSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -208,7 +208,7 @@ export function Dashboard({ user,  onLogout, onShop }: DashboardProps) {
                                     {/* Project Title */}
                                     <div className="form-group">
                                         <label htmlFor="project-title" className="form-label">
-                                            Título do Projeto
+                                            Título do Projeto*
                                         </label>
                                         <input
                                             type="text"
@@ -244,7 +244,7 @@ export function Dashboard({ user,  onLogout, onShop }: DashboardProps) {
                                     </div>
 
                                     {/* Niche Dropdown */}
-                                    <div className="form-group">
+                                    {/* <div className="form-group">
                                         <label htmlFor="plan-select" className="form-label">
                                             Selecione o Nicho
                                         </label>
@@ -254,6 +254,7 @@ export function Dashboard({ user,  onLogout, onShop }: DashboardProps) {
                                             className="form-input"
                                             value={selectedNiche}
                                             disabled={isFreePlan}
+                                            onClick={()=>handleSelectChange(selectedNiche)}
                                         >
                                             <option value="" disabled>Selecione uma opção...</option>
                                             <option value="Educação">Educaçao</option>
@@ -266,7 +267,9 @@ export function Dashboard({ user,  onLogout, onShop }: DashboardProps) {
                                                 Assine o plano <strong>PRO</strong> para acessar mais recursos e análises avançadas!
                                             </span>
                                         }
-                                    </div>
+                                    </div> */}
+
+                                    
                                     { !isFreePlan && user?.planId && <div>
                                         <label htmlFor="content-select" className="form-label">
                                             <input
@@ -287,6 +290,7 @@ export function Dashboard({ user,  onLogout, onShop }: DashboardProps) {
                                         <div className="form-group">
                                             <div className="file-upload-area">
                                                 <input style={{border:'#000'}}
+                                                    required={inputOrFile? true : false}
                                                     placeholder="Arquivos Adicionais"
                                                     type="file"
                                                     id="file-upload"
@@ -320,7 +324,7 @@ export function Dashboard({ user,  onLogout, onShop }: DashboardProps) {
                                             value={briefingContent}
                                             onChange={(e) => setBriefingContent(e.target.value)}
                                             rows={12}
-                                            required
+                                            required={!inputOrFile? true : false}
                                         />
                                         <div className="form-help">
                                             <span className="form-help-text">

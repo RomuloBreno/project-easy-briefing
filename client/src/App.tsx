@@ -36,6 +36,7 @@ function AppContent() {
 
     if(needUpdatePlan){
          return <LandingPage
+         successPay={successPay}
          onLoginClick={() => setNeedLogin(true)} 
          onPurchaseClick={purchase} 
          onloading={isLoading} 
@@ -69,6 +70,7 @@ function AppContent() {
         );
     }
    if (user == null ) return <LandingPage 
+   successPay={successPay}
    onLoginClick={() => setNeedLogin(true)} 
    onPurchaseClick={purchase} 
    onloading={isLoading} 

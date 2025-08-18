@@ -1,6 +1,7 @@
 // src/components/LandingPage.tsx
 
 import React, { useEffect } from 'react';
+import ModalExample from './modal';
 
 interface LandingPageProps {
     onLoginClick: () => void;
@@ -8,6 +9,7 @@ interface LandingPageProps {
     onDashboard: () => void;
     onLogout: () => void;
     onloading:boolean;
+    successPay:boolean|null;
     user: {
         nameUser: string;
         email: string;
@@ -17,7 +19,7 @@ interface LandingPageProps {
     } | null;
 }
 
-export const LandingPage: React.FC<LandingPageProps> = ({user, onLoginClick, onPurchaseClick, onloading, onLogout, onDashboard }) => {
+export const LandingPage: React.FC<LandingPageProps> = ({successPay, user, onLoginClick, onPurchaseClick, onloading, onLogout, onDashboard }) => {
         if (onloading) {
         return (
             <div className="text-center mt-10">
@@ -32,6 +34,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({user, onLoginClick, onP
     // Note que os botões de login e compra agora usam as props do componente.
     return (
         <>
+        <ModalExample successPay={successPay} message={"Ative sua conta pelo email para ter direito a assinatura"}/>
            <div id="root"></div>
                 <header className="header">
                     <nav className="nav container">

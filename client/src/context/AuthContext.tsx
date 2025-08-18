@@ -15,7 +15,7 @@ interface AuthContextType {
     user: User | null;
     isLoading: boolean;
     error: string | null;
-    successPay: boolean;
+    successPay: boolean | null;
     login: (email: string, password: string) => Promise<void>;
     register: (name: string, email: string, password: string) => Promise<void>;
     logout: () => void;
@@ -30,7 +30,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [successPay, setSuccessPay] = useState<boolean>(false);
+    const [successPay, setSuccessPay] = useState<boolean | null>(false);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -96,6 +96,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             if (!user) {
                 throw new Error('Usuário não autenticado.');
             }
+            if(!user.isVerified){
+                setSuccessPay(null);
+                return
+            } 
+                
             //Mock time
             console.log("ABRIR MODAL DE PAGAEMENTO")
             setTimeout(async ()=>{

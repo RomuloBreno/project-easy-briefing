@@ -35,11 +35,12 @@ export default function AnalysisResults({ aiResponse }: Props) {
       </h3>
 
       {/* Validação da Estrutura */}
-      <div className="flex items-center justify-between bg-white shadow rounded-2xl p-4">
-        <div className="flex items-center gap-3">
+      <div className="items-center justify-between bg-white shadow rounded-2xl p-4">
+        <div className="items-center gap-3">
           <CheckCircle className="text-green-600 w-6 h-6" />
           <span className="font-semibold">Validação da Estrutura</span>
         </div>
+        <br/>
         <p className="text-gray-700 text-sm">{aiResponse?.analise}</p>
       </div>
 
