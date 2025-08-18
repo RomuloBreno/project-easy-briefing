@@ -13,9 +13,9 @@ export interface BriefingDataWithFiles {
 }
 
 // NOVO: Função para enviar um briefing para a IA
-export const sendBriefingToAiApi = async (briefingText: any): Promise<string> => {
+export const sendBriefingToAiApi = async (briefingText: BriefingDataWithFiles): Promise<string> => {
     try {
-        const response = await axiosInstance.post('/ai/briefing', { briefingText });
+        const response = await axiosInstance.post('/api/briefing', { briefingText });
         // Supondo que o backend retorna a resposta da IA em um campo 'response'
         return response.data.response; 
     } catch (error: any) {
@@ -23,14 +23,6 @@ export const sendBriefingToAiApi = async (briefingText: any): Promise<string> =>
     }
 };
 
-export const sendBriefingWithFiles = async (formData: BriefingDataWithFiles): Promise<string> => {
-    try {
-        const response = await axiosInstance.post('/ai/briefing-with-files', formData);
-        return response.data.response;
-    } catch (error: any) {
-        throw new Error(error.response?.data?.error || 'Falha ao enviar o briefing com arquivos.');
-    }
-};
 
 // Nova função para atualizar o nome do usuário
 export const updateProfileApi = async (nameUser: string): Promise<User> => {
