@@ -15,7 +15,7 @@ export interface BriefingDataWithFiles {
 // NOVO: Função para enviar um briefing para a IA
 export const sendBriefingToAiApi = async (briefingText: BriefingDataWithFiles): Promise<string> => {
     try {
-        const response = await axiosInstance.post('/api/briefing', { briefingText });
+        const response = await axiosInstance.post('/briefing', { briefingText });
         // Supondo que o backend retorna a resposta da IA em um campo 'response'
         return response.data.response; 
     } catch (error: any) {
