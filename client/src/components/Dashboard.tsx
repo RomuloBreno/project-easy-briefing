@@ -67,26 +67,6 @@ export function Dashboard({ user, onLogout}: DashboardProps) {
                 Início
               </a>
             </li>
-            <li>
-              <a href="index.html#features" className="nav-link">
-                Recursos
-              </a>
-            </li>
-            <li>
-              <a href="index.html#pricing" className="nav-link">
-                Planos
-              </a>
-            </li>
-            <li>
-              <a href="index.html#faqs" className="nav-link">
-                FAQs
-              </a>
-            </li>
-            <li>
-              <a href="index.html#contact" className="nav-link">
-                Contato
-              </a>
-            </li>
           </ul>
           <div className="nav-user">
             <button onClick={handleChangeProfile} className="btn btn-sm" disabled>{user.nameUser || "Usuário"}</button>

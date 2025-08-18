@@ -132,10 +132,10 @@ function RegisterForm({
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordRepet, setPasswordRepet] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   const [nameError, setNameError] = useState("");
-  const [passwordRepet, setPasswordRepet] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
 
@@ -226,7 +226,7 @@ function RegisterForm({
           id="password-repet"
           label="Senha"
           value={password}
-          onChange={setPassword}
+          onChange={setPasswordRepet}
           onBlur={() => validatePassword(password)}
           error={passwordError}
           showPassword={showPassword}
