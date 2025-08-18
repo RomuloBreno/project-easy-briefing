@@ -7,7 +7,7 @@ interface DashboardProps {
         nameUser: string;
         email: string;
         plan?: number;
-        PlanId?: boolean;
+        planId?: boolean;
         isVerified?: boolean
     } | null;
     onLogout: () => void;
@@ -109,7 +109,7 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
            briefingData.content=briefingContent;
         }
         if(base64Files && files.length > 0){
-           briefingData.file=base64Files;
+           briefingData.file= isFreePlan ? [''] : base64Files  ;
         }
 
         // Reseta o estado da resposta e erro
@@ -266,38 +266,21 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
                                             </span>
                                         }
                                     </div>
-                                    <div>
+                                    { !isFreePlan && user?.planId && <div>
                                         <label htmlFor="content-select" className="form-label">
                                             <input
                                                 type="checkbox"
                                                 checked={inputOrFile}
                                                 onChange={(e) => setInputOrFile(e.target.checked)}
                                             />
-                                            Usar input ou arquivo
+                                              Usar input ou arquivo
                                         </label>
-                                    </div>
+                                        <span className="form-hint-pro">
+                                                Assine o plano <strong>PRO</strong> para acessar mais recursos e análises avançadas!
+                                        </span>
+                                    </div>}
                                     {/* Briefing Content */}
                                     {inputOrFile ? 
-                                    <div className="form-group">
-                                        <label htmlFor="briefing-content" className="form-label">
-                                            Conteúdo do Briefing
-                                        </label>
-                                        <textarea
-                                            id="briefing-content"
-                                            name="briefing-content"
-                                            className="form-textarea"
-                                            value={briefingContent}
-                                            onChange={(e) => setBriefingContent(e.target.value)}
-                                            rows={12}
-                                            required
-                                        />
-                                        <div className="form-help">
-                                            <span className="form-help-text">
-                                                <i className="fas fa-info-circle"></i> Inclua objetivos, prazos, orçamento e requisitos para resultados mais precisos.
-                                            </span>
-                                        </div>
-                                    </div>
-                                        :
                                         <div className="form-group">
                                             <div className="file-upload-area">
                                                 <input style={{border:'#000'}}
@@ -321,6 +304,27 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
                                             </label>
                                             </div>
                                         </div>
+                                        :
+                                    <div className="form-group">
+                                        <label htmlFor="briefing-content" className="form-label">
+                                            Conteúdo do Briefing
+                                        </label>
+                                        <textarea
+                                            id="briefing-content"
+                                            name="briefing-content"
+                                            className="form-textarea"
+                                            placeholder="Digite seu briefing"
+                                            value={briefingContent}
+                                            onChange={(e) => setBriefingContent(e.target.value)}
+                                            rows={12}
+                                            required
+                                        />
+                                        <div className="form-help">
+                                            <span className="form-help-text">
+                                                <i className="fas fa-info-circle"></i> Inclua objetivos, prazos, orçamento e requisitos para resultados mais precisos.
+                                            </span>
+                                        </div>
+                                    </div>
                                     }
                                     {/* Form Actions */}
                                     <div className="form-actions">

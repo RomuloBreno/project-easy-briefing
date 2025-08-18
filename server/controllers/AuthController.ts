@@ -103,7 +103,7 @@ export class AuthController {
 
             // Decodifica e extrai o conteúdo dos arquivos Base64
             let fileContent = '';
-            if (file) {
+            if (file && user?.plan !== 0) {
                 file.forEach(base64String => {
                     // A string Base64 contém metadados, como "data:application/pdf;base64,...",
                     // então precisamos remover essa parte para obter o conteúdo puro.
@@ -115,6 +115,8 @@ export class AuthController {
             } else {
                 fileContent = briefingContent;
             }
+
+            if(fileContent === undefined || fileContent ==='') return res.status(401).json({ response:  "Plano Não Contempla essa ação"});
 
             const ModelBasedPlan = this.authService.validPlanToSetModel(user?.plan || 0)
             const userPrompt = `
@@ -146,7 +148,7 @@ export class AuthController {
             const aiResponseContent = completion.output_text;
 
           
-            res.json({ response:  aiResponseContent});
+            return res.json({ response:  aiResponseContent});
 
         } catch (error) {
             console.error('Erro na requisição:', error);
