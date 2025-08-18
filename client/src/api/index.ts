@@ -3,6 +3,14 @@
 import axiosInstance from './axiosInstance';
 import { User } from '../types/user';
 
+export interface BriefingDataWithFiles {
+    email:string,
+    projectTitle: string;
+    promptManipulation: string;
+    niche: string;
+    content?: string;
+    file?: string[]; // Array de strings Base64
+}
 
 // NOVO: Função para enviar um briefing para a IA
 export const sendBriefingToAiApi = async (briefingText: any): Promise<string> => {
@@ -12,6 +20,15 @@ export const sendBriefingToAiApi = async (briefingText: any): Promise<string> =>
         return response.data.response; 
     } catch (error: any) {
         throw new Error(error.response?.data?.error || 'Falha ao enviar o briefing para a IA.');
+    }
+};
+
+export const sendBriefingWithFiles = async (formData: BriefingDataWithFiles): Promise<string> => {
+    try {
+        const response = await axiosInstance.post('/ai/briefing-with-files', formData);
+        return response.data.response;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.error || 'Falha ao enviar o briefing com arquivos.');
     }
 };
 

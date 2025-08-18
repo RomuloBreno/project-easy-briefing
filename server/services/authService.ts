@@ -23,6 +23,18 @@ export class AuthService {
     async findByEmail(email: string): Promise<User | null> {
         return this.userRepository.findByEmail(email);
     }
+    validPlanToSetModel(plan: number): string{
+       switch (plan) {
+        case 0: // Plano Gratuito
+            return 'gpt-3.5-turbo';
+        case 1: // Plano Starter
+            return 'gpt-4o-mini';
+        case 2: // Plano Pro
+            return 'gpt-4o';
+        default: // Para qualquer outro valor, retorna o plano gratuito como padrão
+            return 'gpt-3.5-turbo';
+    }
+    }
     // Assumindo que este é o método na sua classe AuthService
     // Ele recebe um UserRequest do frontend
     async register(dto: CreateUserDTO): Promise<UserResponse> {
