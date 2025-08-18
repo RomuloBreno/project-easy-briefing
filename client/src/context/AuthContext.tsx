@@ -15,6 +15,7 @@ interface AuthContextType {
     user: User | null;
     isLoading: boolean;
     error: string | null;
+    successPay: string | null;
     login: (email: string, password: string) => Promise<void>;
     register: (name: string, email: string, password: string) => Promise<void>;
     logout: () => void;
@@ -29,6 +30,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [successPay, setSuccessPay] = useState<string | null>(null);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -100,8 +102,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setTimeout(async ()=>{
                 const updatedUser = await purchaseApi(user.email, plan);
                 setUser(updatedUser);
+                setSuccessPay(true);
             },5000)
         } catch (err: any) {
+            setSuccessPay(false);
             setError(err.message);
         } finally {
             setIsLoading(false);
@@ -138,7 +142,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     return (
-        <AuthContext.Provider value={{ user, isLoading, error, login, register, logout, purchase, updateProfile }}>
+        <AuthContext.Provider value={{ user, isLoading, error, successPay, login, register, logout, purchase, updateProfile }}>
             {children}
         </AuthContext.Provider>
     );

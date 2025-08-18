@@ -7,20 +7,50 @@ import { AuthForm } from './components/LoginForm';
 import { Dashboard } from './components/Dashboard';
 
 function AppContent() {
-    const { user, isLoading, error, login, register, logout, purchase } = useAuth();
+    const { user, isLoading, error, successPay, login, register, logout, purchase } = useAuth();
     const [needLogin, setNeedLogin] = useState(false);
+    const [needUpdatePlan, setNeedUpdatePlan] = useState(false);
+    const [dashboard, setDashboard] = useState(false);
     useEffect(()=>{
-        console.log(user)
-    },[user])
+    if(needUpdatePlan) return
+    if(user?.email)
+        dashboardPage()
+    },[user,needUpdatePlan])
+    
+    useEffect(()=>{
+        if(successPay)
+            setNeedUpdatePlan(false)
+    },[successPay])
 
+    const updatePlan = () => {
+        console.log("Shop")
+        setNeedUpdatePlan(true)
+        setDashboard(false)
+    }
+    const dashboardPage = () =>{
+        console.log("Dashboard")
+        setNeedUpdatePlan(false)
+        setDashboard(true)
+    }
 
     if (isLoading) {
         return <div>Carregando...</div>;
     }
+
+    if(needUpdatePlan){
+         return <LandingPage
+         onLoginClick={() => setNeedLogin(true)} 
+         onPurchaseClick={purchase} 
+         onloading={isLoading} 
+         user={user} 
+         onLogout={logout} 
+         onDashboard={dashboardPage}
+                 />;
+    }
     
-    if (user) {
-        if (user.email)
-            return <Dashboard user={user} onLogout={logout} />;
+    if (dashboard) {
+        if (user?.email)
+            return <Dashboard user={user} onLogout={logout} onShop={updatePlan}/>;
     }
     if (needLogin) {
         return (
@@ -41,7 +71,13 @@ function AppContent() {
             </div>
         );
     }
-   if (user == null ) return <LandingPage onLoginClick={() => setNeedLogin(true)} onPurchaseClick={purchase} onloading={isLoading} user={user} />;
+   if (user == null ) return <LandingPage 
+   onLoginClick={() => setNeedLogin(true)} 
+   onPurchaseClick={purchase} 
+   onloading={isLoading} 
+   user={user} 
+   onLogout={logout} 
+   onDashboard={dashboardPage}  />;
 }
 
 // O componente App principal envolve tudo no AuthProvider

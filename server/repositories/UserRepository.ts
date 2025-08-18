@@ -75,7 +75,7 @@ export class UserRepository implements IUserRepository {
   async updatePlan(dto: User): Promise<User | null> {
     const result = await this.db.collection<User>(this.collectionName).findOneAndUpdate(
       { email: dto.email },
-      { $set: { planId: dto.planId, paymentMethod: dto.paymentMethod } },
+      { $set: { planId: dto.planId, paymentMethod: dto.paymentMethod, plan:dto.plan } },
       { returnDocument: 'after' }
     );
 

@@ -78,11 +78,12 @@ export class AuthService {
         return this.userRepository.update(user);
     }
 
-    // Método que cuida da lógica de validação e atualização do plano
+    // Método que cuida da lógica de atualização do plano
     async updateUserPlan(user: User): Promise<User | null> {
         // Verifica se o plano do usuário é válido (chamada a um serviço externo)
-        const isPlanValid = await user.validPlan();
-
+        const userData = new User(user)
+        const isPlanValid = await userData.validPlan();
+        let updatedUser: User|null=null;
         if (!isPlanValid) {
             // Se o plano não for válido, inicie um novo processo de compra
             // Em uma arquitetura de microserviços, isso seria uma chamada para um serviço de pagamento
@@ -94,15 +95,15 @@ export class AuthService {
 
             // Atualiza o usuário no banco de dados com o novo plano
             user.planId = newPurchaseId !== user.planId ? newPurchaseId : user.planId;
-            const updatedUser = await this.userRepository.updatePlan(user);
+            updatedUser = await this.userRepository.updatePlan(user);
 
             if (!updatedUser) {
                 throw new Error('Falha ao atualizar plano do usuário.');
             }
-
             return updatedUser
         }
-
+        
+        updatedUser = await this.userRepository.updatePlan(user);
         return user;
     }
     async purchase(dto: any): Promise<string> {

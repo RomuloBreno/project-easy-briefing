@@ -11,9 +11,10 @@ interface DashboardProps {
         isVerified?: boolean
     } | null;
     onLogout: () => void;
+    onShop: () => void;
 
 }
-export function Dashboard({ user,  onLogout }: DashboardProps) {
+export function Dashboard({ user,  onLogout, onShop }: DashboardProps) {
     const [editProfile, setEditProfile] = useState(Boolean)
     if (!user || !user.email) {
         return (
@@ -146,6 +147,7 @@ export function Dashboard({ user,  onLogout }: DashboardProps) {
     return (
         <>
             {/* Header */}
+            <header className="header">
             {!user?.isVerified &&
                 <button onClick={handleButtonNewEmail} className="btn btn-outline" style={{
                     backgroundColor: '#ffffffff',
@@ -155,27 +157,31 @@ export function Dashboard({ user,  onLogout }: DashboardProps) {
                     borderRadius: '5px',
                     marginTop: '10px',
                     display: 'block', // Para que ele ocupe a largura total
-                    fontSize: '14px'
+                    fontSize: '14px',
+                    width:'100%'
                 }}>Faça a Autenticação por email e valide sua conta </button>
             }
             <br />
-            <header className="header">
                 <nav className="nav container">
                     <div className="nav-brand">
                         <i className="fas fa-clipboard-list nav-logo-icon"></i>
                         <span className="nav-logo-text">izyBriefing</span>
                     </div>
-                    <ul className="nav-menu">
+                    {/* <ul className="nav-menu">
                         <li>
                             <a href="index.html" className="nav-link">
                                 Início
                             </a>
                         </li>
-                    </ul>
+                    </ul> */}
                     <div className="nav-user">
-                        {user && <button className="btn btn-primary">{ user?.plan == 0 ? "Free": user?.plan == 1 ? "Starter" : user?.plan == 2 ? "Pro" : "Teste Grátis"}</button>}
-                            <button className="btn btn-secondary">{ user?.nameUser !== ''? user?.nameUser : "Entrar"}</button>
-                        <button onClick={onLogout} className="btn btn-outline btn-sm">Sair</button>
+                               {user?.email &&
+                            <>
+                            <button onClick={onShop} className="btn btn-primary">{ user?.plan == 0 ? "Free": user?.plan == 1 ? "Starter" : user?.plan == 2 ? "Pro" : 'Conheça Mais'}</button>
+                            <button onClick={onLogout} className="btn btn-outline btn-sm">Sair</button>
+                            </>
+                            
+                            }
 
                     </div>
                     <div className="nav-toggle">

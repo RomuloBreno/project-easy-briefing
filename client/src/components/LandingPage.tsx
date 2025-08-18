@@ -5,6 +5,8 @@ import React, { useEffect } from 'react';
 interface LandingPageProps {
     onLoginClick: () => void;
     onPurchaseClick: (plan: number) => void;
+    onDashboard: () => void;
+    onLogout: () => void;
     onloading:boolean;
     user: {
         nameUser: string;
@@ -15,7 +17,7 @@ interface LandingPageProps {
     } | null;
 }
 
-export const LandingPage: React.FC<LandingPageProps> = ({ user, onLoginClick, onPurchaseClick, onloading }) => {
+export const LandingPage: React.FC<LandingPageProps> = ({user, onLoginClick, onPurchaseClick, onloading, onLogout, onDashboard }) => {
         if (onloading) {
         return (
             <div className="text-center mt-10">
@@ -45,8 +47,18 @@ export const LandingPage: React.FC<LandingPageProps> = ({ user, onLoginClick, on
                             <li><a href="#contact" className="nav-link">Contato</a></li>
                         </ul>
                         <div style={{ display: 'flex', gap: '10px' }}>
-                            {user && <button onClick={onLoginClick} className="btn btn-primary">{ user?.plan == 0 ? "Free": user?.plan == 1 ? "Starter" : user?.plan == 2 ? "Pro" : "Teste Grátis"}</button>}
-                            <button onClick={onLoginClick} className="btn btn-secondary">{ user?.nameUser !== ''? user?.nameUser : "Entrar"}</button>
+                            {user?.email ? 
+                            <>
+                            <button onClick={onDashboard} className="btn btn-primary">{ user?.plan == 0 ? "Free": user?.plan == 1 ? "Starter" : user?.plan == 2 ? "Pro" : 'Conheça Mais'}</button>
+                            <button className="btn btn-outline btn-sm">{user.nameUser}</button>
+                            <button onClick={onLogout} className="btn btn-outline btn-sm">Sair</button>
+                            </>
+                            :
+                            <>
+                            <button onClick={onLoginClick} className="btn btn-primary">Teste Grátis</button>
+                            <button onClick={onLoginClick} className="btn btn-secondary">Entrar</button>
+                            </>
+                            }
                         </div>
                         <div className="nav-toggle">
                             <i className="fas fa-bars"></i>
@@ -243,7 +255,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ user, onLoginClick, on
                                         <li><i className="fas fa-check"></i> Gerente de conta dedicado</li>
                                         <li><i className="fas fa-check"></i> SLA com suporte 24/7</li>
                                     </ul>
-                                    <button onClick={() => onPurchaseClick(3)} className="btn btn-outline btn-full">Clique para Começar</button>
+                                    {/* <button onClick={() => onPurchaseClick(3)} className="btn btn-outline btn-full">Clique para Começar</button> */}
+                                    <span>Em breve</span>
                                 </div>
                             </div>
                         </div>
