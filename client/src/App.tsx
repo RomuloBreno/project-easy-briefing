@@ -14,23 +14,35 @@ function AppContent() {
     const [needUpdatePlan, setNeedUpdatePlan] = useState(false);
     const [dashboard, setDashboard] = useState(false);
     const [tokenIsValid, setTokenIsValid] = useState(false);
+    // const user={
+    //     nameUser: 'string',
+    //     email: 'string',
+    //     plan: 0,
+    //     planId: true,// Corrigido para string, pois é um ID do gateway de pagamento
+    //     isVerified: true
+    // }
     const updatePlan = () => {
         setNeedUpdatePlan(true)
         setDashboard(false)
+        document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" });
     }
     const dashboardPage = () => {
         setNeedUpdatePlan(false)
         setDashboard(true)
     }
+    // const dashboardPageInit = () => {
+    //     setDashboard(true)
+    //     setNeedUpdatePlan(false)
+    // }
     
 
     const tokenValid = async (token:string, valid:boolean) => {
-    //    const response = await apiFetch("/token", {
-    //         method: 'POST',
-    //         body: JSON.stringify({ token }),
-    //     });
+       const response = await apiFetch("/token", {
+            method: 'POST',
+            body: JSON.stringify({ token }),
+        });
 
-    //     setTokenIsValid(valid && response.response);
+        setTokenIsValid(valid && response.response);
         setTokenIsValid(true);
     };
 
@@ -47,13 +59,20 @@ function AppContent() {
             tokenValid(token, valid=='true'?true:false)
     }, [])
 
-    useEffect(() => {
-       if(user?.email != '')
-            dashboardPage()
-    }, [user])
+
+
+
+    // useEffect(() => {
+    //     // dashboardPageInit()
+    // }, [])
 
     useEffect(() => {
+        if(needUpdatePlan)
+            document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" });
+    }, [needUpdatePlan])
 
+    useEffect(() => {
+        
     }, [tokenIsValid])
 
     useEffect(() => {
@@ -112,7 +131,16 @@ function AppContent() {
         user={user}
         onLogout={logout}
         onDashboard={dashboardPage} />;
+return <LandingPage
+        successPay={successPay}
+        onLoginClick={() => setNeedLogin(true)}
+        onPurchaseClick={purchase}
+        onloading={isLoading}
+        user={user}
+        onLogout={logout}
+        onDashboard={dashboardPage} />;
 }
+
 
 // O componente App principal envolve tudo no AuthProvider
 function App() {
