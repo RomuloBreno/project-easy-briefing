@@ -35,21 +35,23 @@ export const LandingPage: React.FC<LandingPageProps> = ({successPay, user, onLog
         if(value){
             setModalFakePurchase(true)
             onPurchaseClick(value)
-            setModalFakePurchase(false)
         }
         setOpenModal(!openModal?true:false)
+    }
+    const handleButtonPurchaseFakeModal = async (value:number|null) => {
+            setModalFakePurchase(false)
     }
 
     useEffect(()=>{
 
-    },[user,openModal])
+    },[user,openModal,modalFakePurchase])
     // Código JSX da landing page que você forneceu
     // Note que os botões de login e compra agora usam as props do componente.
     return (
         <>
         {openModal && successPay == null && <ModalExample onClose={handleButtonPurchase} openModalSuccessPay={true} message={"Ative sua conta pelo email para ter direito a assinatura"}/>}
         {openModal && successPay == true && <ModalExample onClose={handleButtonPurchase} openModalSuccessPay={true} message={"Sua compra foi realizada com sucesso, faça login novamente caso seja necessário"}/>}
-        {modalFakePurchase && <ModalExample onClose={handleButtonPurchase} openModalSuccessPay={true} message={"SIMULAÇÃO DE COMPRA"}/>}
+        {modalFakePurchase && <ModalExample onClose={handleButtonPurchaseFakeModal} openModalSuccessPay={true} message={"SIMULAÇÃO DE COMPRA"}/>}
            <div id="root"></div>
                 <header className="header">
                     <nav className="nav container">

@@ -105,7 +105,12 @@ export class AuthService {
     // Método que cuida da lógica de atualização do plano
     async updateUserPlan(user: User): Promise<User | null> {
         // Verifica se o plano do usuário é válido (chamada a um serviço externo)
-        const userData = new User(user)
+        
+        let userDataSave: User | null = await this.userRepository.findByEmail(user.email);
+        if (!userDataSave) {
+                throw new Error('Usuário não encontrado');
+            }
+        const userData = new User(userDataSave)
         if(!userData.isVerified)
             throw new Error('Erro no processo de compra, usuário deve validar o email com o link enviado');
         

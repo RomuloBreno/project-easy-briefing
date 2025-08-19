@@ -137,7 +137,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             if(!user.isVerified){
                 console.log("EMAIL NÃO VERIFICADO")
                 setSuccessPay(null);
-                return
+                 throw new Error('Conta deve ser validada por e-mail');
             } 
                 
             //Mock time
