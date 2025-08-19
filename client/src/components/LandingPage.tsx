@@ -55,7 +55,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({successPay, user, onLog
                     <nav className="nav container">
                         <div className="nav-brand">
                             <i className="fas fa-clipboard-list nav-logo-icon"></i>
-                            <span className="nav-logo-text">Briefing Organizer</span>
+                            <span className="nav-logo-text">IzyBriefing</span>
                         </div>
                         <ul className="nav-menu">
                             <li><a href="#home" className="nav-link">Início</a></li>
@@ -88,7 +88,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({successPay, user, onLog
                                 <div className="hero-text fade-in">
                                     <h1 className="hero-title">Organizador de Briefing</h1>
                                     <p className="hero-subtitle">
-                                        O Organizador de Briefing ajuda você a reunir, organizar e agilizar briefings de forma simples. Ideal para agências, designers, freelancers e empresas, ele usa IA para identificar lacunas, sugerir perguntas e garantir projetos mais claros e rápidos.
+                                         O Organizador de Briefing ajuda você a centralizar, analisar e otimizar seus projetos de forma inteligente. Com IA, ele realiza análises automáticas, identifica lacunas, sugere perguntas personalizadas, avalia prompts específicos e destaca cenários que precisam de atenção. Ideal para agências, freelancers e empresas que buscam clareza, eficiência e resultados mais rápidos, mesmo em projetos globais com múltiplos idiomas.
                                     </p>
                                     <div className="hero-buttons">
                                         <a onClick={onLoginClick} className="btn btn-primary btn-lg">Testar Grátis Agora</a>
@@ -386,7 +386,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({successPay, user, onLog
                             <div className="footer-brand">
                                 <div className="nav-brand">
                                     <i className="fas fa-clipboard-list nav-logo-icon"></i>
-                                    <span className="nav-logo-text">Briefing Organizer</span>
+                                    <span className="nav-logo-text">IzyBriefing</span>
                                 </div>
                                 <p className="footer-description">
                                     Transforme briefings desorganizados em projetos claros e ágeis com análise avançada.
@@ -429,7 +429,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({successPay, user, onLog
                             </div>
                         </div>
                         <div className="footer-bottom">
-                            <p className="footer-copyright">© 2025 Automatic Briefing Organizer. All rights reserved.</p>
+                            <p className="footer-copyright">© 2025 Automatic IzyBriefing. All rights reserved.</p>
                         </div>
                     </div>
                 </footer>

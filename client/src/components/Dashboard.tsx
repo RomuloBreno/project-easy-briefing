@@ -188,7 +188,7 @@ export function Dashboard({ user,  onLogout, onShop }: DashboardProps) {
             <main className="app-main">
                 <div className="container">
                     <div className="app-header">
-                        <h1 className="app-title fade-in">Briefing Organizer</h1>
+                        <h1 className="app-title fade-in">IzyBriefing</h1>
                         <p className="app-subtitle fade-in">
                             Organize e analise seus briefings com Inteligência Artificial
                         </p>
@@ -410,7 +410,7 @@ export function Dashboard({ user,  onLogout, onShop }: DashboardProps) {
                 <div className="container">
                     <p className="app-footer-text">
                         Prototype • Made with{" "}
-                        <i className="fas fa-heart" style={{ color: "#e74c3c" }}></i> — Briefing Organizer
+                        <i className="fas fa-heart" style={{ color: "#e74c3c" }}></i> — IzyBriefing
                     </p>
                 </div>
             </footer>
