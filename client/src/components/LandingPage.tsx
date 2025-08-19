@@ -91,7 +91,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({successPay, user, onLog
                                         O Organizador de Briefing ajuda você a reunir, organizar e agilizar briefings de forma simples. Ideal para agências, designers, freelancers e empresas, ele usa IA para identificar lacunas, sugerir perguntas e garantir projetos mais claros e rápidos.
                                     </p>
                                     <div className="hero-buttons">
-                                        <a href="app.html" className="btn btn-primary btn-lg">Testar Grátis Agora</a>
+                                        <a onClick={onLoginClick} className="btn btn-primary btn-lg">Testar Grátis Agora</a>
                                         <a href="#features" className="btn btn-outline">Saiba Mais</a>
                                     </div>
                                 </div>

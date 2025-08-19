@@ -132,7 +132,8 @@ function AppContent() {
         onloading={isLoading}
         user={user}
         onLogout={logout}
-        onDashboard={dashboardPage} />;
+        onDashboard={dashboardPage}
+         />;
 return <LandingPage
         successPay={successPay}
         onLoginClick={() => setNeedLogin(true)}
