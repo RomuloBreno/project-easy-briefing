@@ -28,6 +28,7 @@ export function AuthForm({ resetPassIsValid, onPasswordRequest, onLogin, onRegis
      setIsRegister(false)
      setIsPassReset(false)
      setIsPassResetConfirm(false)
+     window.location.href ="/"
   }
    const handleResetPass = ()=>{
      setIsPassReset(true)
@@ -36,7 +37,6 @@ export function AuthForm({ resetPassIsValid, onPasswordRequest, onLogin, onRegis
      setIsPassResetConfirm(false)
     }
     const handleResetPassConfirm = ()=>{
-     console.log("handleResetPass")
      setIsPassResetConfirm(true)
      setIsPassReset(false)
      setIsRegister(false)

@@ -62,8 +62,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({successPay, user, onLog
                         <div style={{ display: 'flex', gap: '10px' }}>
                             {user?.email ? 
                             <>
-                            <button onClick={onDashboard} className="btn btn-primary">{ user?.plan == 0 ? "Free": user?.plan == 1 ? "Starter" : user?.plan == 2 ? "Pro" : 'Conheça Mais'}</button>
-                            <button onClick={onDashboard} className="btn btn-outline btn-sm">{user?.nameUser !== '' ? "User":user?.nameUser}</button>
+                            <button onClick={onDashboard} className="btn btn-primary">{ user?.plan === 0 ? "Free": user?.plan == 1 ? "Starter" : user?.plan == 2 ? "Pro" : 'Conheça Mais'}</button>
+                            <button onClick={onDashboard} className="btn btn-outline btn-sm">{user?.nameUser === '' ? "User":user?.nameUser}</button>
                             <button onClick={onLogout} className="btn btn-outline btn-sm">Sair</button>
                             </>
                             :

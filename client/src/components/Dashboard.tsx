@@ -3,6 +3,7 @@ import { ProfileForm } from "./ProfileForm";
 import { BriefingDataWithFiles, sendBriefingToAiApi, sendEmail } from "../api";
 import { AIResponse } from "../types/iaResponse";
 import AnalysisResults from "./AIResponse";
+import SpanUpdatePlan from "./SpanUpdatePlan";
 
 interface DashboardProps {
     user: {
@@ -237,9 +238,7 @@ export function Dashboard({ user,  onLogout, onShop }: DashboardProps) {
                                             disabled={isFreePlan}
                                         />
                                         {isFreePlan &&
-                                            <span className="form-hint-pro">
-                                                Assine o plano <strong>PRO</strong> para acessar mais recursos e análises avançadas!
-                                            </span>
+                                            <SpanUpdatePlan onShop={onShop}/>
                                         }
                                     </div>
 
@@ -270,19 +269,18 @@ export function Dashboard({ user,  onLogout, onShop }: DashboardProps) {
                                     </div> */}
 
                                     
-                                    { !isFreePlan && user?.planId && <div>
+                                    { user?.planId && <div>
                                         <label htmlFor="content-select" className="form-label">
                                             <input
                                                 type="checkbox"
                                                 checked={inputOrFile}
                                                 onChange={(e) => setInputOrFile(e.target.checked)}
+                                                disabled={isFreePlan}
                                             />
-                                              Usar input ou arquivo
-                                        </label>
+                                              {inputOrFile?"Adicionar texto":"Adicionar arquivo"}
+                                        </label><br />
                                        {isFreePlan &&
-                                            <span className="form-hint-pro">
-                                                Assine o plano <strong>PRO</strong> para acessar mais recursos e análises avançadas!
-                                            </span>
+                                            <SpanUpdatePlan onShop={onShop}/>
                                         }
                                     </div>}
                                     {/* Briefing Content */}

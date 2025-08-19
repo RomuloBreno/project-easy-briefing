@@ -38,6 +38,9 @@ export class AuthController {
                 if (error.message.includes('Email já está em uso')) {
                     return res.status(409).json({ error: error.message });
                 }
+                if (error.message.includes('Token Expirado')) {
+                    return res.status(401).json({ error: error.message });
+                }
             }
             return res.status(500).json({ error: 'Erro interno do servidor.' });
         }
