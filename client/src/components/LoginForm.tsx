@@ -297,6 +297,7 @@ function PasswordChangeForm({
     e.preventDefault();
     if (validatePassword(password) && validatePasswordRepet(passwordRepet)) {
       await onResetPasswordConfirm(password);
+      window.location.href="/"
     }
   };
 

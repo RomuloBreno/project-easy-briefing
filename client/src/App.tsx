@@ -26,6 +26,7 @@ function AppContent() {
         setDashboard(false)
         document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" });
     }
+
     const dashboardPage = () => {
         setNeedUpdatePlan(false)
         setDashboard(true)
@@ -42,8 +43,9 @@ function AppContent() {
             body: JSON.stringify({ token }),
         });
 
-        setTokenIsValid(valid && response.response);
-        setTokenIsValid(true);
+        setTokenIsValid(valid && response.user !==null);
+        console.log(valid, response.user !==null)
+        // setTokenIsValid(true);
     };
 
 
@@ -53,7 +55,7 @@ function AppContent() {
 
         // Obtém os parâmetros 'token' e 'valid' da URL
         const token = searchParams.get('resetToken');
-        const valid = searchParams.get('value');
+        const valid = searchParams.get('valid');
         if((token !== null && token !== '') &&
          (valid !== null && valid !== ''))
             tokenValid(token, valid=='true'?true:false)
@@ -101,7 +103,7 @@ function AppContent() {
         if (user?.email)
             return <Dashboard user={user} onLogout={logout} onShop={updatePlan} />;
     }
-    if (needLogin || tokenIsValid) {
+    if ((!user && needLogin) || tokenIsValid) {
         return (
             <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
                 <div className="w-full max-w-md">

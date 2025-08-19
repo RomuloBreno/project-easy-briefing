@@ -68,6 +68,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const result = await loginApi(email, password);
             const { token, ...user} = result.response
             localStorage.setItem('token', token);
+            // window.location.href="/"
             setUser(user);
         } catch (err: any) {
             setError(err.message);

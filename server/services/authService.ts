@@ -85,7 +85,8 @@ export class AuthService {
         if (!userId) {
             throw new Error('Falha ao criar o usuário.');
         }
-        await this.sendEmail(dto, token)
+        //ENVIO DE EMAIL REGISTER
+        // await this.sendEmailwithToken(dto, id.toString(), 'check')
 
         // Retorna o token para o front-end
         return {
@@ -205,18 +206,22 @@ export class AuthService {
             throw new Error('Token Expirado');
         }
     }
-        async sendEmail(dto: UserRequest, token: string): Promise<void> {
-            // Gera o token após a criação bem-sucedida
+        // async sendEmail(dto: UserRequest, id: string): Promise<void> {
+        //     // Gera o token após a criação bem-sucedida
             
-            const linkGenerate = (`${process.env.FRONT_URL}/check/token=${token}`);
-            // Envio do e-mail
-            await sendWelcomeEmail(dto.email, dto.name, linkGenerate);
-
-        }
-        async sendEmailResetPass(dto: UserRequest, id:string): Promise<void> {
+        //     const token = this.generateToken(id, dto.email);
+        //     // Envio do e-mail
+        //     await sendWelcomeEmail(dto.email, dto.name, linkGenerate);
+            
+        // }
+        async sendEmailwithToken(dto: UserRequest, id:string, handler:string): Promise<void> {
             // Gera o token após a criação bem-sucedida
             const token = this.generateToken(id, dto.email);
-            const linkGenerate = (`${process.env.FRONT_URL}/resetyourpass?token=${token}`);
+            let linkGenerate:string='';
+            if(handler=='check')
+                linkGenerate = (`${process.env.FRONT_URL}/check?token=${token}`);
+            if(handler=='reset')
+                linkGenerate = (`${process.env.FRONT_URL}/resetyourpass?token=${token}`);
             // Envio do e-mail
             await sendEmailResetPass(dto.email, linkGenerate);
 

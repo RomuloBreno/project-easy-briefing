@@ -49,8 +49,8 @@ export class AuthController {
     async sendTokenEmail(req: Request, res: Response): Promise<Response> {
         try {
             const dto: UserRequest = req.body;
-            // The service now returns a message, not a token
-            const result = await this.authService.sendEmail(dto, dto.token || '');
+            const userId = await this.authService.findByEmail(dto.email)
+            const result = await this.authService.sendEmailwithToken(dto, dto.email || '', 'check');
             return res.status(201).json({ message: result });
         } catch (error: unknown) {
             return res.status(400).json({ error: 'Envio de link para email' });
@@ -61,8 +61,7 @@ export class AuthController {
         try {
             const dto: UserRequest = req.body;
             const userId = await this.authService.findByEmail(dto.email)
-            // The service now returns a message, not a token
-            const result = await this.authService.sendEmailResetPass(dto, userId?._id?.toString() || '');
+            const result = await this.authService.sendEmailwithToken(dto, userId?._id?.toString() || '', 'reset');
             return res.status(201).json({ message: result });
         } catch (error: unknown) {
             return res.status(400).json({ error: 'Envio de link para email' });
