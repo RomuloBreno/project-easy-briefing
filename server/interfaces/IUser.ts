@@ -5,7 +5,7 @@ import type { CreateUserDTO } from "../DTO/CreateUserDTO";
 export interface IUser {
     _id?: ObjectId;
     token?: string;
-    nameUser: string;
+    name: string;
     email: string;
     passwordHash: string;
     createOn?: Date;

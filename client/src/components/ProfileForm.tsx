@@ -9,14 +9,14 @@ interface ProfileFormProps {
 
 export const ProfileForm: React.FC<ProfileFormProps> = ({ onCancel }) => {
     const { user, updateProfile, isLoading, error } = useAuth();
-    const [nameUser, setNameUser] = useState(user?.nameUser || '');
+    const [name, setname] = useState(user?.name || '');
     const [email, setEmail] = useState(user?.email || '');
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
     // Sincroniza o estado local com o contexto, caso o usuário mude
     useEffect(() => {
         if (user) {
-            setNameUser(user.nameUser);
+            setname(user.name);
             setEmail(user.email);
         }
     }, [user]);
@@ -25,7 +25,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({ onCancel }) => {
         e.preventDefault();
         setSuccessMessage(null);
         try {
-            await updateProfile(nameUser, email);
+            await updateProfile(name, email);
             setSuccessMessage('Perfil atualizado com sucesso!');
         } catch (err) {
             // O erro já é tratado e definido no contexto
@@ -40,15 +40,15 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({ onCancel }) => {
                 {successMessage && <p className="text-green-500 mb-4">{successMessage}</p>}
                 
                 <div className="mb-4">
-                    <label className="block text-gray-700 font-bold mb-2" htmlFor="nameUser">
+                    <label className="block text-gray-700 font-bold mb-2" htmlFor="name">
                         Nome
                     </label>
                     <input
                         type="text"
-                        id="nameUser"
+                        id="name"
                         className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-                        value={nameUser}
-                        onChange={(e) => setNameUser(e.target.value)}
+                        value={name}
+                        onChange={(e) => setname(e.target.value)}
                         required
                     />
                 </div>

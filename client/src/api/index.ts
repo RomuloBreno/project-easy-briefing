@@ -81,11 +81,11 @@ export const sendBriefingToAiApi = async (briefingText: BriefingDataWithFiles): 
     }
 };
 
-export const updateProfileApi = async (nameUser: string): Promise<User> => {
+export const updateProfileApi = async (name: string): Promise<User> => {
     try {
         const response = await apiFetch('/profile', {
             method: 'PATCH',
-            body: JSON.stringify({ nameUser }),
+            body: JSON.stringify({ name }),
         });
         console.log("FETCH /profile:", response)
         return response.user; // Assumindo que o backend retorna o usuário atualizado
@@ -123,7 +123,7 @@ export const sendEmail = async (email: string, name: string): Promise<User> => {
     try {
         const response = await apiFetch('/token-to-email', {
             method: 'POST',
-            body: JSON.stringify({ nameUser: name, email: email }),
+            body: JSON.stringify({ name: name, email: email }),
         });
         console.log("FETCH /token-to-email:", response); // Log para depuração
         return response;

@@ -34,7 +34,7 @@ export class UserRepository implements IUserRepository {
   async create(dto: IUser, password:string): Promise<User> {
     const passwordHash = await this.hashPassword(password);
     const user: IUser = {
-      nameUser: dto.nameUser,
+      name: dto.name,
       email: dto.email,
       passwordHash,
       createOn: new Date(),

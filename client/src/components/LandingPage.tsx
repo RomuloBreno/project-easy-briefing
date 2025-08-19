@@ -12,7 +12,7 @@ interface LandingPageProps {
     onloading:boolean;
     successPay:boolean|null;
     user: {
-        nameUser: string;
+        name: string;
         email: string;
         plan?: number;
         planId?: boolean;
@@ -29,10 +29,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({successPay, user, onLog
         );
     }
     const [openModal, setOpenModal] = useState<boolean>()
+    const [modalFakePurchase, setModalFakePurchase] = useState<boolean>()
 
     const handleButtonPurchase = async (value:number|null) => {
-        if(value)
+        if(value){
+            setModalFakePurchase(true)
             onPurchaseClick(value)
+            setModalFakePurchase(false)
+        }
         setOpenModal(!openModal?true:false)
     }
 
@@ -45,6 +49,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({successPay, user, onLog
         <>
         {openModal && successPay == null && <ModalExample onClose={handleButtonPurchase} openModalSuccessPay={true} message={"Ative sua conta pelo email para ter direito a assinatura"}/>}
         {openModal && successPay == true && <ModalExample onClose={handleButtonPurchase} openModalSuccessPay={true} message={"Sua compra foi realizada com sucesso, faça login novamente caso seja necessário"}/>}
+        {modalFakePurchase && <ModalExample onClose={handleButtonPurchase} openModalSuccessPay={true} message={"SIMULAÇÃO DE COMPRA"}/>}
            <div id="root"></div>
                 <header className="header">
                     <nav className="nav container">
@@ -63,7 +68,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({successPay, user, onLog
                             {user?.email ? 
                             <>
                             <button onClick={onDashboard} className="btn btn-primary">{ user?.plan === 0 ? "Free": user?.plan == 1 ? "Starter" : user?.plan == 2 ? "Pro" : 'Conheça Mais'}</button>
-                            <button onClick={onDashboard} className="btn btn-outline btn-sm">{user?.nameUser === '' ? "User":user?.nameUser}</button>
+                            <button onClick={onDashboard} className="btn btn-outline btn-sm">{user?.name === '' ? "User":user?.name}</button>
                             <button onClick={onLogout} className="btn btn-outline btn-sm">Sair</button>
                             </>
                             :

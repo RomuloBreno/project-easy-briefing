@@ -7,7 +7,7 @@ import SpanUpdatePlan from "./SpanUpdatePlan";
 
 interface DashboardProps {
     user: {
-        nameUser: string;
+        name: string;
         email: string;
         plan?: number;
         planId?: boolean;
@@ -37,7 +37,7 @@ export function Dashboard({ user,  onLogout, onShop }: DashboardProps) {
     };
 
     const handleButtonNewEmail = async () => {
-        sendEmail(user.email, user.nameUser)
+        sendEmail(user.email, user.name)
     }
     // Adicione a função de validação de arquivos aqui
     const validateUploadedFiles = (files: File[]) => {

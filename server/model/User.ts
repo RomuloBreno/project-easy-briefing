@@ -5,7 +5,7 @@ import { ObjectId } from "mongodb";
 export class User implements IUser {
    
     _id?: ObjectId | undefined;
-    nameUser: string;
+    name: string;
     email: string;
     passwordHash: string;
     createOn?: Date | undefined;
@@ -20,7 +20,7 @@ export class User implements IUser {
   // Construtor baseado na interface
   constructor(user: User) {
     this._id = user._id;
-    this.nameUser = user.nameUser;
+    this.name = user.name;
     this.email = user.email;
     this.passwordHash = user.passwordHash;
     this.createOn = user.createOn ?? new Date(); // default = agora

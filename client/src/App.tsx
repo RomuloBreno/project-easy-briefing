@@ -15,7 +15,7 @@ function AppContent() {
     const [dashboard, setDashboard] = useState(false);
     const [tokenIsValid, setTokenIsValid] = useState(false);
     // const user={
-    //     nameUser: 'string',
+    //     name: 'string',
     //     email: 'string',
     //     plan: 0,
     //     planId: true,// Corrigido para string, pois é um ID do gateway de pagamento

@@ -13,7 +13,7 @@ export class JWTService {
     const payload = {
       id: user._id,
       email: user.email,
-      name: user.nameUser
+      name: user.name
     };
 
     return jwt.sign(payload, JWT_SECRET, {

@@ -1,6 +1,6 @@
 // DTO para criação de usuário
 export class LoginDTO {
-  nameUser: string;
+  name: string;
   email: string;
   password: string;
 }

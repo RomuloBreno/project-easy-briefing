@@ -1,7 +1,7 @@
 // models/UserResponse.ts
 export class UserResponse {
     token?: string | undefined;
-    nameUser: string;
+    name: string;
     email: string;
     planId?: boolean;
     plan?: number;

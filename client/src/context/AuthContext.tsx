@@ -25,7 +25,7 @@ interface AuthContextType {
     resetPass: (email: string) => Promise<void>;
     logout: () => void;
     purchase: (plan: number) => Promise<void>;
-    updateProfile: (nameUser: string, email: string) => Promise<void>;
+    updateProfile: (name: string, email: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -155,7 +155,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
     
     // NOVO: Função para atualizar o perfil
-    const updateProfile = async (nameUser: string, email: string) => {
+    const updateProfile = async (name: string, email: string) => {
         if (!user) {
             setError('Usuário não autenticado.');
             return;
@@ -165,8 +165,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setError(null);
 
         try {
-            if (nameUser !== user.nameUser) {
-                const updatedUser = await updateProfileApi(nameUser);
+            if (name !== user.name) {
+                const updatedUser = await updateProfileApi(name);
                 setUser(updatedUser);
             }
 

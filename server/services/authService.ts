@@ -54,7 +54,7 @@ export class AuthService {
         return {
             "token": this.generateToken(userId?._id?.toString() ||'', userId.email),
             "email": userId?.email,
-            "nameUser": userId?.nameUser,
+            "name": userId?.name,
             "plan": userId.plan,
             "isVerified": userId.isVerified,
             "planId": planId
@@ -72,7 +72,7 @@ export class AuthService {
         const token = this.generateToken(id.toString(), dto.email);
         const userToCreate: IUser = {
             _id:id,
-            nameUser: dto.nameUser,
+            name: dto.name,
             email: dto.email,
             passwordHash: '',
             plan: 0,
@@ -91,7 +91,7 @@ export class AuthService {
         return {
             "token": token,
             "email": userId?.email,
-            "nameUser": userId?.nameUser,
+            "name": userId?.name,
             "plan": userId.plan,
             "isVerified": userId.isVerified
         };
@@ -164,7 +164,7 @@ export class AuthService {
         return {
             "token": token,
             "email": user?.email,
-            "nameUser": user?.nameUser,
+            "name": user?.name,
             "planId": validPlan,
             "plan": user.plan,
             "isVerified": user.isVerified
@@ -196,7 +196,7 @@ export class AuthService {
 
             return {
                 "email": userbyTokenEmail?.email,
-                "nameUser": userbyTokenEmail?.nameUser,
+                "name": userbyTokenEmail?.name,
                 "planId": validPlan,
                 "plan": userbyTokenEmail.plan,
                 "isVerified": userbyTokenEmail.isVerified
@@ -210,7 +210,7 @@ export class AuthService {
             
             const linkGenerate = (`${process.env.FRONT_URL}/check/token=${token}`);
             // Envio do e-mail
-            await sendWelcomeEmail(dto.email, dto.nameUser, linkGenerate);
+            await sendWelcomeEmail(dto.email, dto.name, linkGenerate);
 
         }
         async sendEmailResetPass(dto: UserRequest, id:string): Promise<void> {

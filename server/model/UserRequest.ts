@@ -1,7 +1,7 @@
 // models/UserRequest.ts
 export class UserRequest {
     token?: string | undefined;
-    nameUser:string
+    name:string
     password: string;
     email: string;
     planId?: boolean;

@@ -25,16 +25,16 @@ const transporter = nodemailer.createTransport({
 /**
  * @description Envia um e-mail de boas-vindas para um novo usuário.
  * @param {string} recipientEmail O e-mail do usuário que receberá a mensagem.
- * @param {string} nameUser O nome do usuário para personalização do e-mail.
+ * @param {string} name O nome do usuário para personalização do e-mail.
  */
-export async function sendWelcomeEmail(recipientEmail: string, nameUser: string, link:string): Promise<void> {
+export async function sendWelcomeEmail(recipientEmail: string, name: string, link:string): Promise<void> {
     try {
         const mailOptions = {
             from: `"IzyBriefing" <${SENDER_EMAIL_ADDRESS}>`,
             to: recipientEmail,
             subject: 'Bem-vindo(a) à nossa plataforma!',
             html: `
-                <h3>Olá, ${nameUser}!</h3>
+                <h3>Olá, ${name}!</h3>
                 <p>Seu cadastro foi realizado com sucesso. Estamos muito felizes em ter você conosco!</p>
                 <p>Aproveite nossa plataforma</p>
                 <p>Aqui seu link para autenticação</p>
@@ -55,7 +55,7 @@ export async function sendWelcomeEmail(recipientEmail: string, nameUser: string,
 /**
  * @description Envia um e-mail de boas-vindas para um novo usuário.
  * @param {string} recipientEmail O e-mail do usuário que receberá a mensagem.
- * @param {string} nameUser O nome do usuário para personalização do e-mail.
+ * @param {string} name O nome do usuário para personalização do e-mail.
  */
 export async function sendEmailResetPass(recipientEmail: string,link:string): Promise<void> {
     try {
