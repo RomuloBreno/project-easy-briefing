@@ -38,7 +38,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({successPay, user, onLog
         }
         setOpenModal(!openModal?true:false)
     }
-    const handleButtonPurchaseFakeModal = async (value:number|null) => {
+    const handleButtonPurchaseFakeModal = async () => {
             setModalFakePurchase(false)
     }
 
