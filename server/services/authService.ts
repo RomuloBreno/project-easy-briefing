@@ -1,7 +1,7 @@
 // services/AuthService.ts
 import jwt from 'jsonwebtoken';
 import type { IUserRepository } from "../interfaces/IUserRepository.ts";
-import type { CreateUserDTO } from '../DTO/CreateUserDTO.ts';
+import type { CreateUserDTO, UpdateUserDTO } from '../DTO/CreateUserDTO.ts';
 import type { IUser } from '../interfaces/IUser.ts';
 import { User } from '../model/User.ts'; // Importa a classe de modelo de negócio
 import { UserResponse } from '../model/UserResponse.ts';
@@ -37,14 +37,15 @@ export class AuthService {
     }
     // Assumindo que este é o método na sua classe AuthService
     // Ele recebe um UserRequest do frontend
-    async updatePass(dto: CreateUserDTO): Promise<UserResponse> {
-        const existingUser: User | null = await this.userRepository.findByEmail(dto.email);
+    async updatePass(dto: UpdateUserDTO): Promise<UserResponse> {
+        const decoded = await this.validToken(dto.token)
+        const existingUser: User | null = await this.userRepository.findByEmail(decoded?.email || '');
         if(!existingUser)
             throw new Error('Falha ao criar o usuário.');
+
         
         const userId = new User(existingUser)
         
-
         const planId = await userId.validPlan()
                 // Retorna o token para o front-end
 
@@ -215,7 +216,7 @@ export class AuthService {
         async sendEmailResetPass(dto: UserRequest, id:string): Promise<void> {
             // Gera o token após a criação bem-sucedida
             const token = this.generateToken(id, dto.email);
-            const linkGenerate = (`${process.env.FRONT_URL}/resetyourpass/token=${token}`);
+            const linkGenerate = (`${process.env.FRONT_URL}/resetyourpass?token=${token}`);
             // Envio do e-mail
             await sendEmailResetPass(dto.email, linkGenerate);
 

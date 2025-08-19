@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 import { AuthService } from '../services/authService.ts';
-import { CreateUserDTO } from '../DTO/CreateUserDTO.ts';
+import { CreateUserDTO, UpdateUserDTO } from '../DTO/CreateUserDTO.ts';
 import { LoginDTO } from '../DTO/LoginDTO.ts';
 import { User } from '../model/User.ts';
 import { UserRequest } from '../model/UserRequest.ts';
@@ -27,9 +27,9 @@ export class AuthController {
             return res.status(500).json({ error: 'Erro interno do servidor.' });
         }
     }
-    async update(req: Request, res: Response): Promise<Response> {
+    async updatePassword(req: Request, res: Response): Promise<Response> {
         try {
-            const dto: CreateUserDTO = req.body;
+            const dto: UpdateUserDTO = req.body;
             // The service now returns a message, not a token
             const result = await this.authService.updatePass(dto);
             return res.status(201).json({ message: result });
@@ -103,21 +103,21 @@ export class AuthController {
     }
 
     // New endpoint to verify the email with the token from the URL
-    async verifyEmailResetPass(res: Request, token: string): Promise<Response> {
+    async verifyEmailResetPass(res: Request, token: string): Promise<boolean> {
         try {
             if (!token || typeof token !== 'string') {
                 return res.status(400).json({ error: 'Token de verificação inválido.' });
             }
             const decode = await this.authService.validToken(token);
-            if(decode?.email =='') return
-            return res.status(200).json({ message: true });
+            if(decode?.email =='') return false
+            return true
         } catch (error: unknown) {
             if (error instanceof Error) {
                 if (error.message.includes('Token Expirado')) {
-                    return res.status(401).json({ error: error.message });
+                    return false
                 }
             }
-            return res.status(500).json({ error: 'Erro interno do servidor.' });
+            return false
         }
     }
 

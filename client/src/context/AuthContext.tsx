@@ -11,7 +11,7 @@ import {
     requestEmailChangeApi,
     sendEmail,
     sendEmailResetPass,
-    updateApi
+    updatePasswordApi
 } from '../api';
 
 interface AuthContextType {
@@ -21,7 +21,7 @@ interface AuthContextType {
     successPay: boolean | null;
     login: (email: string, password: string) => Promise<void>;
     register: (name: string, email: string, password: string) => Promise<void>;
-    update: (email: string, password: string) => Promise<void>;
+    updatePassword: (password: string) => Promise<void>;
     resetPass: (email: string) => Promise<void>;
     logout: () => void;
     purchase: (plan: number) => Promise<void>;
@@ -35,12 +35,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [token, setToken] = useState<string | null>(null);
     const [successPay, setSuccessPay] = useState<boolean | null>(false);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (token) {
             validateToken(token);
+            setToken(token)
         }
     }, []);
 
@@ -88,11 +90,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
-    const update = async (email: string, password: string) => {
+    const updatePassword = async (password: string) => {
         setIsLoading(true);
         setError(null);
         try {
-            await updateApi(email, password);
+        const searchParams = new URLSearchParams(window.location.search);
+        // Obtém os parâmetros 'token' e 'valid' da URL
+        const token = searchParams.get('resetToken');
+            if(token)
+                await updatePasswordApi(token || '', password);
         } catch (err: any) {
             setError(err.message);
         } finally {
@@ -178,7 +184,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     return (
-        <AuthContext.Provider value={{ user, isLoading, error, successPay, login, register, resetPass, logout, purchase, updateProfile, update }}>
+        <AuthContext.Provider value={{ user, isLoading, error, successPay, login, register, resetPass, logout, purchase, updateProfile, updatePassword }}>
             {children}
         </AuthContext.Provider>
     );

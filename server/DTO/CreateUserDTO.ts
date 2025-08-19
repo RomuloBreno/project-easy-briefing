@@ -3,3 +3,8 @@ export class CreateUserDTO {
   email: string;
   password: string;
 }
+export class UpdateUserDTO {
+  token:string;
+  email: string;
+  password: string;
+}

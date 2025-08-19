@@ -51,7 +51,7 @@ async function initializeApp() {
   // --- Rotas da API ---
   // Rota de registro de usuário
   app.post('/api/register', (req, res) => authController.register(req, res));
-  app.patch('/api/update', (req, res) => authController.update(req, res));
+  app.patch('/api/update-password', (req, res) => authController.updatePassword(req, res));
 
   // Rota de login de usuário
   app.post('/api/login', (req, res) => authController.login(req, res));
@@ -60,6 +60,7 @@ async function initializeApp() {
   app.post('/api/token', (req, res) => authController.getTokenValidation(req, res));
   
   app.post('/api/token-to-email', (req, res) => authController.sendTokenEmail(req, res));
+  app.post('/api/reset-pass', (req, res) => authController.sendEmailResetPass(req, res));
 
   
   // Rota para definir/atualizar plano do usuário (compra/assinatura)
@@ -73,12 +74,16 @@ async function initializeApp() {
   });
   
   //Valid urls by email
-  app.get('/api/resetyourpass', (req, res) =>{
+  app.get('/resetyourpass', async (req, res) =>{
     const { token } = req.query;
-    if (token)
-      authController.verifyEmailResetPass(res, token)
-
+    if (!token) return
+    
+    const isValid = await authController.verifyEmailResetPass(res, token).then();
+    if(!isValid)
+      return res.redirect('/?error=invalid_reset_token');
+    return res.redirect(`/?resetToken=${token}&valid=${isValid}`)
   });
+
   app.get('/check', (req, res) => {
     const { token } = req.query;
     if (token)

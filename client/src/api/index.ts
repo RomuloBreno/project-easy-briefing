@@ -20,7 +20,7 @@ export interface BriefingDataWithFiles {
 }
 
 // Função utilitária centralizada para fazer requisições à API usando fetch
-const apiFetch = async (url: string, options: CustomRequestOptions = {}) => {
+export const apiFetch = async (url: string, options: CustomRequestOptions = {}) => {
     const token = localStorage.getItem('authToken');
 
     const headers = {
@@ -36,7 +36,7 @@ const apiFetch = async (url: string, options: CustomRequestOptions = {}) => {
             localStorage.removeItem('authToken'); // Limpa o token inválido
             // IMPORTANTE: Para redirecionar aqui, você precisará de uma forma de acessar a navegação
             // (ex: window.location.href = '/login'; ou usar um hook de navegação do React Router em um contexto superior).
-            throw new Error('Unauthorized'); // Lança um erro para ser capturado no chamador
+            throw new Error('Sessão expirada ou não autorizada. Dados como email e senha não Encontrados'); // Lança um erro para ser capturado no chamador
         }
 
         if (response.status === 500) {
@@ -44,7 +44,7 @@ const apiFetch = async (url: string, options: CustomRequestOptions = {}) => {
             localStorage.removeItem('authToken'); // Limpa o token inválido
             // IMPORTANTE: Para redirecionar aqui, você precisará de uma forma de acessar a navegação
             // (ex: window.location.href = '/login'; ou usar um hook de navegação do React Router em um contexto superior).
-            throw new Error('Unauthorized'); // Lança um erro para ser capturado no chamador
+            throw new Error('Tivemos um erro inesperado, sintimos muito pelo imprevisto'); // Lança um erro para ser capturado no chamador
         }
 
         if (!response.ok) { // Trata status HTTP que não são 2xx (ex: 400, 500, etc.)
@@ -173,13 +173,13 @@ export const registerApi = async (name: string, email: string, password: string)
     }
 };
 
-export const updateApi = async (email: string, password: string): Promise<{ user: User; token: string }> => {
+export const updatePasswordApi = async (token: string, password: string): Promise<{ user: User; token: string }> => {
     try {
-        const response = await apiFetch('/register', {
+        const response = await apiFetch('/update-password', {
             method: 'PATCH',
-            body: JSON.stringify({email, password }),
+            body: JSON.stringify({token, password }),
         });
-        console.log("FETCH update /register:", response); // Log para depuração
+        console.log("FETCH update /update-password:", response); // Log para depuração
         return {
             user: response.user,
             token: response.token,

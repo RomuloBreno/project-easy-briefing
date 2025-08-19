@@ -1,44 +1,82 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Eye, EyeOff, Lock, Mail, User, AlertCircle } from "lucide-react";
-import PasswordResetForm from './PassResetForm';
 
 interface AuthFormProps {
   onLogin: (email: string, password: string) => Promise<void>;
   onRegister: (name: string, email: string, password: string) => Promise<void>;
   onPasswordRequest: (email: string) => Promise<void>;
+  onResetPasswordConfirm: (password: string) => Promise<void>;
   isLoading: boolean;
+  resetPassIsValid: boolean;
   error: string | null;
 }
 
-export function AuthForm({ onPasswordRequest, onLogin, onRegister, isLoading, error }: AuthFormProps) {
+export function AuthForm({ resetPassIsValid, onPasswordRequest, onLogin, onRegister, isLoading, error, onResetPasswordConfirm }: AuthFormProps) {
   const [isRegister, setIsRegister] = useState(false);
   const [isPassReset, setIsPassReset] = useState(false);
+  const [isPassResetConfirm, setIsPassResetConfirm] = useState(false);
+  const [isLogin, setIsLogin] = useState(true);
 
+  const handleRegister = ()=>{
+     setIsRegister(true)
+     setIsPassReset(false)
+     setIsLogin(false)
+     setIsPassResetConfirm(false)
+  }
+   const handleLogin = ()=>{
+     setIsLogin(true)
+     setIsRegister(false)
+     setIsPassReset(false)
+     setIsPassResetConfirm(false)
+  }
+   const handleResetPass = ()=>{
+     setIsPassReset(true)
+     setIsRegister(false)
+     setIsLogin(false)
+     setIsPassResetConfirm(false)
+    }
+    const handleResetPassConfirm = ()=>{
+     console.log("handleResetPass")
+     setIsPassResetConfirm(true)
+     setIsPassReset(false)
+     setIsRegister(false)
+     setIsLogin(false)
+  }
+  useEffect(()=>{if(resetPassIsValid==true){handleResetPassConfirm()}},[isRegister,isLogin,isPassReset, resetPassIsValid])
   return (
     <div className="w-full max-w-md mx-auto">
-      {isRegister ? (
+      {isRegister && 
         <RegisterForm
           onRegister={onRegister}
           isLoading={isLoading}
           error={error}
-          switchToLogin={() => setIsRegister(false)}
-          switchResetPass={() => setIsPassReset(false)}
-        />
-      ) : isPassReset? 
+          switchLogin={() => handleLogin()}
+        />}
+
+       {isPassReset &&
         <PasswordRequestForm
-            onPasswordRequest={onPasswordRequest}isLoading={isLoading}
+            onPasswordRequest={onPasswordRequest} isLoading={isLoading}
           error={error}
-          switchToLogin={() => setIsRegister(false)}
+          switchLogin={() => handleLogin()}
           />
-      : (
-        <LoginForm
-          onLogin={onLogin}
-          isLoading={isLoading}
-          error={error}
-          switchToRegister={() => setIsRegister(true)}
-          switchResetPass={() => setIsPassReset(false)}
-        />
-      )}
+        }
+        {isPassResetConfirm &&
+        <PasswordChangeForm
+            onResetPasswordConfirm={onResetPasswordConfirm}
+            isLoading={isLoading}
+            error={error}
+            switchLogin={() =>handleLogin()}
+          />
+        }
+        {isLogin &&
+          <LoginForm
+            onLogin={onLogin}
+            isLoading={isLoading}
+            error={error}
+            switchRegister={handleRegister}
+            switchResetPass={() => handleResetPass()}
+          />
+        }
     </div>
   );
 }
@@ -48,12 +86,12 @@ function PasswordRequestForm({
   onPasswordRequest,
   isLoading,
   error,
-  switchToLogin
+  switchLogin
 }: {
   onPasswordRequest: (email: string) => Promise<void>;
   isLoading: boolean;
   error: string | null;
-  switchToLogin: () => void; // Para voltar para a tela de login
+  switchLogin: () => void; // Para voltar para a tela de login
 }) {
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState<string | null>(null);
@@ -121,7 +159,7 @@ function PasswordRequestForm({
       <SwitchAuth
         text="Lembra sua senha?"
         actionText="Voltar para o Login"
-        onClick={switchToLogin}
+        onClick={switchLogin}
       />
     </div>
   );
@@ -133,13 +171,13 @@ function LoginForm({
   onLogin,
   isLoading,
   error,
-  switchToRegister,
+  switchRegister,
   switchResetPass
 }: {
   onLogin: (email: string, password: string) => Promise<void>;
   isLoading: boolean;
   error: string | null;
-  switchToRegister: () => void;
+  switchRegister: () => void;
   switchResetPass: () => void;
 }) {
   const [email, setEmail] = useState("");
@@ -212,25 +250,112 @@ function LoginForm({
         </button>
       </form>
 
-      <SwitchAuth text="Não tem uma conta?" actionText="Cadastre-se" onClick={switchToRegister} />
+      <SwitchAuth text="Não tem uma conta?" actionText="Cadastre-se" onClick={switchRegister} />
       <SwitchAuth text="Esqueceu sua senha?" actionText="Refazer senha" onClick={switchResetPass} />
     </div>
   );
 }
 
 /* ------------------- FORM DE REGISTRO ------------------- */
+function PasswordChangeForm({
+  isLoading,
+  error,
+  switchLogin,
+  onResetPasswordConfirm
+}: {
+  onResetPasswordConfirm: (password: string) => Promise<void>;
+  isLoading: boolean;
+  error: string | null;
+  switchLogin: () => void;
+}) {
+  const [password, setPassword] = useState("");
+  const [passwordRepet, setPasswordRepet] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState("");
+
+  const validatePassword = (value: string) => {
+    if (!value) return setPasswordError("A senha é obrigatória"), false;
+    if (value.length < 6)
+      return setPasswordError("A senha deve ter pelo menos 6 caracteres"), false;
+    if (password !== value)
+      return setPasswordError("As senhas devem ser iguais"), false;
+    setPasswordError("");
+    return true;
+  };
+  const validatePasswordRepet = (value: string) => {
+    setPasswordRepet(value)
+    if (!value) return setPasswordError("A senha é obrigatória"), false;
+    if (value.length < 6)
+      return setPasswordError("A senha deve ter pelo menos 6 caracteres"), false;
+    if (password !== value)
+      return setPasswordError("As senhas devem ser iguais"), false;
+    setPasswordError("");
+    return true;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (validatePassword(password) && validatePasswordRepet(passwordRepet)) {
+      await onResetPasswordConfirm(password);
+    }
+  };
+
+  return (
+    <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+      <Header title="Crie sua conta" subtitle="Preencha os dados para continuar" />
+
+      {error && <ErrorMessage message={error} />}
+
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <PasswordField
+          id="password"
+          label="Senha"
+          value={password}
+          onChange={setPassword}
+          onBlur={() => validatePassword(password)}
+          error={passwordError}
+          showPassword={showPassword}
+          toggleShowPassword={() => setShowPassword(!showPassword)}
+          disabled={isLoading}
+          required
+        />
+        <PasswordField
+          id="password-repet"
+          label="Senha"
+          value={passwordRepet}
+          onChange={setPasswordRepet}
+          onBlur={() => validatePasswordRepet(passwordRepet)}
+          error={passwordError}
+          showPassword={showPassword}
+          toggleShowPassword={() => setShowPassword(!showPassword)}
+          disabled={isLoading}
+          required
+        />
+
+        <button
+          type="submit"
+          disabled={isLoading || !password}
+          className="w-full py-3 px-4 rounded-lg text-white bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+        >
+          {isLoading ? "Enviando..." : "Enviar"}
+        </button>
+      </form>
+
+      <SwitchAuth text="Já possui uma conta?" actionText="Entrar" onClick={switchLogin} />
+    </div>
+  );
+}
+/* ------------------- FORM DE REGISTRO ------------------- */
 function RegisterForm({
   onRegister,
   isLoading,
   error,
-  switchToLogin,
-  switchResetPass
+  switchLogin
 }: {
   onRegister: (name: string, email: string, password: string) => Promise<void>;
   isLoading: boolean;
   error: string | null;
-  switchToLogin: () => void;
-  switchResetPass: () => void;
+  switchLogin: () => void;
 }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -349,8 +474,7 @@ function RegisterForm({
         </button>
       </form>
 
-      <SwitchAuth text="Já possui uma conta?" actionText="Entrar" onClick={switchToLogin} />
-      <SwitchAuth text="Esqueceu sua senha?" actionText="Refazer senha" onClick={switchResetPass} />
+      <SwitchAuth text="Já possui uma conta?" actionText="Entrar" onClick={switchLogin} />
     </div>
   );
 }
