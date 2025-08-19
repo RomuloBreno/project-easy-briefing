@@ -232,7 +232,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({successPay, user, onLog
                                         <li><i className="fas fa-check"></i> Detecção de cenários que impactam</li>
                                         <li><i className="fas fa-check"></i> até 10 analises completas mensais</li>
                                     </ul>
-                                   {user?.plan == 1 ? <span>Ja Possui</span> :  <button onClick={() => handleButtonPurchase(1)} className="btn btn-outline btn-full">Ativar Starter</button>}
+                                   {user?.plan == 1 ? <span>Ja Possui</span> : <button onClick={user==null ? () => onLoginClick() :() => handleButtonPurchase(1)} className="btn btn-outline btn-full">Ativar Starter</button>}
                                 </div>
 
                                 <div className="pricing-card pricing-card-popular">
@@ -255,7 +255,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({successPay, user, onLog
                                         <li><i className="fas fa-check"></i> até 25 analises completas mensais</li>
                                     </ul>
                                     </ul>
-                                    {user?.plan == 2 ? <span>Ja Possui</span> :  <button onClick={() => handleButtonPurchase(1)} className="btn btn-outline btn-full">Liberar Pro</button>}
+                                    {user?.plan == 2 ? <span>Ja Possui</span> :  <button  onClick={user==null ? () => onLoginClick() :() => handleButtonPurchase(2)} className="btn btn-outline btn-full">Liberar Pro</button>}
                                 </div>
 
                                 <div className="pricing-card">
