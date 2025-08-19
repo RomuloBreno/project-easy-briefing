@@ -5,7 +5,7 @@ import type { CreateUserDTO, UpdateUserDTO } from '../DTO/CreateUserDTO.ts';
 import type { IUser } from '../interfaces/IUser.ts';
 import { User } from '../model/User.ts'; // Importa a classe de modelo de negócio
 import { UserResponse } from '../model/UserResponse.ts';
-import { sendEmailResetPass, sendWelcomeEmail } from './emailService.ts';
+import { sendEmailAfterPurchase, sendEmailResetPass, sendWelcomeEmail } from './emailService.ts';
 import { ObjectId } from 'mongodb';
 import { UserRequest } from '../model/UserRequest.ts';
 
@@ -141,6 +141,8 @@ export class AuthService {
         }
         // Simulação de chamada de API para processar o pagamento e gerar um ID
         const paymentId = `mercadopago_${Date.now()}`;
+        if(paymentId != '')
+         await sendEmailAfterPurchase(dto.email)
         return paymentId;
     }
     async login(email: string, password: string): Promise<UserResponse | null> {
