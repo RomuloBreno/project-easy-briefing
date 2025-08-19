@@ -138,7 +138,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({successPay, user, onLog
                                     <h3 className="feature-title">Análise Automática com IA
                                     </h3>
                                     <p className="feature-description">
-                                        Organize e categorize seus briefings automaticamente com inteligência artificial para mais clareza e rapidez.
+                                        Analise seus briefings automaticamente com inteligência artificial para mais clareza e rapidez.
 
 
 
@@ -174,10 +174,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({successPay, user, onLog
                                     <div className="feature-icon">
                                         <i className="fas fa-cloud"></i>
                                     </div>
-                                    <h3 className="feature-title">Integração com Plataformas
+                                    <h3 className="feature-title">Prompts personalizados
                                     </h3>
                                     <p className="feature-description">
-                                        Conecte-se ao Google Drive, Dropbox e outros para gerenciar arquivos na nuvem.
+                                        Faça seus prompts personalizados para nossa IA avaliar com base nas suas informações
 
 
                                     </p>
@@ -186,10 +186,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({successPay, user, onLog
                                     <div className="feature-icon">
                                         <i className="fas fa-download"></i>
                                     </div>
-                                    <h3 className="feature-title">Exportação em Diversos Formatos
+                                    <h3 className="feature-title">Amostragem de cenários não avaliados
                                     </h3>
                                     <p className="feature-description">
-                                        Baixe seus briefings prontos em PDF, Word e mais, prontos para compartilhar.
+                                        Saiba quais cenários devem ser melhor avaliados com base no seu nicho e prompt
 
 
                                     </p>
@@ -228,10 +228,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({successPay, user, onLog
                                     <ul className="pricing-features">
                                         <li><i className="fas fa-check"></i> Análise automática de texto com IA</li>
                                         <li><i className="fas fa-check"></i> Sugestões de perguntas personalizada</li>
-                                        <li><i className="fas fa-check"></i> Detecção básica de lacunas</li>
-                                        <li><i className="fas fa-check"></i> Exportação em PDF</li>
+                                        <li><i className="fas fa-check"></i> Validações de oportunidades para novos projetos</li>
+                                        <li><i className="fas fa-check"></i> Detecção de cenários que impactam</li>
+                                        <li><i className="fas fa-check"></i> até 10 analises completas mensais</li>
                                     </ul>
-                                   {user?.plan == 1 ? <span>Ja Possui</span> :  <button onClick={() => handleButtonPurchase(1)} className="btn btn-outline btn-full">Clique para Começar</button>}
+                                   {user?.plan == 1 ? <span>Ja Possui</span> :  <button onClick={() => handleButtonPurchase(1)} className="btn btn-outline btn-full">Ativar Starter</button>}
                                 </div>
 
                                 <div className="pricing-card pricing-card-popular">
@@ -245,13 +246,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({successPay, user, onLog
                                         </div>
                                     </div>
                                     <ul className="pricing-features">
-                                        <li><i className="fas fa-check"></i> Integração com Google Drive, Dropbox e OneDrive</li>
-                                        <li><i className="fas fa-check"></i> Exportação avançada (PDF, Word, Excel)</li>
-                                        <li><i className="fas fa-check"></i> Colaboração em tempo real com equipes</li>
-                                        <li><i className="fas fa-check"></i> Histórico e controle de versões</li>
-                                        <li><i className="fas fa-check"></i> Armazenamento expandido (até 10 GB)</li>
+                                        <ul className="pricing-features">
+                                        <li><i className="fas fa-check"></i> Análises de IA por arquivo enviado e Texto</li>
+                                        <li><i className="fas fa-check"></i> Possibilidade de envio de prompt de pedido para a IA</li>
+                                        <li><i className="fas fa-check"></i> Sugestões avançadas de perguntas personalizada</li>
+                                        <li><i className="fas fa-check"></i> Validações de oportunidades para novos projetos com foco no seu prompt</li>
+                                        <li><i className="fas fa-check"></i> Detecção avançada de cenários e tecnicas baseado em seu nicho </li>
+                                        <li><i className="fas fa-check"></i> até 25 analises completas mensais</li>
                                     </ul>
-                                    {user?.plan == 2 ? <span>Ja Possui</span> :  <button onClick={() => handleButtonPurchase(1)} className="btn btn-outline btn-full">Clique para Começar</button>}
+                                    </ul>
+                                    {user?.plan == 2 ? <span>Ja Possui</span> :  <button onClick={() => handleButtonPurchase(1)} className="btn btn-outline btn-full">Liberar Pro</button>}
                                 </div>
 
                                 <div className="pricing-card">
@@ -264,11 +268,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({successPay, user, onLog
                                         </div>
                                     </div>
                                     <ul className="pricing-features">
-                                        <li><i className="fas fa-check"></i> Relatórios e dashboards avançados</li>
-                                        <li><i className="fas fa-check"></i> Integrações customizadas com CRM e ERP</li>
-                                        <li><i className="fas fa-check"></i> Armazenamento ilimitado</li>
-                                        <li><i className="fas fa-check"></i> Gerente de conta dedicado</li>
-                                        <li><i className="fas fa-check"></i> SLA com suporte 24/7</li>
+                                        <li><i className="fas fa-check"></i> Análises de IA por arquivo enviado e Texto</li>
+                                        <li><i className="fas fa-check"></i> Possibilidade de envio de prompt de pedido para a IA</li>
+                                        <li><i className="fas fa-check"></i> Sugestões avançadas de perguntas personalizada</li>
+                                        <li><i className="fas fa-check"></i> Validações de oportunidades para novos projetos com foco no seu prompt</li>
+                                        <li><i className="fas fa-check"></i> Detecção avançada de cenários e tecnicas baseado em seu nicho </li>
+                                        <li><i className="fas fa-check"></i> Sem limitações em analises completas mensais</li>
+                                        <li><i className="fas fa-check"></i> Downlaod da analise em PDF</li>
+                                        <li><i className="fas fa-check"></i> Integração com Google Drive</li>
                                     </ul>
                                     {/* <button onClick={() => onPurchaseClick(3)} className="btn btn-outline btn-full">Clique para Começar</button> */}
                                     <span>Em breve</span>
