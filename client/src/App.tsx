@@ -88,6 +88,7 @@ function AppContent() {
 
     if (needUpdatePlan) {
         return <LandingPage
+            error={error||''}
             successPay={successPay}
             onLoginClick={() => setNeedLogin(true)}
             onPurchaseClick={purchase}
@@ -125,6 +126,7 @@ function AppContent() {
         );
     }
     if (user == null) return <LandingPage
+        error={error||''}
         successPay={successPay}
         onLoginClick={() => setNeedLogin(true)}
         onPurchaseClick={purchase}
@@ -134,6 +136,7 @@ function AppContent() {
         onDashboard={dashboardPage}
          />;
 return <LandingPage
+        error={error||''}
         successPay={successPay}
         onLoginClick={() => setNeedLogin(true)}
         onPurchaseClick={purchase}
