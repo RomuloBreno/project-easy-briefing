@@ -131,22 +131,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsLoading(true);
         setError(null);
         try {
-            if (!user) {
-                throw new Error('Usuário não autenticado.');
-            }
-            if(!user.isVerified){
-                console.log("EMAIL NÃO VERIFICADO")
-                setSuccessPay(null);
-                 throw new Error('Conta deve ser validada por e-mail');
-            } 
+            // if (!user) {
+            //     throw new Error('Usuário não autenticado.');
+            // }
+            // if(!user.isVerified){
+            //     console.log("EMAIL NÃO VERIFICADO")
+            //     setSuccessPay(null);
+            //      throw new Error('Conta deve ser validada por e-mail');
+            // } 
                 
-            //Mock time
-            console.log("ABRIR MODAL DE PAGMENTO")
-            setTimeout(async ()=>{
-                const updatedUser = await purchaseApi(user.email, plan);
-                setUser(updatedUser);
-                setSuccessPay(true);
-            },5000)
+            // //Mock time
+            // setTimeout(async ()=>{
+            //     const updatedUser = await purchaseApi(user.email, plan);
+            //     setUser(updatedUser);
+            //     setSuccessPay(true);
+            // },5000)
         } catch (err: any) {
             setSuccessPay(false);
             setError(err.message);

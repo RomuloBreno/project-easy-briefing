@@ -74,7 +74,6 @@ export const sendBriefingToAiApi = async (briefingText: BriefingDataWithFiles): 
             method: 'POST',
             body: JSON.stringify({ briefingText }),
         });
-         console.log("FETCH /briefing:", response)
         return response.response; // Supondo que o backend retorna a resposta da IA em um campo 'response'
     } catch (error: any) {
         throw new Error(error.message || 'Falha ao enviar o briefing para a IA.');
@@ -87,7 +86,6 @@ export const updateProfileApi = async (name: string): Promise<User> => {
             method: 'PATCH',
             body: JSON.stringify({ name }),
         });
-        console.log("FETCH /profile:", response)
         return response.user; // Assumindo que o backend retorna o usuário atualizado
     } catch (error: any) {
         throw new Error(error.message || 'Falha ao atualizar o perfil.');
@@ -100,7 +98,6 @@ export const requestEmailChangeApi = async (newEmail: string): Promise<void> => 
             method: 'POST',
             body: JSON.stringify({ newEmail }),
         });
-        console.log("FETCH /request-email-change:", response)
     } catch (error: any) {
         throw new Error(error.message || 'Falha ao solicitar a mudança de email.');
     }
@@ -112,7 +109,6 @@ export const validateTokenApi = async (token: string): Promise<User> => {
             method: 'POST',
             body: JSON.stringify({ token }),
         });
-        console.log("FETCH /token:", response)
         return response.user; // O backend deve retornar os dados do usuário se o token for válido
     } catch (error: any) {
         throw new Error(error.message || 'Token inválido ou expirado.');
@@ -124,8 +120,7 @@ export const sendEmail = async (email: string, name: string): Promise<User> => {
         const response = await apiFetch('/token-to-email', {
             method: 'POST',
             body: JSON.stringify({ name: name, email: email }),
-        });
-        console.log("FETCH /token-to-email:", response); // Log para depuração
+        }); // Log para depuração
         return response;
     } catch (error: any) {
         throw new Error(error.message || 'Falha ao enviar e-mail.');
@@ -136,8 +131,7 @@ export const sendEmailResetPass = async (email: string): Promise<void> => {
         const response = await apiFetch('/reset-pass', {
             method: 'POST',
             body: JSON.stringify({email: email}),
-        });
-        console.log("FETCH /reset-pass", response); // Log para depuração
+        }); // Log para depuração
         return response;
     } catch (error: any) {
         throw new Error(error.message || 'Falha ao enviar e-mail.');
@@ -150,7 +144,6 @@ export const loginApi = async (email: string, password: string): Promise<any> =>
             method: 'POST',
             body: JSON.stringify({ email, password }),
         });
-        console.log("FETCH /login:", response); // Log para depuração
         return { response };
     } catch (error: any) {
         throw new Error(error.message || 'Login falhou.');
@@ -163,7 +156,6 @@ export const registerApi = async (name: string, email: string, password: string)
             method: 'POST',
             body: JSON.stringify({ name, email, password }),
         });
-        console.log("FETCH /register:", response); // Log para depuração
         return {
             user: response.user,
             token: response.token,
@@ -179,7 +171,6 @@ export const updatePasswordApi = async (token: string, password: string): Promis
             method: 'PATCH',
             body: JSON.stringify({token, password }),
         });
-        console.log("FETCH update /update-password:", response); // Log para depuração
         return {
             user: response.user,
             token: response.token,
@@ -201,7 +192,6 @@ export const purchaseApi = async (email: string, plan: number): Promise<User> =>
                 planId: apiPayResult
             }),
         });
-        console.log("FETCH /purchase:", response)
         return response.user;
     } catch (error: any) {
         throw new Error(error.message || 'Falha na compra.');

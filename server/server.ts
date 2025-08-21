@@ -5,9 +5,11 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { connectDB, disconnectDB } from "./database.ts";
 import { UserRepository } from './repositories/UserRepository.ts';
+import { PaymentRepository } from './repositories/PaymentRepository.ts';
 import { AuthService } from './services/authService.ts';
-import { AuthController } from "./controllers/AuthController.ts";
+import { Controller } from "./controllers/Controller.ts";
 import { AnalysiController } from './controllers/AnalysiController.ts'
+import { PaymentService } from './services/PaymentService.ts';
 
 // Configuração do Express
 const app = express();
@@ -44,33 +46,53 @@ async function initializeApp() {
   const db = await connectDB();
 
   const userRepository = new UserRepository(db);
+  const paymentRepository = new PaymentRepository(db);
   const authService = new AuthService(userRepository);
-  const authController = new AuthController(authService);
+  const paymentService = new PaymentService(paymentRepository, userRepository);
+  const controller = new Controller(authService,paymentService);
   const analysiController = new AnalysiController(authService);
 
   // --- Rotas da API ---
   // Rota de registro de usuário
-  app.post('/api/register', (req, res) => authController.register(req, res));
-  app.patch('/api/update-password', (req, res) => authController.updatePassword(req, res));
+  app.post('/api/register', (req, res) => controller.register(req, res));
+  app.patch('/api/update-password', (req, res) => controller.updatePassword(req, res));
 
   // Rota de login de usuário
-  app.post('/api/login', (req, res) => authController.login(req, res));
+  app.post('/api/login', (req, res) => controller.login(req, res));
 
   // Rota para validar token de autenticação
-  app.post('/api/token', (req, res) => authController.getTokenValidation(req, res));
+  app.post('/api/token', (req, res) => controller.getTokenValidation(req, res));
   
-  app.post('/api/token-to-email', (req, res) => authController.sendTokenEmail(req, res));
-  app.post('/api/reset-pass', (req, res) => authController.sendEmailResetPass(req, res));
+  app.post('/api/token-to-email', (req, res) => controller.sendTokenEmail(req, res));
+  app.post('/api/reset-pass', (req, res) => controller.sendEmailResetPass(req, res));
 
   
   // Rota para definir/atualizar plano do usuário (compra/assinatura)
-  app.post('/api/purchase', (req, res) => authController.setNewUserPlan(req, res));
+  app.post('/api/purchase', (req, res) => controller.setNewUserPlan(req, res));
+  app.post('/api/create-payment-preference', (req, res) => controller.createPaymentPreference(req, res));
   
-  app.post('/api/briefing', async (req, res) => authController.getAnalysis(req,res));
+  app.post('/api/briefing', async (req, res) => controller.getAnalysis(req,res));
   
   // Rota de health check
   app.get('/api/health', (req, res) => {
     res.json({ message: 'API is running' });
+  });
+  
+  // Rota de health check
+  app.get('/api/preference-success', (req, res) => {
+    try {
+    const paymentData = req.body;
+    if (!paymentService.validateWebhook(req)) {
+    return res.status(401).send("Webhook inválido");
+    }
+
+    paymentService.updatePaymentById(paymentData.data.id)
+    // Sempre responda 200 para confirmar o recebimento
+    res.sendStatus(200);
+  } catch (error) {
+    console.error("Erro no webhook:", error);
+    res.sendStatus(500);
+  }
   });
   
   //Valid urls by email
@@ -78,7 +100,7 @@ async function initializeApp() {
     const { token } = req.query;
     if (!token) return
     
-    const isValid = await authController.verifyEmailResetPass(res, token).then();
+    const isValid = await controller.verifyEmailResetPass(res, token).then();
     if(!isValid)
       return res.redirect('/?error=invalid_reset_token');
     return res.redirect(`/?resetToken=${token}&valid=${isValid}`)
@@ -87,7 +109,7 @@ async function initializeApp() {
   app.get('/check', (req, res) => {
     const { token } = req.query;
     if (token)
-      authController.verifyEmail(res, token)
+      controller.verifyEmail(res, token)
   });
 
 

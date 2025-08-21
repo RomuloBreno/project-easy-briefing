@@ -44,7 +44,6 @@ function AppContent() {
         });
 
         setTokenIsValid(valid && response.user !==null);
-        console.log(valid, response.user !==null)
         // setTokenIsValid(true);
     };
 

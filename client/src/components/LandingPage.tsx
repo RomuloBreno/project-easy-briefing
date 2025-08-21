@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import ModalExample from './modal';
 import { purchaseApi } from '../api';
+import MercadoPagoButton from './MpCheckout';
+import { User } from '../types/user';
 
 interface LandingPageProps {
     onLoginClick: () => void;
@@ -11,13 +13,7 @@ interface LandingPageProps {
     onLogout: () => void;
     onloading:boolean;
     successPay:boolean|null;
-    user: {
-        name: string;
-        email: string;
-        plan?: number;
-        planId?: boolean;
-        isVerified?: boolean
-    } | null;
+    user: User;
 }
 
 export const LandingPage: React.FC<LandingPageProps> = ({successPay, user, onLoginClick, onPurchaseClick, onloading, onLogout, onDashboard }) => {
@@ -29,29 +25,37 @@ export const LandingPage: React.FC<LandingPageProps> = ({successPay, user, onLog
         );
     }
     const [openModal, setOpenModal] = useState<boolean>()
-    const [modalFakePurchase, setModalFakePurchase] = useState<boolean>()
+    const [modalPurchase, setmodalPurchase] = useState<boolean>()
 
     const handleButtonPurchase = async (value:number|null) => {
         if(value){
-            setModalFakePurchase(true)
+            setmodalPurchase(true)
             onPurchaseClick(value)
         }
         setOpenModal(!openModal?true:false)
     }
     const handleButtonPurchaseFakeModal = async () => {
-            setModalFakePurchase(false)
+            setmodalPurchase(false)
     }
 
     useEffect(()=>{
 
-    },[user,openModal,modalFakePurchase])
+    },[user,openModal,modalPurchase])
     // Código JSX da landing page que você forneceu
     // Note que os botões de login e compra agora usam as props do componente.
     return (
         <>
+        { modalPurchase && user &&
+            <>
+            <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
+            {/* Renderiza o componente do botão do Mercado Pago */}
+            <MercadoPagoButton user={user} orderId="meu-pedido-123" />
+            </div>
+            </>
+        }
         {openModal && successPay == null && <ModalExample onClose={handleButtonPurchase} openModalSuccessPay={true} message={"Ative sua conta pelo email para ter direito a assinatura"}/>}
         {openModal && successPay == true && <ModalExample onClose={handleButtonPurchase} openModalSuccessPay={true} message={"Sua compra foi realizada com sucesso, faça login novamente caso seja necessário"}/>}
-        {modalFakePurchase && <ModalExample onClose={handleButtonPurchaseFakeModal} openModalSuccessPay={true} message={"SIMULAÇÃO DE COMPRA"}/>}
+        {modalPurchase && <ModalExample onClose={handleButtonPurchaseFakeModal} openModalSuccessPay={true} message={"SIMULAÇÃO DE COMPRA"}/>}
            <div id="root"></div>
                 <header className="header">
                     <nav className="nav container">

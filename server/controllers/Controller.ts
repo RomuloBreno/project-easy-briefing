@@ -1,15 +1,19 @@
 import type { Request, Response } from 'express';
 import { AuthService } from '../services/authService.ts';
+import { PaymentService } from '../services/PaymentService.ts';
 import { CreateUserDTO, UpdateUserDTO } from '../DTO/CreateUserDTO.ts';
 import { LoginDTO } from '../DTO/LoginDTO.ts';
 import { User } from '../model/User.ts';
+import { PaymentRequest } from '../model/PaymentRequest.ts';
 import { UserRequest } from '../model/UserRequest.ts';
 import openai, { OpenAI } from 'openai';
-export class AuthController {
+export class Controller {
     private readonly authService: AuthService;
+    private readonly paymentService: PaymentService;
 
-    constructor(authService: AuthService) {
+    constructor(authService: AuthService, paymentService:PaymentService) {
         this.authService = authService;
+        this.paymentService = paymentService;
     }
 
     async register(req: Request, res: Response): Promise<Response> {
@@ -129,6 +133,25 @@ export class AuthController {
             const dto: User = req.body;
             const updatedUser = await this.authService.updateUserPlan(dto);
             return res.status(200).json(updatedUser);
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                return res.status(400).json({ error: error.message });
+            }
+            return res.status(500).json({ error: 'Erro interno do servidor.' });
+        }
+    }
+
+    //TODO
+    //MUDAR PARA MPSERVICE E CRIAR CONTROLLER
+    //O MESMO PARA USUÁRIOS
+    async createPaymentPreference(req: Request, res: Response): Promise<Response> {
+        try {
+            const dto: PaymentRequest = req.body;
+            const user:User | null = await this.authService.findByEmail(dto.email)
+            let preference:string =''; 
+            if(user?._id)
+                preference = await this.paymentService.createPaymentPreference(dto?.plan || 0, user?._id.toString());
+            return res.status(200).json({preferenceId:preference});
         } catch (error: unknown) {
             if (error instanceof Error) {
                 return res.status(400).json({ error: error.message });

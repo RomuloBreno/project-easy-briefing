@@ -12,7 +12,6 @@ interface Props {
 }
 
 export default function AnalysisResults({ aiResponse }: Props) {
-    console.log(aiResponse)
   if (aiResponse !== null){
       if(aiResponse.analise==''
         && aiResponse.perguntas.length == 0
