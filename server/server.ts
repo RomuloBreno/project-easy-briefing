@@ -78,8 +78,7 @@ async function initializeApp() {
     res.json({ message: 'API is running' });
   });
   
-  // Rota de health check
-  app.get('/api/preference-success', (req, res) => {
+  app.post('/api/preference-success', (req, res) => {
     try {
     const paymentData = req.body;
     if (!paymentService.validateWebhook(req)) {
