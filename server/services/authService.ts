@@ -69,7 +69,8 @@ export class AuthService {
             email: dto.email,
             passwordHash: '',
             plan: 0,
-            verificationCode: token
+            verificationCode: token,
+            qtdRequest: Plans[0].maxRequests
         };
         // Chama o método create do repositório
         // O repositório ou o serviço de autenticação cuidará do hash da senha
