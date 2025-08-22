@@ -22,6 +22,7 @@ import { authMiddleware } from './auth/middleware.ts';
 dotenv.config();
 
 // Configuração do Express
+
 const app = express();
 
 // Configuração do CORS
