@@ -16,8 +16,8 @@ RUN cd server && npm install
 # Copiar todo o código
 COPY . .
 
-RUN cd client && VITE_API_BASE_URL=${VITE_API_BASE_URL} \
-                VITE_MERCADO_PAGO_PUBLIC_KEY=${VITE_MERCADO_PAGO_PUBLIC_KEY} \
+RUN cd client && VITE_API_BASE_URL=${http://localhost:3000/api} \
+                VITE_MERCADO_PAGO_PUBLIC_KEY=${APP_USR-08becad4-81e8-4c0c-9692-cd9fa03da996} \
                 npm run build
 
 # Etapa de produção
