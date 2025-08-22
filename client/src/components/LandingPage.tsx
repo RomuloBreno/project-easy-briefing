@@ -39,21 +39,23 @@ export const LandingPage: React.FC<LandingPageProps> = ({error, successPay, user
     // }
 
     useEffect(()=>{
-
+        setmodalPurchase(false)
     },[user,openModal,modalPurchase])
     // Código JSX da landing page que você forneceu
     // Note que os botões de login e compra agora usam as props do componente.
+    
+
+    if(modalPurchase && user)
     return (
-        <>
-        { modalPurchase && user &&
             <>
             <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
             {/* Renderiza o componente do botão do Mercado Pago */}
             <MercadoPagoButton user={user} orderId="meu-pedido-123" />
             </div>
             </>
-        }
-
+        )
+    return (
+        <>
         {/* {error != '' &&  <ModalExample onClose={handleButtonPurchase} openModalSuccessPay={true} message={error}/>} */}
         {openModal && successPay == null && <ModalExample onClose={handleButtonPurchase} openModalSuccessPay={true} message={"Ative sua conta pelo email para ter direito a assinatura"}/>}
         {openModal && successPay == true && <ModalExample onClose={handleButtonPurchase} openModalSuccessPay={true} message={"Sua compra foi realizada com sucesso, faça login novamente caso seja necessário"}/>}
