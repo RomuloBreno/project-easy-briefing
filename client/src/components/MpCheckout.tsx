@@ -5,7 +5,7 @@ import { User } from '../types/user';
 // Importante: Para variáveis de ambiente no frontend em frameworks como Next.js/Create React App,
 // elas geralmente precisam de um prefixo como NEXT_PUBLIC_ ou REACT_APP_.
 // Ajuste conforme o seu setup de ambiente.
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'; // Exemplo para Next.js
+const API_BASE_URL = import.meta.env.VITE_API_URL; // Exemplo para Next.js
 const MERCADO_PAGO_PUBLIC_KEY = import.meta.env.VITE_MERCADO_PAGO; // Sua chave pública do Mercado Pago
 
 interface MercadoPagoButtonProps {
