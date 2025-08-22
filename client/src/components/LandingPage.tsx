@@ -29,16 +29,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({error, successPay, user
 
     const handleButtonPurchase = async (value:number|null) => {
         if(value){
-            
+            onPurchaseClick(value)
             document.getElementById("mp")?.scrollIntoView({ behavior: "smooth" });
             setmodalPurchase(true)
-            onPurchaseClick(value)
         }
-        setOpenModal(!openModal?true:false)
     }
-    // const handleButtonPurchaseFakeModal = async () => {
-    //         setmodalPurchase(false)
-    // }
+    
+    const handleButtonNeedVerified = async (value:number|null) => {
+            setOpenModal(!openModal?true:false)
+    }
 
     useEffect(()=>{
     },[user,openModal,modalPurchase])
@@ -46,21 +45,21 @@ export const LandingPage: React.FC<LandingPageProps> = ({error, successPay, user
     // Note que os botões de login e compra agora usam as props do componente.
     
 
-    if(modalPurchase && user)
-    return (
-            <>
-            <div id="mp" className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
-            {/* Renderiza o componente do botão do Mercado Pago */}
-            <MercadoPagoButton user={user} orderId="meu-pedido-123" />
-            </div>
-            </>
-        )
+    if(modalPurchase && user?.isVerified==true){
+        return (
+                <>
+                <div id="mp" className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
+                {/* Renderiza o componente do botão do Mercado Pago */}
+                <MercadoPagoButton user={user} orderId="meu-pedido-123" />
+                </div>
+                </>
+            )
+
+    }
     return (
         <>
         {/* {error != '' &&  <ModalExample onClose={handleButtonPurchase} openModalSuccessPay={true} message={error}/>} */}
-        {openModal && successPay === null && <ModalExample onClose={handleButtonPurchase} openModalSuccessPay={true} message={"Ative sua conta pelo email para ter direito a assinatura"}/>}
-        {openModal && successPay === true && <ModalExample onClose={handleButtonPurchase} openModalSuccessPay={true} message={"Sua compra foi realizada com sucesso, faça login novamente caso seja necessário"}/>}
-        {/* {modalPurchase && <ModalExample onClose={handleButtonPurchaseFakeModal} openModalSuccessPay={true} message={"SIMULAÇÃO DE COMPRA"}/>} */}
+        {openModal && successPay === true && user?.isVerified && <ModalExample onClose={handleButtonNeedVerified} openModalSuccessPay={true} message={"Ative sua conta pelo email para ter direito a assinatura"}/>}        {/* {modalPurchase && <ModalExample onClose={handleButtonPurchaseFakeModal} openModalSuccessPay={true} message={"SIMULAÇÃO DE COMPRA"}/>} */}
            <div id="root"></div>
                 <header className="header">
                     <nav className="nav container">
