@@ -11,7 +11,6 @@ if (!SENDER_EMAIL_ADDRESS || !SENDER_EMAIL_PASSWORD) {
     throw new Error('As variáveis de ambiente para o e-mail do remetente e a senha não estão configuradas.');
 }
 
-// Configurações SMTP da Hostinger (com base na imagem fornecida)
 const transporter = nodemailer.createTransport({
     host: 'smtp.hostinger.com',
     port: 465,
