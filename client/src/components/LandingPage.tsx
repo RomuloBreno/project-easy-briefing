@@ -54,7 +54,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({error, successPay, user
             </>
         }
 
-        {error != '' &&  <ModalExample onClose={handleButtonPurchase} openModalSuccessPay={true} message={error}/>}
+        {/* {error != '' &&  <ModalExample onClose={handleButtonPurchase} openModalSuccessPay={true} message={error}/>} */}
         {openModal && successPay == null && <ModalExample onClose={handleButtonPurchase} openModalSuccessPay={true} message={"Ative sua conta pelo email para ter direito a assinatura"}/>}
         {openModal && successPay == true && <ModalExample onClose={handleButtonPurchase} openModalSuccessPay={true} message={"Sua compra foi realizada com sucesso, faça login novamente caso seja necessário"}/>}
         {/* {modalPurchase && <ModalExample onClose={handleButtonPurchaseFakeModal} openModalSuccessPay={true} message={"SIMULAÇÃO DE COMPRA"}/>} */}

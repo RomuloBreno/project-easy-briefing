@@ -139,9 +139,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                  throw new Error('Conta deve ser validada por e-mail');
             } 
                 
-            const updatedUser = await purchaseApi(user.email, plan);
-            setUser(updatedUser);
-            setSuccessPay(true);
+            // const updatedUser = await purchaseApi(user.email, plan);
+            // setUser(updatedUser);
+            // setSuccessPay(true);
             //Mock time
             // setTimeout(async ()=>{
             // },5000)
