@@ -29,6 +29,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({error, successPay, user
 
     const handleButtonPurchase = async (value:number|null) => {
         if(value){
+            
+            document.getElementById("mp")?.scrollIntoView({ behavior: "smooth" });
             setmodalPurchase(true)
             onPurchaseClick(value)
         }
@@ -48,7 +50,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({error, successPay, user
     if(modalPurchase && user)
     return (
             <>
-            <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
+            <div id="mp" className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
             {/* Renderiza o componente do botão do Mercado Pago */}
             <MercadoPagoButton user={user} orderId="meu-pedido-123" />
             </div>
