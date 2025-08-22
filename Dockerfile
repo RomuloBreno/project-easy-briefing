@@ -14,7 +14,7 @@ COPY server/package*.json ./server/
 
 # Instalar dependências
 RUN cd client && npm install
-RUN cd server && npm install
+RUN cd server && npm install && npm install dotenv
 
 # Copiar todo o código
 COPY . .
