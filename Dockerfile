@@ -22,7 +22,7 @@ COPY . .
 # Rodar build do frontend (Vite já gera em server/public)
 # Passe os argumentos VITE_ como variáveis de ambiente para o comando npm run build
 RUN cd client && VITE_API_BASE_URL=${VITE_API_BASE_URL} \
-                VITE_MERCADO_PAGO_PUBLIC_KEY=${VITE_MERCADO_PAGO_PUBLIC_KEY} \
+                VITE_MERCADO_PAGO_PUBLIC_KEY=${VITE_MERCADO_PAGO} \
                 npm run build
 
 # Etapa de produção
