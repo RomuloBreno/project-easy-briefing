@@ -21,6 +21,7 @@ import { authMiddleware } from './auth/middleware.ts';
 // Importante: No Dockerfile, garantimos que as variáveis de ambiente estão disponíveis no build E runtime.
 dotenv.config();
 
+
 // Configuração do Express
 
 const app = express();
