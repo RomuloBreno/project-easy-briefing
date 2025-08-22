@@ -7,7 +7,7 @@ import { connectDB, disconnectDB } from "./database.ts";
 import { UserRepository } from './repositories/UserRepository.ts';
 import { PaymentRepository } from './repositories/PaymentRepository.ts';
 import { AuthService } from './services/authService.ts';
-import { PaymentService } from './services/paymentService.ts';
+import { PaymentService } from './services/paymentService';
 import { QuotaService } from './services/quotaService.ts'; // NOVO: Importa o QuotaService
 
 // Importa as novas controllers
