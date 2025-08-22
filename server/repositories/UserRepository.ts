@@ -1,6 +1,6 @@
 // src/repositories/UserRepository.ts
 import { Db, ObjectId } from "mongodb";
-import 'dotenv/config';
+import dotenv from "dotenv";
 import { CreateUserDTO } from '../DTO/CreateUserDTO.ts';
 import type { IUserRepository } from "../interfaces/IUserRepository.ts";
 import bcrypt from 'bcrypt';
@@ -8,7 +8,7 @@ import { User } from "../model/User.ts";
 
 import type { IUser } from "../interfaces/IUser.ts";
 import { UserRequest } from "../model/UserRequest.ts";
-
+dotenv.config();
 export class UserRepository implements IUserRepository {
   private readonly collectionName = 'users';
   private readonly db: Db;

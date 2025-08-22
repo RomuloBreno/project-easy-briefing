@@ -1,5 +1,5 @@
 import express from 'express';
-import 'dotenv/config';
+import dotenv from "dotenv";
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -10,7 +10,8 @@ import { AuthService } from './services/authService.ts';
 import { Controller } from "./controllers/Controller.ts";
 import { AnalysiController } from './controllers/AnalysiController.ts'
 import { PaymentService } from './services/PaymentService.ts';
-
+// Carrega variáveis do arquivo .env para process.env
+dotenv.config();
 // Configuração do Express
 const app = express();
 
