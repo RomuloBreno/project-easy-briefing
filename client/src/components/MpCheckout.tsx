@@ -6,7 +6,7 @@ import { User } from '../types/user';
 // elas geralmente precisam de um prefixo como NEXT_PUBLIC_ ou REACT_APP_.
 // Ajuste conforme o seu setup de ambiente.
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'; // Exemplo para Next.js
-const MERCADO_PAGO_PUBLIC_KEY = process.env.VITE_MERCADO_PAGO_PUBLIC_KEY; // Sua chave pública do Mercado Pago
+const MERCADO_PAGO_PUBLIC_KEY = import.meta.env.VITE_MERCADO_PAGO; // Sua chave pública do Mercado Pago
 
 interface MercadoPagoButtonProps {
   // Você pode passar propriedades para o componente, se necessário,
