@@ -28,18 +28,24 @@ export const LandingPage: React.FC<LandingPageProps> = ({error, successPay, user
     const [modalPurchase, setmodalPurchase] = useState<boolean>()
 
     const handleButtonPurchase = async (value:number|null) => {
-        if(value){
+        if(user?.isVerified == false){
+            handleButtonNeedVerified
+            setOpenModal(true)
+        }
+        if(value && user?.isVerified == true){
+            setOpenModal(false)
             onPurchaseClick(value)
             document.getElementById("mp")?.scrollIntoView({ behavior: "smooth" });
             setmodalPurchase(true)
         }
     }
     
-    const handleButtonNeedVerified = async (value:number|null) => {
-            setOpenModal(!openModal?true:false)
+    const handleButtonNeedVerified = async () => {
+        setOpenModal(false)
     }
 
     useEffect(()=>{
+        console.log(user)
     },[user,openModal,modalPurchase])
     // Código JSX da landing page que você forneceu
     // Note que os botões de login e compra agora usam as props do componente.
@@ -59,7 +65,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({error, successPay, user
     return (
         <>
         {/* {error != '' &&  <ModalExample onClose={handleButtonPurchase} openModalSuccessPay={true} message={error}/>} */}
-        {openModal && successPay === true && user?.isVerified && <ModalExample onClose={handleButtonNeedVerified} openModalSuccessPay={true} message={"Ative sua conta pelo email para ter direito a assinatura"}/>}        {/* {modalPurchase && <ModalExample onClose={handleButtonPurchaseFakeModal} openModalSuccessPay={true} message={"SIMULAÇÃO DE COMPRA"}/>} */}
+        {openModal && user?.isVerified==false && <ModalExample onClose={handleButtonNeedVerified} openModalSuccessPay={true} message={"Ative sua conta pelo email para ter direito a assinatura"}/>}        {/* {modalPurchase && <ModalExample onClose={handleButtonPurchaseFakeModal} openModalSuccessPay={true} message={"SIMULAÇÃO DE COMPRA"}/>} */}
            <div id="root"></div>
                 <header className="header">
                     <nav className="nav container">

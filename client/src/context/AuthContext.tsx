@@ -52,6 +52,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const result = await validateTokenApi(token);
             localStorage.setItem('token', token);
             setUser(result);
+            console.log(result)
         } catch (err: any) {
             setError(err.message || 'Token inválido ou expirado.');
             setUser(null);

@@ -21,7 +21,7 @@ export interface BriefingDataWithFiles {
 
 // Função utilitária centralizada para fazer requisições à API usando fetch
 export const apiFetch = async (url: string, options: CustomRequestOptions = {}) => {
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem('token');
 
     const headers = {
         'Content-Type': 'application/json',
@@ -33,7 +33,7 @@ export const apiFetch = async (url: string, options: CustomRequestOptions = {}) 
         const response = await fetch("/api"+ url, { ...options, headers: new Headers(headers) }); // Envolve headers em new Headers() para fetch
         if (response.status === 401) {
             console.warn('Sessão expirada ou não autorizado. Redirecionando para a página de login.');
-            localStorage.removeItem('authToken'); // Limpa o token inválido
+            localStorage.removeItem('token'); // Limpa o token inválido
             // IMPORTANTE: Para redirecionar aqui, você precisará de uma forma de acessar a navegação
             // (ex: window.location.href = '/login'; ou usar um hook de navegação do React Router em um contexto superior).
             throw new Error('Sessão expirada ou não autorizada. Dados como email e senha não Encontrados'); // Lança um erro para ser capturado no chamador
@@ -41,7 +41,7 @@ export const apiFetch = async (url: string, options: CustomRequestOptions = {}) 
 
         if (response.status === 500) {
             console.warn('Tivemos um erro inesperado, sintimos muito pelo imprevisto');
-            localStorage.removeItem('authToken'); // Limpa o token inválido
+            localStorage.removeItem('token'); // Limpa o token inválido
             // IMPORTANTE: Para redirecionar aqui, você precisará de uma forma de acessar a navegação
             // (ex: window.location.href = '/login'; ou usar um hook de navegação do React Router em um contexto superior).
             throw new Error('Tivemos um erro inesperado, sintimos muito pelo imprevisto'); // Lança um erro para ser capturado no chamador

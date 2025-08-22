@@ -76,7 +76,7 @@ async function initializeApp() {
     app.post('/api/register', (req, res) => authController.register(req, res));
     app.patch('/api/update-password', (req, res) => authController.updateNewPass(req, res));
     app.post('/api/login', (req, res) => authController.login(req, res));
-    app.post('/api/token', middleware, (req, res) => authController.getTokenValidation(req, res));
+    app.post('/api/token', (req, res) => authController.getTokenValidation(req, res));
     app.post('/api/token-to-email', middleware,  (req, res) => authController.sendTokenEmail(req, res));
     app.post('/api/reset-pass', (req, res) => authController.sendEmailResetPass(req, res));
     app.get('/resetyourpass', async (req, res) => {
