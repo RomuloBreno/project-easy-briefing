@@ -27,7 +27,6 @@
   },
   "devDependencies": {
     "@types/node": "^24.3.0",
-    "bcrypt": "^6.0.0",
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.18.0",
     "node": "^24.2.1",
