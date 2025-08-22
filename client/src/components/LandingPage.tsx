@@ -375,10 +375,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({error, successPay, user
                                 </p>
                             </div>
                             <div className="contact-content">
-                                <a href="app.html" className="btn btn-primary btn-lg">Teste Grátis por 7 Dias
+                                <a onClick={user == null ? onLoginClick : onDashboard} className="btn btn-primary btn-lg">Teste Grátis
 
                                 </a>
-                                <p className="contact-note">Sem cartão de crédito • Acesse todos os recursos
+                                <p className="contact-note">Sem cartão de crédito • Acesse os nossos recursos
 
 
 
