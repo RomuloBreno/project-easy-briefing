@@ -26,6 +26,7 @@ const MercadoPagoButton: React.FC<MercadoPagoButtonProps> = ({ orderId, user }) 
   useEffect(() => {
     const setupMercadoPago = async (user:User) => {
       // Verifica se a chave pública está disponível
+      console.log(MERCADO_PAGO_PUBLIC_KEY)
       if (!MERCADO_PAGO_PUBLIC_KEY) {
         setError("Chave pública do Mercado Pago não configurada.");
         setLoading(false);
