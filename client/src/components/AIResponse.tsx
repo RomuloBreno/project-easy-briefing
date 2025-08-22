@@ -14,9 +14,9 @@ interface Props {
 export default function AnalysisResults({ aiResponse }: Props) {
   if (aiResponse !== null){
       if(aiResponse.analise==''
-        && aiResponse.perguntas.length == 0
-        && aiResponse.oportunidades.length == 0
-        && aiResponse.cenarios.length == 0
+        && aiResponse.perguntas.length === 0
+        && aiResponse.oportunidades.length === 0
+        && aiResponse.cenarios.length === 0
     ){
       return(
           <>

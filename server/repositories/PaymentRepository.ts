@@ -41,7 +41,7 @@ export class PaymentRepository {
     preferenceId: string,
     status: string,
     statusDetail?: string,
-    paymentId?: string
+    paymentId?: string,
   ): Promise<Payment | null> {
     const updateResult = await this.db
       .collection<Payment>(this.collectionName)

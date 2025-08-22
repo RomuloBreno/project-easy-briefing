@@ -174,7 +174,7 @@ export function Dashboard({ user,  onLogout, onShop }: DashboardProps) {
                     <div className="nav-user">
                                {user?.email &&
                             <>
-                            <button onClick={onShop} className="btn btn-primary">{ user?.plan == 0 ? "Free": user?.plan == 1 ? "Starter" : user?.plan == 2 ? "Pro" : 'Conheça Mais'}</button>
+                            <button onClick={onShop} className="btn btn-primary">{ user?.plan === 0 ? "Free": user?.plan === 1 ? "Starter" : user?.plan === 2 ? "Pro" : 'Conheça Mais'}</button>
                             <button onClick={onLogout} className="btn btn-outline btn-sm">Sair</button>
                             </>
                             

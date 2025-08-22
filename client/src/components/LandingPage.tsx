@@ -58,8 +58,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({error, successPay, user
     return (
         <>
         {/* {error != '' &&  <ModalExample onClose={handleButtonPurchase} openModalSuccessPay={true} message={error}/>} */}
-        {openModal && successPay == null && <ModalExample onClose={handleButtonPurchase} openModalSuccessPay={true} message={"Ative sua conta pelo email para ter direito a assinatura"}/>}
-        {openModal && successPay == true && <ModalExample onClose={handleButtonPurchase} openModalSuccessPay={true} message={"Sua compra foi realizada com sucesso, faça login novamente caso seja necessário"}/>}
+        {openModal && successPay === null && <ModalExample onClose={handleButtonPurchase} openModalSuccessPay={true} message={"Ative sua conta pelo email para ter direito a assinatura"}/>}
+        {openModal && successPay === true && <ModalExample onClose={handleButtonPurchase} openModalSuccessPay={true} message={"Sua compra foi realizada com sucesso, faça login novamente caso seja necessário"}/>}
         {/* {modalPurchase && <ModalExample onClose={handleButtonPurchaseFakeModal} openModalSuccessPay={true} message={"SIMULAÇÃO DE COMPRA"}/>} */}
            <div id="root"></div>
                 <header className="header">
@@ -78,7 +78,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({error, successPay, user
                         <div style={{ display: 'flex', gap: '10px' }}>
                             {user?.email ? 
                             <>
-                            <button onClick={onDashboard} className="btn btn-primary">{ user?.plan === 0 ? "Free": user?.plan == 1 ? "Starter" : user?.plan == 2 ? "Pro" : 'Conheça Mais'}</button>
+                            <button onClick={onDashboard} className="btn btn-primary">{ user?.plan === 0 ? "Free": user?.plan === 1 ? "Starter" : user?.plan === 2 ? "Pro" : 'Conheça Mais'}</button>
                             <button onClick={onDashboard} className="btn btn-outline btn-sm">{user?.name === '' ? "User":user?.name}</button>
                             <button onClick={onLogout} className="btn btn-outline btn-sm">Sair</button>
                             </>
@@ -243,7 +243,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({error, successPay, user
                                         <li><i className="fas fa-check"></i> Detecção de cenários que impactam</li>
                                         <li><i className="fas fa-check"></i> até 10 analises completas mensais</li>
                                     </ul>
-                                   {user?.plan == 1 ? <span>Ja Possui</span> : <button onClick={user==null ? () => onLoginClick() :() => handleButtonPurchase(1)} className="btn btn-outline btn-full">Ativar Starter</button>}
+                                   {user?.plan === 1 ? <span>Ja Possui</span> : <button onClick={user==null ? () => onLoginClick() :() => handleButtonPurchase(1)} className="btn btn-outline btn-full">Ativar Starter</button>}
                                 </div>
 
                                 <div className="pricing-card pricing-card-popular">
@@ -266,7 +266,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({error, successPay, user
                                         <li><i className="fas fa-check"></i> até 25 analises completas mensais</li>
                                     </ul>
                                     </ul>
-                                    {user?.plan == 2 ? <span>Ja Possui</span> :  <button  onClick={user==null ? () => onLoginClick() :() => handleButtonPurchase(2)} className="btn btn-outline btn-full">Liberar Pro</button>}
+                                    {user?.plan === 2 ? <span>Ja Possui</span> :  <button  onClick={user==null ? () => onLoginClick() :() => handleButtonPurchase(2)} className="btn btn-outline btn-full">Liberar Pro</button>}
                                 </div>
 
                                 <div className="pricing-card">

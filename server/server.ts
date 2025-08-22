@@ -7,27 +7,36 @@ import { connectDB, disconnectDB } from "./database.ts";
 import { UserRepository } from './repositories/UserRepository.ts';
 import { PaymentRepository } from './repositories/PaymentRepository.ts';
 import { AuthService } from './services/authService.ts';
-import { Controller } from "./controllers/Controller.ts";
-import { AnalysiController } from './controllers/AnalysiController.ts'
-import { PaymentService } from './services/PaymentService.ts';
+import { PaymentService } from './services/paymentService.ts';
+import { QuotaService } from './services/quotaService.ts'; // NOVO: Importa o QuotaService
+
+// Importa as novas controllers
+import { AuthController } from './controllers/authController.ts'; // Verifique o caminho real
+import { PaymentController } from './controllers/paymentController.ts'; // Verifique o caminho real
+import { UserController } from './controllers/userController.ts'; // Verifique o caminho real
+import { AnalysisController } from './controllers/analysiController.ts'; // Verifique o caminho real
+import { authMiddleware } from './auth/middleware.ts';
+
 // Carrega variáveis do arquivo .env para process.env
+// Importante: No Dockerfile, garantimos que as variáveis de ambiente estão disponíveis no build E runtime.
 dotenv.config();
+
 // Configuração do Express
 const app = express();
 
 // Configuração do CORS
 const allowedOrigins = process.env.FRONT_URL ? process.env.FRONT_URL.split(',') : [];
 const corsOptions: cors.CorsOptions = {
-  origin: (origin, callback) => {
-    // Permite requisições sem "origin" (como no caso de file:// ou requisições do mesmo domínio)
-    // ou se a origem estiver na lista de origens permitidas.
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      console.error(`CORS block: Origin "${origin}" not allowed.`);
-      callback(new Error('Acesso não permitido por CORS'));
+    origin: (origin, callback) => {
+        // Permite requisições sem "origin" (como no caso de file:// ou requisições do mesmo domínio)
+        // ou se a origem estiver na lista de origens permitidas.
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            console.error(`CORS block: Origin "${origin}" not allowed.`);
+            callback(new Error('Acesso não permitido por CORS'));
+        }
     }
-  }
 };
 
 // Aplica o middleware CORS
@@ -44,121 +53,125 @@ app.use(express.static(publicPath));
 
 // Inicialização das dependências do servidor
 async function initializeApp() {
-  const db = await connectDB();
+    const db = await connectDB();
 
-  const userRepository = new UserRepository(db);
-  const paymentRepository = new PaymentRepository(db);
-  const authService = new AuthService(userRepository);
-  const paymentService = new PaymentService(paymentRepository, userRepository);
-  const controller = new Controller(authService,paymentService);
-  const analysiController = new AnalysiController(authService);
+    const userRepository = new UserRepository(db);
+    const paymentRepository = new PaymentRepository(db);
 
-  // --- Rotas da API ---
-  // Rota de registro de usuário
-  app.post('/api/register', (req, res) => controller.register(req, res));
-  app.patch('/api/update-password', (req, res) => controller.updatePassword(req, res));
+    const authService = new AuthService(userRepository);
+    const paymentService = new PaymentService(paymentRepository, userRepository);
+    const quotaService = new QuotaService(userRepository); // NOVO: Instancia QuotaService
 
-  // Rota de login de usuário
-  app.post('/api/login', (req, res) => controller.login(req, res));
+    // Instancia as novas controllers com suas dependências
+    const authController = new AuthController(authService);
+    const paymentController = new PaymentController(paymentService, authService); // PaymentController precisa de AuthService para buscar usuário
+    const userController = new UserController(authService, paymentService); // UserController precisa de AuthService (e talvez PaymentService)
+    const analysisController = new AnalysisController(authService, quotaService); // AnalysisController precisa de AuthService e QuotaService
+    const middleware = authMiddleware(authService)
 
-  // Rota para validar token de autenticação
-  app.post('/api/token', (req, res) => controller.getTokenValidation(req, res));
-  
-  app.post('/api/token-to-email', (req, res) => controller.sendTokenEmail(req, res));
-  app.post('/api/reset-pass', (req, res) => controller.sendEmailResetPass(req, res));
-
-  
-  // Rota para definir/atualizar plano do usuário (compra/assinatura)
-  app.post('/api/purchase', (req, res) => controller.setNewUserPlan(req, res));
-  app.post('/api/create-payment-preference', (req, res) => controller.createPaymentPreference(req, res));
-  
-  app.post('/api/briefing', async (req, res) => controller.getAnalysis(req,res));
-  
-  // Rota de health check
-  app.get('/api/health', (req, res) => {
-    res.json({ message: 'API is running' });
-  });
-  
-  app.post('/api/preference-success', (req, res) => {
-    try {
-    const paymentData = req.body;
-    if (!paymentService.validateWebhook(req)) {
-    return res.status(401).send("Webhook inválido");
-    }
-
-    paymentService.updatePaymentById(paymentData.data.id)
-    // Sempre responda 200 para confirmar o recebimento
-    res.sendStatus(200);
-  } catch (error) {
-    console.error("Erro no webhook:", error);
-    res.sendStatus(500);
-  }
-  });
-  
-  //Valid urls by email
-  app.get('/resetyourpass', async (req, res) =>{
-    const { token } = req.query;
-    if (!token) return
+    // --- Rotas da API ---
+    // Rotas de Autenticação (AuthController)
+    app.post('/api/register', (req, res) => authController.register(req, res));
+    app.patch('/api/update-password', (req, res) => authController.updateNewPass(req, res));
+    app.post('/api/login', (req, res) => authController.login(req, res));
+    app.post('/api/token', middleware, (req, res) => authController.getTokenValidation(req, res));
+    app.post('/api/token-to-email', middleware,  (req, res) => authController.sendTokenEmail(req, res));
+    app.post('/api/reset-pass', (req, res) => authController.sendEmailResetPass(req, res));
+    app.get('/resetyourpass', async (req, res) => {
+        const { token } = req.query;
+        if (!token) return res.redirect('/?error=invalid_reset_token'); // Correção aqui
+        
+        // Chame o método da AuthController para verificar e lidar com o redirect
+        const isValidResponse = await authController.verifyEmailResetPass(req, res);
+        // O verifyEmailResetPass na controller agora retorna um Response,
+        // então não precisamos do then() e podemos retornar diretamente.
+        return isValidResponse;
+    });
+    app.get('/check', async (req, res) => { // Tornar async para await
+        const { token } = req.query;
+        if (!token) return res.status(400).json({ error: 'Token não fornecido.' }); // Se token não existe, retorne erro
+        
+        // Chame o método da AuthController para verificar e lidar com o redirect/response
+        const verifyResponse = await authController.verifyEmail(req, res); // Chamar como um método do controller
+        return verifyResponse;
+    });
     
-    const isValid = await controller.verifyEmailResetPass(res, token).then();
-    if(!isValid)
-      return res.redirect('/?error=invalid_reset_token');
-    return res.redirect(`/?resetToken=${token}&valid=${isValid}`)
-  });
+    // Rotas de Usuário (UserController)
+    // app.post('/api/purchase', (req, res) => userController.setNewUserPlan(req, res));
 
-  app.get('/check', (req, res) => {
-    const { token } = req.query;
-    if (token)
-      controller.verifyEmail(res, token)
-  });
-
-
-
-  // Configuração para servir arquivos estáticos
-  app.use(express.static(publicPath, {
-    setHeaders: (res, filePath) => {
-      if (filePath.endsWith('.js')) {
-        res.setHeader('Content-Type', 'application/javascript');
-      } else if (filePath.endsWith('.css')) {
-        res.setHeader('Content-Type', 'text/css');
-      }
-    }
-  }));
-
-  // Rota curinga para SPA (Single Page Application)
-  app.get('*', (req, res) => {
-    // Se a rota começar com /api, significa que não foi encontrada uma rota de API
-    if (req.path.startsWith('/api')) {
-      return res.status(404).json({ error: 'Recurso da API não encontrado.' });
-    }
-
-    // Envia o arquivo index.html para todas as outras rotas
-    res.sendFile(path.join(publicPath, 'index.html'), (err) => {
-      if (err) {
-        console.error('Erro ao enviar index.html:', err);
-        res.status(500).send('Erro ao carregar a aplicação');
-      }
+    // Rotas de Pagamento (PaymentController)
+    app.post('/api/create-payment-preference', (req, res) => paymentController.createPaymentPreference(req, res));
+    
+    // Rota para Webhook do Mercado Pago (pode permanecer aqui ou ir para PaymentController)
+    app.post('/api/preference-success', async (req, res) => { // Tornar async para await
+        try {
+            const paymentData = req.body;
+            // A validação do webhook e a atualização do pagamento devem estar no PaymentService
+            if (!paymentService.validateWebhook(req)) {
+                return res.status(401).send("Webhook inválido");
+            }
+            await paymentService.updatePaymentById(paymentData.data.id); // Certifique-se que é await
+            // Sempre responda 200 para confirmar o recebimento
+            res.sendStatus(200);
+        } catch (error) {
+            console.error("Erro no webhook:", error);
+            res.sendStatus(500);
+        }
     });
-  });
 
-  const PORT = process.env.PORT || 3000;
-  const server = app.listen(PORT, () => {
-    console.log(`Servidor rodando na porta ${PORT}`);
-    console.log(`Arquivos estáticos servidos de: ${publicPath}`);
-  });
-
-  // Gerenciamento do desligamento do servidor
-  process.on('SIGINT', async () => {
-    server.close(async () => {
-      await disconnectDB();
-      console.log('Servidor encerrado');
-      process.exit(0);
+    // Rotas de Análise (AnalysisController)
+    app.post('/api/briefing',middleware, async (req, res) => analysisController.getAnalysis(req, res));
+    
+    // Rota de health check
+    app.get('/api/health', (req, res) => {
+        res.json({ message: 'API is running' });
     });
-  });
+    
+    // Configuração para servir arquivos estáticos
+    app.use(express.static(publicPath, {
+        setHeaders: (res, filePath) => {
+            if (filePath.endsWith('.js')) {
+                res.setHeader('Content-Type', 'application/javascript');
+            } else if (filePath.endsWith('.css')) {
+                res.setHeader('Content-Type', 'text/css');
+            }
+        }
+    }));
+
+    // Rota curinga para SPA (Single Page Application)
+    app.get('*', (req, res) => {
+        // Se a rota começar com /api, significa que não foi encontrada uma rota de API
+        if (req.path.startsWith('/api')) {
+            return res.status(404).json({ error: 'Recurso da API não encontrado.' });
+        }
+
+        // Envia o arquivo index.html para todas as outras rotas
+        res.sendFile(path.join(publicPath, 'index.html'), (err) => {
+            if (err) {
+                console.error('Erro ao enviar index.html:', err);
+                res.status(500).send('Erro ao carregar a aplicação');
+            }
+        });
+    });
+
+    const PORT = process.env.PORT || 3000;
+    const server = app.listen(PORT, () => {
+        console.log(`Servidor rodando na porta ${PORT}`);
+        console.log(`Arquivos estáticos servidos de: ${publicPath}`);
+    });
+
+    // Gerenciamento do desligamento do servidor
+    process.on('SIGINT', async () => {
+        server.close(async () => {
+            await disconnectDB();
+            console.log('Servidor encerrado');
+            process.exit(0);
+        });
+    });
 }
 
 // Inicia a aplicação e lida com erros de inicialização
 initializeApp().catch(err => {
-  console.error('Falha na inicialização do servidor:', err);
-  process.exit(1);
+    console.error('Falha na inicialização do servidor:', err);
+    process.exit(1);
 });

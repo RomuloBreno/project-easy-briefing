@@ -8,6 +8,7 @@ import { UserResponse } from '../model/UserResponse.ts';
 import { sendEmailAfterPurchase, sendEmailResetPass, sendWelcomeEmail } from './emailService.ts';
 import { ObjectId } from 'mongodb';
 import { UserRequest } from '../model/UserRequest.ts';
+import { Plans } from '../Enums/PlanEnum.ts';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'secret';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '1d';
@@ -23,36 +24,28 @@ export class AuthService {
     async findByEmail(email: string): Promise<User | null> {
         return this.userRepository.findByEmail(email);
     }
-    validPlanToSetModel(plan: number): string{
-       switch (plan) {
-        case 0: // Plano Gratuito
-            return 'gpt-3.5-turbo';
-        case 1: // Plano Starter
-            return 'gpt-4o-mini';
-        case 2: // Plano Pro
-            return 'gpt-4o';
-        default: // Para qualquer outro valor, retorna o plano gratuito como padrão
-            return 'gpt-3.5-turbo';
-    }
+    validPlanToSetModel(plan: number): string {
+        const planDetails = Plans[plan as keyof typeof Plans];
+        return planDetails?.aiModel || Plans[0].aiModel; // Retorna o modelo do plano, ou o do plano GRATUITO como fallback
     }
     // Assumindo que este é o método na sua classe AuthService
     // Ele recebe um UserRequest do frontend
     async updatePass(dto: UpdateUserDTO): Promise<UserResponse> {
         const decoded = await this.validToken(dto.token)
         const existingUser: User | null = await this.userRepository.findByEmail(decoded?.email || '');
-        if(!existingUser)
+        if (!existingUser)
             throw new Error('Falha ao criar o usuário.');
 
-        
+
         const userId = new User(existingUser)
-        
+
         const planId = await userId.validPlan()
-                // Retorna o token para o front-end
+        // Retorna o token para o front-end
 
         await this.userRepository.updatePass(userId, dto.password)
-                
+
         return {
-            "token": this.generateToken(userId?._id?.toString() ||'', userId.email),
+            "token": this.generateToken(userId?._id?.toString() || '', userId.email),
             "email": userId?.email,
             "name": userId?.name,
             "plan": userId.plan,
@@ -71,12 +64,12 @@ export class AuthService {
         const id = new ObjectId()
         const token = this.generateToken(id.toString(), dto.email);
         const userToCreate: IUser = {
-            _id:id,
+            _id: id,
             name: dto.name,
             email: dto.email,
             passwordHash: '',
             plan: 0,
-            verificationCode:token
+            verificationCode: token
         };
         // Chama o método create do repositório
         // O repositório ou o serviço de autenticação cuidará do hash da senha
@@ -105,18 +98,18 @@ export class AuthService {
     // Método que cuida da lógica de atualização do plano
     async updateUserPlan(user: User): Promise<User | null> {
         // Verifica se o plano do usuário é válido (chamada a um serviço externo)
-        
+
         let userDataSave: User | null = await this.userRepository.findByEmail(user.email);
         if (!userDataSave) {
-                throw new Error('Usuário não encontrado');
-            }
+            throw new Error('Usuário não encontrado');
+        }
         const userData = new User(userDataSave)
-        if(!userData.isVerified)
+        if (!userData.isVerified)
             throw new Error('Erro no processo de compra, usuário deve validar o email com o link enviado');
-        
+
         const isPlanValid = await userData.validPlan();
-        let updatedUser: User|null=null;
-        
+        let updatedUser: User | null = null;
+
 
         if (!isPlanValid) {
             // Se o plano não for válido, inicie um novo processo de compra
@@ -136,7 +129,7 @@ export class AuthService {
             }
             return updatedUser
         }
-        
+
         updatedUser = await this.userRepository.updatePlan(user);
         return user;
     }
@@ -146,8 +139,8 @@ export class AuthService {
         }
         // Simulação de chamada de API para processar o pagamento e gerar um ID
         const paymentId = `mercadopago_${Date.now()}`;
-        if(paymentId != '')
-         await sendEmailAfterPurchase(dto.email)
+        if (paymentId != '')
+            await sendEmailAfterPurchase(dto.email)
         return paymentId;
     }
     async login(email: string, password: string): Promise<UserResponse | null> {
@@ -199,7 +192,7 @@ export class AuthService {
             // Delega a validação e atualização do plano para a classe User
             const validPlan = await new User(userbyTokenEmail).validPlan();
 
-            if (!decoded && decoded.email == userbyTokenEmail.email )
+            if (!decoded && decoded.email === userbyTokenEmail.email)
                 throw new Error('Token Rejeitado');
 
             return {
@@ -213,24 +206,24 @@ export class AuthService {
             throw new Error('Token Expirado');
         }
     }
-        // async sendEmail(dto: UserRequest, id: string): Promise<void> {
-        //     // Gera o token após a criação bem-sucedida
-            
-        //     const token = this.generateToken(id, dto.email);
-        //     // Envio do e-mail
-        //     await sendWelcomeEmail(dto.email, dto.name, linkGenerate);
-            
-        // }
-        async sendEmailwithToken(dto: UserRequest, id:string, handler:string): Promise<void> {
-            // Gera o token após a criação bem-sucedida
-            const token = this.generateToken(id, dto.email);
-            let linkGenerate:string='';
-            if(handler=='check')
-                linkGenerate = (`${process.env.FRONT_URL}/check?token=${token}`);
-            if(handler=='reset')
-                linkGenerate = (`${process.env.FRONT_URL}/resetyourpass?token=${token}`);
-            // Envio do e-mail
-            await sendEmailResetPass(dto.email, linkGenerate);
+    // async sendEmail(dto: UserRequest, id: string): Promise<void> {
+    //     // Gera o token após a criação bem-sucedida
 
-        }
+    //     const token = this.generateToken(id, dto.email);
+    //     // Envio do e-mail
+    //     await sendWelcomeEmail(dto.email, dto.name, linkGenerate);
+
+    // }
+    async sendEmailwithToken(dto: UserRequest, id: string, handler: string): Promise<void> {
+        // Gera o token após a criação bem-sucedida
+        const token = this.generateToken(id, dto.email);
+        let linkGenerate: string = '';
+        if (handler == 'check')
+            linkGenerate = (`${process.env.FRONT_URL}/check?token=${token}`);
+        if (handler == 'reset')
+            linkGenerate = (`${process.env.FRONT_URL}/resetyourpass?token=${token}`);
+        // Envio do e-mail
+        await sendEmailResetPass(dto.email, linkGenerate);
+
+    }
 }

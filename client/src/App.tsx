@@ -15,13 +15,7 @@ function AppContent() {
     const [dashboard, setDashboard] = useState(false);
     const [tokenIsValid, setTokenIsValid] = useState(false);
 
-    if(true) return(
-
-        <>
-        <h1>Em Construção</h1>
-        </>
-    )
-
+    
     // const user={
     //     name: 'string',
     //     email: 'string',
@@ -85,7 +79,7 @@ function AppContent() {
     }, [tokenIsValid])
 
     useEffect(() => {
-        if (successPay == true)
+        if (successPay === true)
             setNeedUpdatePlan(false)
     }, [successPay])
 
@@ -133,7 +127,7 @@ function AppContent() {
             </div>
         );
     }
-    if (user == null) return <LandingPage
+    if (user === null) return <LandingPage
         error={error||''}
         successPay={successPay}
         onLoginClick={() => setNeedLogin(true)}

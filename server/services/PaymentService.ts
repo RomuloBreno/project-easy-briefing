@@ -163,7 +163,7 @@ async updatePaymentById(preferenceId: string): Promise<void> {
       await this.userRepository.updatePlan(
         new User({
           email:userPayment.email,
-          plan:paymentPreference.plan == 'plan-starter-001' ? 1 : paymentPreference.plan == 'plan-pro-002' ? 2 : paymentPreference.plan == 'plan-enteprise-003' ? 3 : 0,
+          plan:paymentPreference.plan === 'plan-starter-001' ? 1 : paymentPreference.plan === 'plan-pro-002' ? 2 : paymentPreference.plan === 'plan-enteprise-003' ? 3 : 0,
           
         } as User)
       );
