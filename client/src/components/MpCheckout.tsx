@@ -48,7 +48,6 @@ const MercadoPagoButton: React.FC<MercadoPagoButtonProps> = ({ orderId, user }) 
           // Você pode enviar dados do pedido para o backend aqui
           body: JSON.stringify({ orderId: orderId, plan: user.plan, planId: user.planId, email:user.email }),
         });
-        console.log(response)
 
         if (!response.ok) {
           throw new Error(`Erro ao buscar preferência: ${response.body}`);
