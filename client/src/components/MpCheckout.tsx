@@ -26,8 +26,7 @@ const MercadoPagoButton: React.FC<MercadoPagoButtonProps> = ({ orderId, user }) 
   useEffect(() => {
     const setupMercadoPago = async (user:User) => {
       // Verifica se a chave pública está disponível
-      console.log(API_BASE_URL)
-      console.log(MERCADO_PAGO_PUBLIC_KEY)
+
       if (!MERCADO_PAGO_PUBLIC_KEY) {
         setError("Chave pública do Mercado Pago não configurada.");
         setLoading(false);
@@ -41,7 +40,7 @@ const MercadoPagoButton: React.FC<MercadoPagoButtonProps> = ({ orderId, user }) 
         // 1. Recupere o ID da preferência do seu backend
         // Adaptei o seu fetch para incluir um endpoint mais específico.
         // Certifique-se de que `API_BASE_URL` contém o protocolo (http/https).
-        const response = await fetch(`htts://${API_BASE_URL}/create-payment-preference`, {
+        const response = await fetch(`https://${API_BASE_URL}/create-payment-preference`, {
           method: 'POST', // Geralmente a criação de preferência é um POST
           headers: {
             'Content-Type': 'application/json',
