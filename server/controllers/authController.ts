@@ -196,11 +196,17 @@ export class AuthController {
     async getTokenValidation(req: Request, res: Response): Promise<Response> {
         try {
             // O token pode vir do query param 'tokenQueryBytEmail' ou do corpo da requisição 'token'
-            const tokenQueryBytEmail = req.query.tokenQueryBytEmail as string;
-            let token: string = req.body.token || tokenQueryBytEmail;
+            // const tokenQueryBytEmail = req.query.tokenQueryBytEmail as string;
+            let authHeader: string = req.headers.authorization;
+
+            if (!authHeader || !authHeader.startsWith('Bearer ')) {
+                return res.status(401).json({ error: 'Token de autenticação não fornecido ou formato inválido.' });
+            }
+
+            const token = authHeader.split(' ')[1]; // Extrai o token após "Bearer "
 
             if (!token) {
-                return res.status(400).json({ error: 'Token não fornecido.' });
+                return res.status(401).json({ error: 'Token de autenticação ausente.' });
             }
 
             const userDecoded = await this.authService.validToken(token); // Retorna o usuário decodificado pelo token

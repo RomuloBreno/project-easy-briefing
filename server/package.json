@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node --experimental-strip-types server.ts",
     "dev": "node --experimental-strip-types server.ts",
-    "seed": "node --experimental-strip-types seed/seed.ts"
+    "seed": "node --experimental-strip-types seed/seed.ts",
+    "test": "jest"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
@@ -27,6 +28,8 @@
   },
   "devDependencies": {
     "@types/node": "^24.3.0",
+    "jest": "^30.0.5",
+    "supertest": "^7.1.4",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2"
   }
