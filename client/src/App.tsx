@@ -14,6 +14,14 @@ function AppContent() {
     const [needUpdatePlan, setNeedUpdatePlan] = useState(false);
     const [dashboard, setDashboard] = useState(false);
     const [tokenIsValid, setTokenIsValid] = useState(false);
+
+    if(true) return(
+
+        <>
+        <h1>Em Construção</h1>
+        </>
+    )
+
     // const user={
     //     name: 'string',
     //     email: 'string',
