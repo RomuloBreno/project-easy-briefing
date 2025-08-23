@@ -6,6 +6,7 @@ import { LoginDTO } from '../DTO/LoginDTO.ts';
 import { UserRequest } from '../model/UserRequest.ts'; // Verifique o caminho real do seu UserRequest
 import { User } from '../model/User.ts';
 import { UserResponse } from '../model/UserResponse.ts';
+import { EmailService } from '../services/emailService.ts';
 
 /**
  * AuthController é responsável por todas as operações relacionadas à autenticação
@@ -13,9 +14,11 @@ import { UserResponse } from '../model/UserResponse.ts';
  */
 export class AuthController {
     private readonly authService: AuthService;
+    private readonly emailService: EmailService;
 
-    constructor(authService: AuthService) {
+    constructor(authService: AuthService, emailService:EmailService) {
         this.authService = authService;
+        this.emailService = emailService
     }
 
     /**

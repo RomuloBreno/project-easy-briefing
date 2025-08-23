@@ -248,7 +248,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({error, successPay, user
                                         <li><i className="fas fa-check"></i> Sugestões de perguntas personalizada</li>
                                         <li><i className="fas fa-check"></i> Validações de oportunidades para novos projetos</li>
                                         <li><i className="fas fa-check"></i> Detecção de cenários que impactam</li>
-                                        <li><i className="fas fa-check"></i> até 10 analises completas mensais</li>
+                                        <li><i className="fas fa-check"></i> até 25 analises completas mensais</li>
                                     </ul>
                                    {user?.plan === 1 ? <span>Ja Possui</span> : <button onClick={user==null ? () => onLoginClick() :() => handleButtonPurchase(1)} className="btn btn-outline btn-full">Ativar Starter</button>}
                                 </div>
@@ -270,7 +270,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({error, successPay, user
                                         <li><i className="fas fa-check"></i> Sugestões avançadas de perguntas personalizada</li>
                                         <li><i className="fas fa-check"></i> Validações de oportunidades para novos projetos com foco no seu prompt</li>
                                         <li><i className="fas fa-check"></i> Detecção avançada de cenários e tecnicas baseado em seu nicho </li>
-                                        <li><i className="fas fa-check"></i> até 30 analises completas mensais</li>
+                                        <li><i className="fas fa-check"></i> até 60 analises completas mensais</li>
                                     </ul>
                                     </ul>
                                     {user?.plan === 2 ? <span>Ja Possui</span> :  <button  onClick={user==null ? () => onLoginClick() :() => handleButtonPurchase(2)} className="btn btn-outline btn-full">Liberar Pro</button>}

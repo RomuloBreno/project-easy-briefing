@@ -1,19 +1,20 @@
-// repositories/PaymentRepository.ts
 import { Db, ObjectId } from "mongodb";
-import type { Payment } from "../model/Payment";
+import { BaseRepository } from "./BaseRepository.ts";
+import type { Payment as PaymentModel } from "../model/Payment.ts";
+import type { IPaymentRepository } from "../interfaces/IPaymentRepository.ts";
 
-export class PaymentRepository {
-  private readonly collectionName = "payments";
-  private readonly db: Db;
+// Definindo a interface de documento específica para Pagamento
+export interface PaymentDocument extends PaymentModel {}
 
+export class PaymentRepository extends BaseRepository<PaymentDocument> implements IPaymentRepository {
   constructor(db: Db) {
-    this.db = db;
-    this.ensureIndexes().catch(console.error);
+    super(db, "payments");
   }
 
-  private async ensureIndexes(): Promise<void> {
+  // Implementação obrigatória do método abstrato da classe base
+  override async ensureIndexes(): Promise<void> {
     try {
-      await this.db.collection(this.collectionName).createIndex(
+      await this.collection.createIndex(
         { preferenceId: 1 },
         { unique: true }
       );
@@ -24,53 +25,40 @@ export class PaymentRepository {
     }
   }
 
-  async create(payment: Payment): Promise<Payment> {
+  // --- Métodos de acesso específicos de Payment ---
+
+  async createPayment(paymentData: PaymentModel): Promise<PaymentDocument | null> {
     const now = new Date();
-    const newPayment: Payment = {
-      ...payment,
+    const newPayment: Partial<PaymentDocument> = {
+      ...paymentData,
       createdAt: now,
       updatedAt: now,
     };
-    const result = await this.db
-      .collection<Payment>(this.collectionName)
-      .insertOne(newPayment);
-    return { ...newPayment, _id: result.insertedId };
+    return this.create(newPayment as PaymentDocument);
   }
 
   async updateStatus(
     preferenceId: string,
     status: string,
     statusDetail?: string,
-    paymentId?: string,
-  ): Promise<Payment | null> {
-    const updateResult = await this.db
-      .collection<Payment>(this.collectionName)
-      .findOneAndUpdate(
-        { preferenceId },
-        {
-          $set: {
-            status,
-            statusDetail,
-            paymentId,
-            updatedAt: new Date(),
-          },
-        },
-        { returnDocument: "after" }
-      );
-
-    return updateResult as unknown as Payment | null;
+    paymentId?: string
+  ): Promise<PaymentDocument | null> {
+    const update = {
+      $set: {
+        status,
+        statusDetail,
+        paymentId,
+        updatedAt: new Date(),
+      },
+    };
+    return this.update({ preferenceId }, update);
   }
 
-  async findByPreferenceId(preferenceId: string): Promise<Payment | null> {
-    return (await this.db
-      .collection<Payment>(this.collectionName)
-      .findOne({ preferenceId })) as unknown as Payment | null;
+  async findByPreferenceId(preferenceId: string): Promise<PaymentDocument | null> {
+    return this.findOne({ preferenceId });
   }
 
-  async listByUser(userId: string): Promise<Payment[]> {
-    return (await this.db
-      .collection<Payment>(this.collectionName)
-      .find({ userId: new ObjectId(userId) })
-      .toArray()) as unknown as Payment[];
+  async listByUser(userId: string): Promise<PaymentDocument[]> {
+    return this.find({ userId: new ObjectId(userId) });
   }
 }

@@ -31,7 +31,7 @@ export const Plans = {
         name: "Starter",
         aiModel: 'gpt-4o-mini',
         value: 9.9,
-        maxRequests: 10 // Exemplo: 10 requisições para o plano Starter
+        maxRequests: 25 
     },
     // Plano Pro
     2: { // Corresponde ao ID 2
@@ -39,7 +39,7 @@ export const Plans = {
         name: "Pro",
         aiModel: 'gpt-4o',
         value: 29.9,
-        maxRequests: 30 // Exemplo: 50 requisições para o plano Pro
+        maxRequests: 60
     },
 } as const; // 'as const' para garantir que os tipos sejam literais e imutáveis.
 

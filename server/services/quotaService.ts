@@ -52,12 +52,17 @@ export class QuotaService {
             throw new Error('Cota de requisições excedida.');
         }
 
-        // Decrementa localmente
-        user.qtdRequest = (user.qtdRequest ?? 0) - 1;
-
         // Persiste a mudança no banco de dados.
         // O userRepository.update deve ser capaz de atualizar o campo qtdRequest.
-        const updatedUser = await this.userRepository.update(user);
+            const filter = { email: user.email };
+            const update = {
+                $set: {
+                qtdRequest:(user.qtdRequest ?? 0) - 1,
+                updatedAt: new Date(), // É uma boa prática atualizar o timestamp
+                },
+        };
+
+        const updatedUser = await this.userRepository.update(filter, update);
         
         if (!updatedUser) {
             throw new Error('Falha ao atualizar a cota do usuário no banco de dados.');
@@ -73,10 +78,17 @@ export class QuotaService {
      */
     async resetQuota(user: User): Promise<void> {
         const maxQuota = this.getPlanQuota(user.plan);
-        user.qtdRequest = maxQuota;
-
+        
         // Persiste a mudança no banco de dados.
-        const updatedUser = await this.userRepository.update(user);
+          const filter = { email: user.email };
+            const update = {
+                $set: {
+                qtdRequest:user.qtdRequest = maxQuota,
+                updatedAt: new Date(), // É uma boa prática atualizar o timestamp
+                },
+        };
+
+        const updatedUser = await this.userRepository.update(filter, update);
 
         if (!updatedUser) {
             throw new Error('Falha ao resetar a cota do usuário no banco de dados.');

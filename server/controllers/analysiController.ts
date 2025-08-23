@@ -79,7 +79,7 @@ export class AnalysisController {
                 return res.status(400).json({ response: "Conteúdo para análise não fornecido ou inválido." });
             }
 
-            if (!this.quotaService.checkQuota(user)) return res.status(400).json({ response: "Você não possui mais cotas para analisy, considere adiquirir um novo plano" });
+            if (!this.quotaService.checkQuota(user)) return res.status(400).json({ response: "Você não possui mais cotas para analise, considere adiquirir um novo plano" });
 
             const ModelBasedPlan = this.authService.validPlanToSetModel(user?.plan || 0);
             if (ModelBasedPlan === '') {

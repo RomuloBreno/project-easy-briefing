@@ -6,52 +6,72 @@ import { ObjectId } from "mongodb";
 import { User } from '../model/User.ts';
 import crypto from 'crypto'
 import { UserRepository } from '../repositories/UserRepository.ts';
-
-// Variáveis de ambiente
-const FRONT_URL = process.env.FRONT_URL;
-const TOKEN_MP = process.env.TOKEN_MP;
-
-// Valida variáveis de ambiente
-if (!TOKEN_MP) {
-  console.error("❌ TOKEN_MP não definido nas variáveis de ambiente.");
-  process.exit(1);
-}
-
-if (!FRONT_URL) {
-  console.error("❌ FRONT_URL não definido nas variáveis de ambiente.");
-  process.exit(1);
-}
+import { Plans } from '../Enums/PlanEnum.ts';
+import { QuotaService } from './quotaService.ts';
+import { EmailService } from './emailService.ts';
 
 // Instância do Mercado Pago
-const client = new MercadoPagoConfig({
-  accessToken: TOKEN_MP,
-  options: { timeout: 5000 },
-});
 
-// Função para obter pagamento usando o paymentId
-async function getPayment(paymentId: string) {
-  try {
-    const response = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
-      headers: {
-        Authorization: `Bearer ${TOKEN_MP}`,
-      }
-    });
-
-    return response.json(); // aqui estão os dados do pagamento
-  } catch (error) {
-    console.error("Erro ao buscar pagamento:", error);
-    throw error;
-  }
-}
 
 export class PaymentService {
+  
+  public front_url:string
+  public token_mp:string
+  public client:MercadoPagoConfig
+
   private paymentRepository: PaymentRepository;
   private userRepository: UserRepository;
+  private quotaService: QuotaService;
+  private emailService: EmailService;
 
-  constructor(paymentRepository: PaymentRepository, userRepository: UserRepository) {
+  constructor(paymentRepository: PaymentRepository, userRepository: UserRepository, quotaService:QuotaService, emailService: EmailService) {
     this.paymentRepository = paymentRepository;
     this.userRepository = userRepository;
+    this.quotaService = quotaService;
+    this.emailService = emailService
+    this.front_url =  process.env.FRONT_URL || '';
+    this.token_mp = process.env.token_mp || '';
+
+        
+      // Valida variáveis de ambiente
+      if (!this.token_mp) {
+      console.error("❌ token_mp não definido nas variáveis de ambiente.");
+      process.exit(1);
+      }
+
+      if (!this.front_url) {
+      console.error("❌ front_url não definido nas variáveis de ambiente.");
+      process.exit(1);
+}
+
+      const client = new MercadoPagoConfig({
+      accessToken: this.token_mp,
+      options: { timeout: 5000 },
+    });
+
+    this.client= client
+}
+  
+
+
+  // Função para obter pagamento usando o paymentId
+  async getPayment(paymentId: string) {
+    try {
+      const response = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
+        headers: {
+          Authorization: `Bearer ${this.token_mp}`,
+        }
+      });
+
+      return response.json(); // aqui estão os dados do pagamento
+    } catch (error) {
+      console.error("Erro ao buscar pagamento:", error);
+      throw error;
+    }
   }
+
+
+
 
   /**
    * Cria uma preferência de pagamento no Mercado Pago e salva no banco.
@@ -61,58 +81,45 @@ export class PaymentService {
    */
   async createPaymentPreference(newPlan: number, userId: string): Promise<string> {
 
-    const plans = {
-      1: {
-        title: "Starter Plan",
-        unit_price: 9.9,
-        item_id: "plan-starter-001"
-      },
-      2: {
-        title: "Pro Plan",
-        unit_price: 29.9,
-        item_id: "plan-pro-002"
-      }
-    };
-
-    const selectedPlan = plans[newPlan];
+    const selectedPlan = Plans[newPlan];
 
     if (!selectedPlan) {
       throw new Error("Plano inválido. Escolha 1 (Starter) ou 2 (Pro).");
     }
 
-    const { title, unit_price, item_id } = selectedPlan;
+    const { name, value, id } = selectedPlan;
 
     const preference = {
       items: [
         {
-          id: item_id,
-          title,
-          unit_price,
+          id: id,
+          title:name,
+          unit_price:value,
           quantity: 1,
         },
       ],
       back_urls: {
-        success: `${FRONT_URL}/success`,
-        failure: `${FRONT_URL}/failure`,
-        pending: `${FRONT_URL}/pending`,
+        success: `${this.front_url}/success`,
+        failure: `${this.front_url}/failure`,
+        pending: `${this.front_url}/pending`,
       },
       auto_return: "approved",
     };
 
     try {
-      const preferencesInstance = new Preference(client);
+      const preferencesInstance = new Preference(this.client);
       const result = await preferencesInstance.create({ body: preference });
 
       // Salvar no banco como status inicial "created"
-     const newPayToPreference= await this.paymentRepository.create(
+     await this.paymentRepository.create(
         new Payment({
           preferenceId: result.id,
-          amount: unit_price,
+          amount: value,
           status: "created",
           userId: new ObjectId(userId),
           createdAt: new Date(),
           updatedAt: new Date(),
-          plan: item_id
+          planId: id
         } as Payment)
       );
 
@@ -154,7 +161,7 @@ export class PaymentService {
     if (!userPayment) return;
 
     // 3. Buscar detalhes do pagamento na API do Mercado Pago
-    const paymentInfo = await getPayment(paymentPreference.paymentId || '');
+    const paymentInfo = await this.getPayment(paymentPreference.paymentId || '');
     // ⚠️ Aqui você precisa ter salvo o `paymentId` que o MP envia no webhook!
 
     const status = paymentInfo.status; // approved | pending | rejected
@@ -163,16 +170,20 @@ export class PaymentService {
     if (!paymentPreference._id) return
     // 4. Atualiza o status do pagamento no repositório
     await this.paymentRepository.updateStatus(paymentPreference._id?.toString(), status, statusDetail, paymentInfo.paymentId)
-
+    await this.quotaService.resetQuota(userPayment);
     // 5. (Opcional) Atualizar usuário com base no pagamento aprovado
     if (status === "approved") {
       await this.userRepository.updatePlan(
-        new User({
-          email: userPayment.email,
-          plan: paymentPreference.plan === 'plan-starter-001' ? 1 : paymentPreference.plan === 'plan-pro-002' ? 2 : paymentPreference.plan === 'plan-enteprise-003' ? 3 : 0,
+        userPayment.email,
+        paymentPreference.planId,
+        paymentInfo.paymentMethod,
+        paymentPreference.planId === 'plan-starter-001' ? 1
+         : paymentPreference.planId === 'plan-pro-002' ? 2 
+         : paymentPreference.planId === 'plan-enteprise-003' ? 3 
+         : 0,
 
-        } as User)
       );
     }
+    await this.emailService.sendEmailAfterPurchase(userPayment.email)
   }
 }

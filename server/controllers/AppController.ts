@@ -27,19 +27,19 @@ export class AppController {
      * @param res O objeto Response do Express.
      * @returns Uma Promise que resolve para um Response.
      */
-    async setNewUserPlan(req: Request, res: Response): Promise<Response> {
-        try {
-            const dto: User = req.body;
-            const updatedUser = await this.authService.updateUserPlan(dto); // Assumindo que authService cuida da lógica do plano
-            return res.status(200).json(updatedUser);
-        } catch (error: unknown) {
-            console.error('Erro ao definir novo plano para o usuário:', error);
-            if (error instanceof Error) {
-                return res.status(400).json({ error: error.message });
-            }
-            return res.status(500).json({ error: 'Erro interno do servidor.' });
-        }
-    }
+    // async setNewUserPlan(req: Request, res: Response): Promise<Response> {
+    //     try {
+    //         const dto: User = req.body;
+    //         const updatedUser = await this.authService.updateUserPlan(dto); // Assumindo que authService cuida da lógica do plano
+    //         return res.status(200).json(updatedUser);
+    //     } catch (error: unknown) {
+    //         console.error('Erro ao definir novo plano para o usuário:', error);
+    //         if (error instanceof Error) {
+    //             return res.status(400).json({ error: error.message });
+    //         }
+    //         return res.status(500).json({ error: 'Erro interno do servidor.' });
+    //     }
+    // }
 
     // O método createPaymentPreference foi movido para PaymentController.ts
 

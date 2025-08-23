@@ -13,7 +13,7 @@ export class Payment {
   method?: string | undefined;   // cartão, pix, boleto
   createdAt: Date;
   updatedAt: Date;
-  plan:string;
+  planId:string;
 
   constructor(payment: Payment) {
     this._id = payment._id;
@@ -27,6 +27,6 @@ export class Payment {
     this.method = payment.method;
     this.createdAt = payment.createdAt ?? new Date();
     this.updatedAt = payment.updatedAt ?? new Date();
-    this.plan = payment.plan ?? '';
+    this.planId = payment.planId ?? '';
   }
 }

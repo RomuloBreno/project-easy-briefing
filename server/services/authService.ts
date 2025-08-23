@@ -5,10 +5,11 @@ import type { CreateUserDTO, UpdateUserDTO } from '../DTO/CreateUserDTO.ts';
 import type { IUser } from '../interfaces/IUser.ts';
 import { User } from '../model/User.ts'; // Importa a classe de modelo de negócio
 import { UserResponse } from '../model/UserResponse.ts';
-import { sendEmailAfterPurchase, sendEmailResetPass, sendWelcomeEmail } from './emailService.ts';
 import { ObjectId } from 'mongodb';
 import { UserRequest } from '../model/UserRequest.ts';
 import { Plans } from '../Enums/PlanEnum.ts';
+import bcrypt from 'bcrypt'
+import { EmailService } from './emailService.ts';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'secret';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '1d';
@@ -16,9 +17,11 @@ const FRONT_URL = process.env.FRONT_URL || '';
 
 export class AuthService {
     public userRepository: IUserRepository;
+    public emailService:EmailService;
 
-    constructor(userRepository: IUserRepository) {
+    constructor(userRepository: IUserRepository, emailService:EmailService) {
         this.userRepository = userRepository;
+        this.emailService=emailService
     }
 
     async findByEmail(email: string): Promise<User | null> {
@@ -41,8 +44,11 @@ export class AuthService {
 
         const planId = await userId.validPlan()
         // Retorna o token para o front-end
+        
+        const passwordHash = await this.hashPassword(dto.password);
 
-        await this.userRepository.updatePass(userId, dto.password)
+
+        await this.userRepository.updatePass(userId, passwordHash)
 
         return {
             "token": this.generateToken(userId?._id?.toString() || '', userId.email),
@@ -63,18 +69,19 @@ export class AuthService {
         // A senha é separada aqui para ser tratada
         const id = new ObjectId()
         const token = this.generateToken(id.toString(), dto.email);
+        
+        const passwordHash = await this.hashPassword(dto.password);
         const userToCreate: IUser = {
             _id: id,
             name: dto.name,
             email: dto.email,
-            passwordHash: '',
+            passwordHash: passwordHash,
             plan: 0,
             verificationCode: token,
-            qtdRequest: Plans[0].maxRequests
+            qtdRequest: Plans[0].maxRequests,
+            isVerified:false
         };
-        // Chama o método create do repositório
-        // O repositório ou o serviço de autenticação cuidará do hash da senha
-        const userId = await this.userRepository.create(userToCreate, dto.password);
+        const userId = await this.userRepository.create(userToCreate);
 
         if (!userId) {
             throw new Error('Falha ao criar o usuário.');
@@ -92,65 +99,65 @@ export class AuthService {
         };
     }
 
-    async update(user: User): Promise<User | null> {
-        return this.userRepository.update(user);
-    }
 
     // Método que cuida da lógica de atualização do plano
-    async updateUserPlan(user: User): Promise<User | null> {
-        // Verifica se o plano do usuário é válido (chamada a um serviço externo)
+    //UPDATE É REALIZADO PELO WEBHOOK
+    // async updateUserPlan(user: User): Promise<User | null> {
+    //     // Verifica se o plano do usuário é válido (chamada a um serviço externo)
 
-        let userDataSave: User | null = await this.userRepository.findByEmail(user.email);
-        if (!userDataSave) {
-            throw new Error('Usuário não encontrado');
-        }
-        const userData = new User(userDataSave)
-        if (!userData.isVerified)
-            throw new Error('Erro no processo de compra, usuário deve validar o email com o link enviado');
+    //     let userDataSave: User | null = await this.userRepository.findByEmail(user.email);
+    //     if (!userDataSave) {
+    //         throw new Error('Usuário não encontrado');
+    //     }
+    //     const userData = new User(userDataSave)
+    //     if (!userData.isVerified)
+    //         throw new Error('Erro no processo de compra, usuário deve validar o email com o link enviado');
 
-        const isPlanValid = await userData.validPlan();
-        let updatedUser: User | null = null;
+    //     const isPlanValid = await userData.validPlan();
+    //     let updatedUser: User | null = null;
 
 
-        if (!isPlanValid) {
-            // Se o plano não for válido, inicie um novo processo de compra
-            // Em uma arquitetura de microserviços, isso seria uma chamada para um serviço de pagamento
-            const newPurchaseId = await this.purchase(user);
+    //     if (!isPlanValid) {
+    //         // Se o plano não for válido, inicie um novo processo de compra
+    //         // Em uma arquitetura de microserviços, isso seria uma chamada para um serviço de pagamento
+    //         const newPurchaseId = await this.purchase(user);
 
-            if (!newPurchaseId) {
-                throw new Error('Erro no processo de compra');
-            }
+    //         if (!newPurchaseId) {
+    //             throw new Error('Erro no processo de compra');
+    //         }
 
-            // Atualiza o usuário no banco de dados com o novo plano
-            user.planId = newPurchaseId !== user.planId ? newPurchaseId : user.planId;
-            updatedUser = await this.userRepository.updatePlan(user);
+    //         // Atualiza o usuário no banco de dados com o novo plano
+    //         user.planId = newPurchaseId !== user.planId ? newPurchaseId : user.planId;
+    //         updatedUser = await this.userRepository.updatePlan(user.email, user);
 
-            if (!updatedUser) {
-                throw new Error('Falha ao atualizar plano do usuário.');
-            }
-            return updatedUser
-        }
+    //         if (!updatedUser) {
+    //             throw new Error('Falha ao atualizar plano do usuário.');
+    //         }
+    //         return updatedUser
+    //     }
 
-        updatedUser = await this.userRepository.updatePlan(user);
-        return user;
-    }
-    async purchase(dto: any): Promise<string> {
-        if (!dto.email) {
-            return '';
-        }
-        // Simulação de chamada de API para processar o pagamento e gerar um ID
-        const paymentId = `mercadopago_${Date.now()}`;
-        if (paymentId != '')
-            await sendEmailAfterPurchase(dto.email)
-        return paymentId;
-    }
+    //     updatedUser = await this.userRepository.updatePlan(user);
+    //     return user;
+    // }
+
+    //FEITO VIA METODOS DO MP
+    // async purchase(dto: any): Promise<string> {
+    //     if (!dto.email) {
+    //         return '';
+    //     }
+    //     // Simulação de chamada de API para processar o pagamento e gerar um ID
+    //     const paymentId = `mercadopago_${Date.now()}`;
+    //     if (paymentId != '')
+            
+    //     return paymentId;
+    // }
     async login(email: string, password: string): Promise<UserResponse | null> {
         const user: User | null = await this.userRepository.findByEmail(email);
         if (!user) {
             throw new Error('Credenciais inválidas');
         }
 
-        const isValid = await this.userRepository.verifyPassword(user.email, password);
+        const isValid = await this.verifyPassword(user.email, password);
         if (!isValid) {
             throw new Error('Credenciais inválidas');
         }
@@ -180,6 +187,12 @@ export class AuthService {
             { expiresIn: JWT_EXPIRES_IN }
         );
     }
+
+    async verifyPassword(email: string, password: string): Promise<boolean> {
+    const user = await this.userRepository.findByEmailToLogin(email);
+    if (!user) return false;
+    return bcrypt.compare(password, user.passwordHash);
+  }
 
     async validToken(token: string): Promise<UserResponse | null> {
         try {
@@ -224,7 +237,11 @@ export class AuthService {
         if (handler == 'reset')
             linkGenerate = (`${process.env.FRONT_URL}/resetyourpass?token=${token}`);
         // Envio do e-mail
-        await sendEmailResetPass(dto.email, linkGenerate);
+        await this.emailService.sendEmailResetPass(dto.email, linkGenerate);
 
     }
+      private async hashPassword(password: string): Promise<string> {
+        const saltRounds = parseInt(process.env.SALT_ROUNDS || '10');
+        return bcrypt.hash(password, saltRounds);
+  }
 }

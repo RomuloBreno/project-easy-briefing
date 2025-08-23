@@ -9,6 +9,7 @@ import { PaymentRepository } from './repositories/PaymentRepository.ts';
 import { AuthService } from './services/authService.ts';
 import { PaymentService } from './services/paymentService.ts'
 import { QuotaService } from './services/quotaService.ts'; // NOVO: Importa o QuotaService
+import { EmailService } from './services/emailService.ts'; // NOVO: Importa o QuotaService
 
 // Importa as novas controllers
 import { AuthController } from './controllers/authController.ts'; // Verifique o caminho real
@@ -60,12 +61,13 @@ async function initializeApp() {
     const userRepository = new UserRepository(db);
     const paymentRepository = new PaymentRepository(db);
 
-    const authService = new AuthService(userRepository);
-    const paymentService = new PaymentService(paymentRepository, userRepository);
-    const quotaService = new QuotaService(userRepository); // NOVO: Instancia QuotaService
+    const quotaService = new QuotaService(userRepository);
+    const emailService = new EmailService();
+    const paymentService = new PaymentService(paymentRepository, userRepository,quotaService,emailService);
+    const authService = new AuthService(userRepository, emailService);
 
     // Instancia as novas controllers com suas dependências
-    const authController = new AuthController(authService);
+    const authController = new AuthController(authService, emailService);
     const paymentController = new PaymentController(paymentService, authService); // PaymentController precisa de AuthService para buscar usuário
     const userController = new UserController(authService, paymentService); // UserController precisa de AuthService (e talvez PaymentService)
     const analysisController = new AnalysisController(authService, quotaService); // AnalysisController precisa de AuthService e QuotaService

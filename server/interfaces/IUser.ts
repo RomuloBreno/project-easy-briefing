@@ -9,6 +9,7 @@ export interface IUser {
     email: string;
     passwordHash: string;
     createOn?: Date;
+    updateAt?:Date;
     planId?: string;
     plan: number;
     paymentMethod?: string;

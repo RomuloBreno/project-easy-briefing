@@ -22,18 +22,18 @@ export class UserController {
      * @param res O objeto Response do Express.
      * @returns Uma Promise que resolve para um Response.
      */
-    async setNewUserPlan(req: Request, res: Response): Promise<Response> {
-        try {
-            const dto: User = req.body;
-            // Assumindo que authService.updateUserPlan contém a lógica de negócio para atualização do plano
-            const updatedUser = await this.authService.updateUserPlan(dto); 
-            return res.status(200).json(updatedUser);
-        } catch (error: unknown) {
-            console.error('Erro ao definir novo plano para o usuário:', error);
-            if (error instanceof Error) {
-                return res.status(400).json({ error: error.message });
-            }
-            return res.status(500).json({ error: 'Erro interno do servidor.' });
-        }
-    }
+    // async setNewUserPlan(req: Request, res: Response): Promise<Response> {
+    //     try {
+    //         const dto: User = req.body;
+    //         // Assumindo que authService.updateUserPlan contém a lógica de negócio para atualização do plano
+    //         const updatedUser = await this.authService.updateUserPlan(dto); 
+    //         return res.status(200).json(updatedUser);
+    //     } catch (error: unknown) {
+    //         console.error('Erro ao definir novo plano para o usuário:', error);
+    //         if (error instanceof Error) {
+    //             return res.status(400).json({ error: error.message });
+    //         }
+    //         return res.status(500).json({ error: 'Erro interno do servidor.' });
+    //     }
+    // }
 }
