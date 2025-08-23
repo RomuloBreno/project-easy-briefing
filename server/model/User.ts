@@ -1,4 +1,5 @@
 // models/User.ts
+import { getPayment } from "../auth/marcadopagoApi.ts";
 import type {IUser} from "../interfaces/IUser.ts";
 import { ObjectId } from "mongodb";
 
@@ -37,11 +38,11 @@ export class User implements IUser {
     // Método simulado de validação de plano com um gateway de pagamento.
     // **Essa lógica deve ser uma chamada para uma API externa real.**
     async validPlan(): Promise<boolean> {
-        if (!this.planId) {
+        if (this.planId == '') {
             return false;
         }
-        // Simulação de chamada de API:
-        // const isValid = await PaymentGateway.validatePlan(planId);
+        await getPayment(this.planId || '')
         return true;
     }
+    
 }

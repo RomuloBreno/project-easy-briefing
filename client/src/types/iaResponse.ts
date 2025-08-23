@@ -3,4 +3,5 @@ export interface AIResponse {
   perguntas: string[];
   oportunidades: string[];
   cenarios: string[];
+  response:string;
 }

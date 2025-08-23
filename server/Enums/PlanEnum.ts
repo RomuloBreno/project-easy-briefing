@@ -23,7 +23,7 @@ export const Plans = {
         name: "Gratuito",
         aiModel: 'gpt-3.5-turbo',
         value: 0,
-        maxRequests: 0 // Exemplo: 0 requisições gratuitas
+        maxRequests: 1000// Exemplo: 0 requisições gratuitas
     },
     // Plano Starter
     1: { // Corresponde ao ID 1

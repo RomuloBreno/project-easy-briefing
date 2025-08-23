@@ -38,6 +38,8 @@ export class QuotaService {
      */
     checkQuota(user: User): boolean {
         // Se qtdRequest for undefined, assume que é 0 para segurança
+        // if(user.planId === '' && user.plan === 0)
+        //     return true
         return (user.qtdRequest ?? 0) > 0;
     }
 
@@ -57,7 +59,7 @@ export class QuotaService {
             const filter = { email: user.email };
             const update = {
                 $set: {
-                qtdRequest:(user.qtdRequest ?? 0) - 1,
+                qtdRequest: user.planId !== '' && user.plan !== 0 ? (user.qtdRequest ?? 0) - 1 : 0,
                 updatedAt: new Date(), // É uma boa prática atualizar o timestamp
                 },
         };

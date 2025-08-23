@@ -127,7 +127,8 @@ export function Dashboard({ user,  onLogout, onShop }: DashboardProps) {
 
         try {
             const response = await sendBriefingToAiApi(briefingData);
-            setAiResponse(response);
+                setAiResponse(response);
+                console.log(response)
         } catch (err: any) {
             setAiError(err.message);
         } finally {
@@ -384,7 +385,16 @@ export function Dashboard({ user,  onLogout, onShop }: DashboardProps) {
                                     </div>
                                 )}
 
-                                {aiResponse && !isAiLoading && (
+                                 {aiResponse && aiResponse?.response && (
+                                    <div className="results-content">
+                                        <div className="result-section">
+                                            <h3 className="result-title">Não foi possível concluir a análise</h3>
+                                            <p className="text-red-500">{aiResponse?.response}</p>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {aiResponse && aiResponse?.analise && !isAiLoading && (
                                   <AnalysisResults aiResponse={aiResponse}/>
                                 )}
 

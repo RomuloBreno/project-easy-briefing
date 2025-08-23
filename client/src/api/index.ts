@@ -54,6 +54,7 @@ export const apiFetch = async (url: string, options: CustomRequestOptions = {}) 
 
         // Se a resposta for OK (status 2xx), tenta retornar o JSON
         // Algumas respostas podem não ter corpo (ex: 204 No Content), então verificamos.
+        console.log(response)
         if (response.headers.get('content-type')?.includes('application/json')) {
             return await response.json();
         } else {
@@ -74,9 +75,9 @@ export const sendBriefingToAiApi = async (briefingText: BriefingDataWithFiles): 
             method: 'POST',
             body: JSON.stringify({ briefingText }),
         });
-        return response.response; // Supondo que o backend retorna a resposta da IA em um campo 'response'
+       return response.response; // Supondo que o backend retorna a resposta da IA em um campo 'response'
     } catch (error: any) {
-        throw new Error(error.message || 'Falha ao enviar o briefing para a IA.');
+        throw new Error(error || 'Falha ao enviar o briefing para a IA.');
     }
 };
 

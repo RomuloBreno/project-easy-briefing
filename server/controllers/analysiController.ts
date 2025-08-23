@@ -76,10 +76,10 @@ export class AnalysisController {
 
             if (fileContent === undefined || fileContent === '') {
                 // Melhorar esta mensagem, pois não é sobre plano não contemplar, mas sim falta de conteúdo.
-                return res.status(400).json({ response: "Conteúdo para análise não fornecido ou inválido." });
+                return res.status(400).json({ response: {response: "Conteúdo para análise não fornecido ou inválido." }});
             }
 
-            if (!this.quotaService.checkQuota(user)) return res.status(400).json({ response: "Você não possui mais cotas para analise, considere adiquirir um novo plano" });
+            if (!this.quotaService.checkQuota(user)) return res.status(200).json({ response: {response:"Você não possui mais cotas para analise, considere adiquirir um novo plano" }});
 
             const ModelBasedPlan = this.authService.validPlanToSetModel(user?.plan || 0);
             if (ModelBasedPlan === '') {
@@ -128,6 +128,8 @@ export class AnalysisController {
                 ],
             });
             const aiResponseContent = completion.output_text;
+
+           await this.quotaService.decrementQuota(user)
 
             return res.json({
                 response: aiResponseContent
