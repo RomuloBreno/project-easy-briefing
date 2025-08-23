@@ -71,7 +71,7 @@ export class AuthService {
         const token = this.generateToken(id.toString(), dto.email);
         
         const passwordHash = await this.hashPassword(dto.password);
-        const userToCreate: IUser = {
+        const userToCreate = new User({
             _id: id,
             name: dto.name,
             email: dto.email,
@@ -80,7 +80,7 @@ export class AuthService {
             verificationCode: token,
             qtdRequest: Plans[0].maxRequests,
             isVerified:false
-        };
+        })
         const userId = await this.userRepository.create(userToCreate);
 
         if (!userId) {

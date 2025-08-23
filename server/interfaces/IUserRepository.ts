@@ -6,7 +6,7 @@ import { UserRequest } from "../model/UserRequest.ts";
 import type { Filter, UpdateFilter } from "mongodb";
 
 export interface IUserRepository {
-    create(data: IUser): Promise<User | null>;
+    create(data: User): Promise<User | null>;
     
     // Adicionado o método para atualizar o plano do usuário
     updatePlan(email: string, planId: string, paymentMethod: string, plan: number): Promise<User | null> 
@@ -14,7 +14,7 @@ export interface IUserRepository {
     // Adicionado o método genérico de atualização
     update(filter: Filter<User>, update: UpdateFilter<User>);
 
-    updatePass(dto: IUser, pass:string): Promise<User | null>;
+    updatePass(dto: User, pass:string): Promise<User | null>;
    
     
     updateAuthenticationEmail(email:string): Promise<User | null>;

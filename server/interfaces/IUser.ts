@@ -17,6 +17,6 @@ export interface IUser {
     isVerified?: boolean; // Adicionado para verificação
     validPayment?: boolean; // Indica se o pagamento é válido, opcional
     timestamp?: Date;
-    qtdRequest?: number;
+    qtdRequest: number;
 
 }

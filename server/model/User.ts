@@ -16,8 +16,7 @@ export class User implements IUser {
     isVerified?: boolean | undefined;
     validPayment?: boolean | undefined;
     timestamp?: Date | undefined;
-    // NOVO: Adicionado o atributo para a quantidade de requisições restantes
-    qtdRequest?: number | undefined; 
+    qtdRequest: number | 0; 
 
     // Construtor baseado na interface
     constructor(user: IUser) { // Usar IUser aqui para ser mais flexível

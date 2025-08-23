@@ -72,7 +72,7 @@ export class AnalysisController {
             }
 
             // Decodifica e extrai o conteúdo dos arquivos Base64
-            let fileContent = processFiles(file, user.plan);
+            let fileContent = content == '' ? processFiles(file, user.plan) : content;
 
             if (fileContent === undefined || fileContent === '') {
                 // Melhorar esta mensagem, pois não é sobre plano não contemplar, mas sim falta de conteúdo.
