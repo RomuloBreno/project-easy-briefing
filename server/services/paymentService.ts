@@ -30,7 +30,7 @@ export class PaymentService {
     this.quotaService = quotaService;
     this.emailService = emailService
     this.front_url =  process.env.FRONT_URL || '';
-    this.token_mp = process.env.token_mp || '';
+    this.token_mp = process.env.TOKEN_MP || '';
 
         
       // Valida variáveis de ambiente
