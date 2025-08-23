@@ -19,7 +19,8 @@ interface DashboardProps {
 }
 
 export function Dashboard({ user,  onLogout, onShop }: DashboardProps) {
-    const [editProfile, setEditProfile] = useState(Boolean)
+    const [disabledSendEmailToken, setDisabledSendEmailToken] = useState<boolean>(false)
+    const [editProfile, setEditProfile] = useState<boolean>()
     if (!user || !user.email) {
         return (
             <div className="text-center mt-10">
@@ -37,6 +38,7 @@ export function Dashboard({ user,  onLogout, onShop }: DashboardProps) {
     };
 
     const handleButtonNewEmail = async () => {
+        setDisabledSendEmailToken(true)
         sendEmail(user.email, user.name)
     }
     // Adicione a função de validação de arquivos aqui
@@ -153,7 +155,9 @@ export function Dashboard({ user,  onLogout, onShop }: DashboardProps) {
             {/* Header */}
             <header className="header">
             {!user?.isVerified &&
-                <button onClick={handleButtonNewEmail} className="btn btn-outline" style={{
+                <button onClick={handleButtonNewEmail} className="btn btn-outline" 
+                disabled={disabledSendEmailToken}
+                style={{
                     backgroundColor: '#ffffffff',
                     color: 'rgba(0, 0, 0, 1)',
                     border: '1px solid ##6f42c1',
