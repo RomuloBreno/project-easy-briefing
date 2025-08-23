@@ -157,7 +157,7 @@ async updatePaymentById(paymentId: string): Promise<void> {
         throw new Error('Payment not found in Mercado Pago');
     }
 
-    const { status, status_detail, preference_id, id: payment_id } = paymentInfo;
+    const { status, status_detail, preference_id, id: payment_id, external_reference} = paymentInfo;
 
     // 2. Fetch the local payment record using the preferenceId from the API response
     const localPayment = await this.paymentRepository.findByPreferenceId(preference_id);
@@ -165,9 +165,11 @@ async updatePaymentById(paymentId: string): Promise<void> {
         throw new Error('Local payment record not found or missing user ID.');
     }
 
-    const user = await this.userRepository.findById(localPayment.userId.toString());
+    let user = await this.userRepository.findById(localPayment.userId.toString());
     if (!user) {
-        throw new Error('User not found.');
+        user = await this.userRepository.findById(external_reference);
+        if(!user)
+          throw new Error('User not found.');
     }
 
     // 3. Update the local payment record with the latest status and payment ID
@@ -194,10 +196,10 @@ async updatePaymentById(paymentId: string): Promise<void> {
             planLevel,
             paymentInfo.date_approved
         );
-
         // Reset the user's quota and send a confirmation email
         await this.quotaService.resetQuota(user);
         await this.emailService.sendEmailAfterPurchase(user.email);
+        console.log("End Purchase")
     }
 }
 }
