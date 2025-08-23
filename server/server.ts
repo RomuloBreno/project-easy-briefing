@@ -111,9 +111,9 @@ async function initializeApp() {
         try {
             const paymentData = req.body;
             // A validação do webhook e a atualização do pagamento devem estar no PaymentService
-            if (!paymentService.validateWebhook(req)) {
-                return res.status(401).send("Webhook inválido");
-            }
+            // if (!paymentService.validateWebhook(req)) {
+            //     return res.status(401).send("Webhook inválido");
+            // }
             await paymentService.updatePaymentById(paymentData.data.id); // Certifique-se que é await
             // Sempre responda 200 para confirmar o recebimento
             res.sendStatus(200);
