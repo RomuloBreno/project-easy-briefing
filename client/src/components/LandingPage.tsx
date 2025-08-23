@@ -66,7 +66,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({error, successPay, user
     return (
         <>
         {/* {error != '' &&  <ModalExample onClose={handleButtonPurchase} openModalSuccessPay={true} message={error}/>} */}
-        {openModal && user?.isVerified==false && <ModalExample onClose={handleButtonNeedVerified} openModalSuccessPay={true} message={"Ative sua conta pelo email para ter direito a assinatura"}/>}        {/* {modalPurchase && <ModalExample onClose={handleButtonPurchaseFakeModal} openModalSuccessPay={true} message={"SIMULAÇÃO DE COMPRA"}/>} */}
+        {openModal && user?.isVerified==false && <ModalExample onClose={handleButtonNeedVerified} openModalSuccessPay={true} message={"Ative sua conta pelo email para ter direito a assinatura"}/>}   
+            {/* {modalPurchase && <ModalExample onClose={handleButtonPurchaseFakeModal} openModalSuccessPay={true} message={"SIMULAÇÃO DE COMPRA"}/>} */}
            <div id="root"></div>
                 <header className="header">
                     <nav className="nav container">

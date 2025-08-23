@@ -4,6 +4,7 @@ import { BriefingDataWithFiles, sendBriefingToAiApi, sendEmail } from "../api";
 import { AIResponse } from "../types/iaResponse";
 import AnalysisResults from "./AIResponse";
 import SpanUpdatePlan from "./SpanUpdatePlan";
+import ModalExample from "./modal";
 
 interface DashboardProps {
     user: {
@@ -40,6 +41,9 @@ export function Dashboard({ user,  onLogout, onShop }: DashboardProps) {
     const handleButtonNewEmail = async () => {
         setDisabledSendEmailToken(true)
         sendEmail(user.email, user.name)
+    }
+    const handleButtonNewEmailDisabled = async () => {
+        setDisabledSendEmailToken(false)
     }
     // Adicione a função de validação de arquivos aqui
     const validateUploadedFiles = (files: File[]) => {
@@ -154,6 +158,8 @@ export function Dashboard({ user,  onLogout, onShop }: DashboardProps) {
         <>
             {/* Header */}
             <header className="header">
+                 
+                 {disabledSendEmailToken && <ModalExample onClose={handleButtonNewEmailDisabled} openModalSuccessPay={true} message={"Ative sua conta pelo email para ter direito a assinatura"}/>} 
             {!user?.isVerified &&
                 <button onClick={handleButtonNewEmail} className="btn btn-outline" 
                 disabled={disabledSendEmailToken}
