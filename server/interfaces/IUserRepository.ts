@@ -9,7 +9,7 @@ export interface IUserRepository {
     create(data: User): Promise<User | null>;
     
     // Adicionado o método para atualizar o plano do usuário
-    updatePlan(email: string, planId: string, paymentMethod: string, plan: number): Promise<User | null> 
+    updatePlan(email: string, planId: string, paymentMethod: string, plan: number, datePay:Date): Promise<User | null> 
     
     // Adicionado o método genérico de atualização
     update(filter: Filter<User>, update: UpdateFilter<User>);

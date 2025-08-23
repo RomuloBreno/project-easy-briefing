@@ -18,5 +18,6 @@ export interface IUser {
     validPayment?: boolean; // Indica se o pagamento é válido, opcional
     timestamp?: Date;
     qtdRequest: number;
+    planExpirationDate?:Date;
 
 }

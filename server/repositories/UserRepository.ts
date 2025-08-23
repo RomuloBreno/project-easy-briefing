@@ -201,8 +201,8 @@ export class UserRepository extends BaseRepository<UserDocument> implements IUse
     return this.update({ email }, update);
   }
 
-  async updatePlan(email: string, planId: string, paymentMethod: string, plan: number): Promise<UserDocument | null> {
-    const update = { $set: { planId, paymentMethod, plan } };
+  async updatePlan(email: string, planId: string, paymentMethod: string, plan: number, datePay:Date): Promise<UserDocument | null> {
+    const update = { $set: { planId, paymentMethod, plan, planExpirationDate:datePay } };
     return this.update({ email }, update);
   }
     async updatePass(dto: UserModel, passwordHash:string): Promise<UserDocument | null> {
