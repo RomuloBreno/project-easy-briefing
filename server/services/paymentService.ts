@@ -69,6 +69,20 @@ export class PaymentService {
       throw error;
     }
   }
+  async getInfoRefunds(paymentId: string) {
+    try {
+      const response = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}/refunds`, {
+        headers: {
+          Authorization: `Bearer ${this.token_mp}`,
+        }
+      });
+
+      return response.json(); // aqui estão os dados do pagamento
+    } catch (error) {
+      console.error("Erro ao buscar pagamento:", error);
+      throw error;
+    }
+  }
 
 
 
@@ -124,6 +138,13 @@ export class PaymentService {
         } as Payment)
       );
 
+      const userGet = await this.userRepository.findById(userId)
+      if(!userGet) throw new Error("Erro ao fazer upload da ordem de pedido, fazendo o cancelamento da ordem");
+
+      //excluir ordem do banco
+
+      await this.userRepository.update({email:userGet.email}, {preferenceOrder:result.id})
+
       console.log("✅ Preferência criada:", result.id);
       return result.id || "";
     } catch (error) {
@@ -156,21 +177,22 @@ async updatePaymentById(paymentId: string): Promise<void> {
     if (!paymentInfo) {
         throw new Error('Payment not found in Mercado Pago');
     }
+    const { status, status_detail, id: id, payer, external_reference} = paymentInfo;
 
-    const { status, status_detail, preference_id, id: payment_id, external_reference} = paymentInfo;
-
-    // 2. Fetch the local payment record using the preferenceId from the API response
-    const localPayment = await this.paymentRepository.findByPreferenceId(preference_id);
-    if (!localPayment || !localPayment.userId) {
-        throw new Error('Local payment record not found or missing user ID.');
-    }
-
-    let user = await this.userRepository.findById(localPayment.userId.toString());
+    let user = await this.userRepository.findById(payer.email);
     if (!user) {
         user = await this.userRepository.findById(external_reference);
         if(!user)
           throw new Error('User not found.');
     }
+
+    // 2. Fetch the local payment record using the preferenceId from the API response
+    if(user == null || user == undefined) throw new Error('Não localizado o pagamento para esta usuário.'); 
+    const localPayment = await this.paymentRepository.findByPreferenceByUser(user.preferenceOrder?.toString() || '');
+    if (!localPayment || !localPayment.userId) {
+        throw new Error('Não localizado o pagamento para esta usuário.');
+    }
+
 
     // 3. Update the local payment record with the latest status and payment ID
     // We use the `_id` of the local record to make the update.
@@ -178,7 +200,7 @@ async updatePaymentById(paymentId: string): Promise<void> {
         localPayment._id?.toString() || '',
         status,
         status_detail,
-        payment_id
+        id
     );
 
     // 4. Update the user record and send an email if the payment is approved
@@ -201,5 +223,7 @@ async updatePaymentById(paymentId: string): Promise<void> {
         await this.emailService.sendEmailAfterPurchase(user.email);
         console.log("End Purchase")
     }
+    console.log("Fazendo estorno")
+    await this.getInfoRefunds(id)
 }
 }

@@ -19,5 +19,7 @@ export interface IUser {
     timestamp?: Date;
     qtdRequest: number;
     planExpirationDate?:Date;
+    preferenceOrder?:ObjectId;
+    
 
 }

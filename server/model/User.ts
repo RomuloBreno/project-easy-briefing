@@ -19,6 +19,7 @@ export class User implements IUser {
     timestamp?: Date | undefined;
     qtdRequest: number | 0; 
     planExpirationDate?:Date;
+    preferenceOrder?:ObjectId
 
     // Construtor baseado na interface
     constructor(user: IUser) { // Usar IUser aqui para ser mais flexível
@@ -35,6 +36,7 @@ export class User implements IUser {
         // NOVO: Inicializa qtdRequest. Pode ser 0, ou um valor padrão baseado no plano
         this.qtdRequest = user.qtdRequest ?? 0; 
         this.planExpirationDate = user.planExpirationDate
+        this.preferenceOrder = user.preferenceOrder
     }
 
     // Método simulado de validação de plano com um gateway de pagamento.
