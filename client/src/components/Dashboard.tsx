@@ -159,7 +159,7 @@ export function Dashboard({ user,  onLogout, onShop }: DashboardProps) {
             {/* Header */}
             <header className="header">
                  
-                 {disabledSendEmailToken && <ModalExample onClose={handleButtonNewEmailDisabled} openModalSuccessPay={true} message={"Ative sua conta pelo email para ter direito a assinatura"}/>} 
+                 {disabledSendEmailToken && <ModalExample onClose={handleButtonNewEmailDisabled} openModalSuccessPay={true} message={"Email com link enviado para sua caixa de email"}/>} 
             {!user?.isVerified &&
                 <button onClick={handleButtonNewEmail} className="btn btn-outline" 
                 disabled={disabledSendEmailToken}
