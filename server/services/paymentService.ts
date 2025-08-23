@@ -181,14 +181,13 @@ export class PaymentService {
           paymentPreference.planId === 'plan-pro-002' ? 2 :
             paymentPreference.planId === 'plan-enteprise-003' ? 3 :
               0;
-
       // Atualizar os dados do usuário no repositório
       await this.userRepository.updatePlan(
         userPayment.email,            // Email do usuário
         paymentInfo.id,           // Novo planId vindo do pagamento
-        paymentInfo.payment_method_id,    // Método de pagamento utilizado
+        paymentPreference.method || 'pix',    // Método de pagamento utilizado
         planLevel,
-        paymentInfo.date_approved      // Data de aprovação do pagamento
+        paymentInfo.date_created      // Data de aprovação do pagamento
       );
 
       await this.emailService.sendEmailAfterPurchase(userPayment.email)
