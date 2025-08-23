@@ -233,12 +233,16 @@ export class AuthService {
         // Gera o token após a criação bem-sucedida
         const token = this.generateToken(id, dto.email);
         let linkGenerate: string = '';
-        if (handler == 'check')
+        if (handler == 'check'){
             linkGenerate = (`${process.env.FRONT_URL}/check?token=${token}`);
             await this.emailService.sendWelcomeEmail(dto.email, dto.name, linkGenerate);
-        if (handler == 'reset')
+            return
+        }
+        if (handler == 'reset'){
             linkGenerate = (`${process.env.FRONT_URL}/resetyourpass?token=${token}`);
             await this.emailService.sendEmailResetPass(dto.email, linkGenerate);
+            return
+        }
         // Envio do e-mail
 
     }
