@@ -138,8 +138,7 @@ export class PaymentService {
 
   validateWebhook(req: Request) {
     const secret = process.env.MP_WEBHOOK_TOKEN; // token secreto definido no ambiente
-    const headerSignature = req.headers["x-mp-signature"] as string; // captura o token do header
-    console.log("headerSignature - ", headerSignature)
+    const headerSignature = req.headers["x-mp-signature"] as string;
     if (!secret) return
     // Gera o hash HMAC do corpo da requisição
     const hash = crypto

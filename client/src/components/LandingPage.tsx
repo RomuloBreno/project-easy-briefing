@@ -47,7 +47,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({error, successPay, user
     }
 
     useEffect(()=>{
-        console.log(user)
     },[user,openModal,modalPurchase])
     // Código JSX da landing page que você forneceu
     // Note que os botões de login e compra agora usam as props do componente.

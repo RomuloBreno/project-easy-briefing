@@ -156,7 +156,7 @@ export class UserRepository extends BaseRepository<UserDocument> implements IUse
         { email: 1 },
         { unique: true }
       );
-      console.log('✅ Índices de User verificados/criados');
+      console.log('✅  Índices de User verificados/criados');
     } catch (error) {
       console.error('❌ Erro ao criar índices de User:', error);
       throw error;
