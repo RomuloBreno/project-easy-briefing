@@ -38,8 +38,8 @@ export class QuotaService {
      */
     checkQuota(user: User): boolean {
         // Se qtdRequest for undefined, assume que é 0 para segurança
-        // if(user.planId === '' && user.plan === 0)
-        //     return true
+        if(user.planId === '' && user.plan === 0)
+            return true
         return (user.qtdRequest ?? 0) > 0;
     }
 

@@ -40,7 +40,6 @@ export const apiFetch = async (url: string, options: CustomRequestOptions = {}) 
         }
 
         if (response.status === 500) {
-            console.warn('Tivemos um erro inesperado, sintimos muito pelo imprevisto');
             localStorage.removeItem('token'); // Limpa o token inválido
             // IMPORTANTE: Para redirecionar aqui, você precisará de uma forma de acessar a navegação
             // (ex: window.location.href = '/login'; ou usar um hook de navegação do React Router em um contexto superior).

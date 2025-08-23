@@ -79,7 +79,8 @@ export class AuthService {
             plan: 0,
             verificationCode: token,
             qtdRequest: Plans[0].maxRequests,
-            isVerified:false
+            isVerified:false,
+            planId:''
         })
         const userId = await this.userRepository.create(userToCreate);
 
