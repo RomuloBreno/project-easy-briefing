@@ -235,10 +235,11 @@ export class AuthService {
         let linkGenerate: string = '';
         if (handler == 'check')
             linkGenerate = (`${process.env.FRONT_URL}/check?token=${token}`);
+            await this.emailService.sendWelcomeEmail(dto.email, dto.name, linkGenerate);
         if (handler == 'reset')
             linkGenerate = (`${process.env.FRONT_URL}/resetyourpass?token=${token}`);
+            await this.emailService.sendEmailResetPass(dto.email, linkGenerate);
         // Envio do e-mail
-        await this.emailService.sendEmailResetPass(dto.email, linkGenerate);
 
     }
       private async hashPassword(password: string): Promise<string> {

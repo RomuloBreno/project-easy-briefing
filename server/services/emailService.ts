@@ -6,35 +6,39 @@ import type { Transporter } from 'nodemailer';
 export class EmailService {
     private transporter: Transporter;
     private readonly senderEmailAddress: string;
+    private readonly senderEmailPassword: string;
 
     constructor() {
         this.senderEmailAddress = process.env.SENDER_EMAIL_ADDRESS || '';
-        const senderEmailPassword = process.env.SENDER_EMAIL_PASSWORD || '';
+        this.senderEmailPassword = process.env.SENDER_EMAIL_PASSWORD || '';
 
         // Verificação de segurança em tempo de execução
-        if (!this.senderEmailAddress || !senderEmailPassword) {
+        if (!this.senderEmailAddress || !this.senderEmailPassword) {
             throw new Error('As variáveis de ambiente para o e-mail do remetente e a senha não estão configuradas.');
         }
+    }
 
+    public async nodemailerreateTransport() {
         // Configurações SMTP da Hostinger
-        this.transporter = nodemailer.createTransport({
+        this.transporter = await nodemailer.createTransport({
             host: 'smtp.hostinger.com',
             port: 465,
             secure: true,
             auth: {
                 user: this.senderEmailAddress,
-                pass: senderEmailPassword,
+                pass: this.senderEmailPassword,
             },
         });
+        
     }
-
     /**
      * @description Envia um e-mail de boas-vindas para um novo usuário.
      * @param {string} recipientEmail O e-mail do usuário que receberá a mensagem.
      * @param {string} name O nome do usuário para personalização do e-mail.
      * @param {string} link O link de autenticação.
-     */
-    public async sendWelcomeEmail(recipientEmail: string, name: string, link: string): Promise<void> {
+    */
+   public async sendWelcomeEmail(recipientEmail: string, name: string, link: string): Promise<void> {
+        await this.nodemailerreateTransport(); 
         try {
             const mailOptions = {
                 from: `"IzyBriefing" <${this.senderEmailAddress}>`,
@@ -66,6 +70,7 @@ export class EmailService {
      * @param {string} link O link para redefinir a senha.
      */
     public async sendEmailResetPass(recipientEmail: string, link: string): Promise<void> {
+        await this.nodemailerreateTransport(); 
         try {
             const mailOptions = {
                 from: `"IzyBriefing" <${this.senderEmailAddress}>`,
@@ -94,6 +99,7 @@ export class EmailService {
      * @param {string} recipientEmail O e-mail do usuário que receberá a mensagem.
      */
     public async sendEmailAfterPurchase(recipientEmail: string): Promise<void> {
+        await this.nodemailerreateTransport(); 
         try {
             const mailOptions = {
                 from: `"IzyBriefing" <${this.senderEmailAddress}>`,
