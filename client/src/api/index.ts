@@ -54,7 +54,6 @@ export const apiFetch = async (url: string, options: CustomRequestOptions = {}) 
 
         // Se a resposta for OK (status 2xx), tenta retornar o JSON
         // Algumas respostas podem não ter corpo (ex: 204 No Content), então verificamos.
-        console.log(response)
         if (response.headers.get('content-type')?.includes('application/json')) {
             return await response.json();
         } else {

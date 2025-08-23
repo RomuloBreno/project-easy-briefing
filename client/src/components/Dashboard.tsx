@@ -128,7 +128,6 @@ export function Dashboard({ user,  onLogout, onShop }: DashboardProps) {
         try {
             const response = await sendBriefingToAiApi(briefingData);
                 setAiResponse(response);
-                console.log(response)
         } catch (err: any) {
             setAiError(err.message);
         } finally {
