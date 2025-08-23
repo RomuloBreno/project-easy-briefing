@@ -172,23 +172,26 @@ export class PaymentService {
   }
 
 async updatePaymentById(paymentId: string): Promise<void> {
+   console.log("Start Purchase")
     // 1. Fetch payment details from Mercado Pago API using the paymentId
     const paymentInfo = await this.getPayment(paymentId);
     if (!paymentInfo) {
         throw new Error('Payment not found in Mercado Pago');
     }
     const { status, status_detail, id: id, payer, external_reference} = paymentInfo;
-
+    console.log("pay:", paymentInfo);
+    
     let user = await this.userRepository.findById(payer.email);
+    console.log("user", user);
     if (!user) {
         user = await this.userRepository.findById(external_reference);
         if(!user)
           throw new Error('User not found.');
     }
-
     // 2. Fetch the local payment record using the preferenceId from the API response
     if(user == null || user == undefined) throw new Error('Não localizado o pagamento para esta usuário.'); 
     const localPayment = await this.paymentRepository.findByPreferenceByUser(user.preferenceOrder?.toString() || '');
+    console.log("PReference", localPayment);
     if (!localPayment || !localPayment.userId) {
         throw new Error('Não localizado o pagamento para esta usuário.');
     }
@@ -202,6 +205,7 @@ async updatePaymentById(paymentId: string): Promise<void> {
         status_detail,
         id
     );
+    console.log("Update Concluido", localPayment);
 
     // 4. Update the user record and send an email if the payment is approved
     if (status === "approved") {
@@ -218,6 +222,7 @@ async updatePaymentById(paymentId: string): Promise<void> {
             planLevel,
             paymentInfo.date_approved
         );
+         console.log("Update User");
         // Reset the user's quota and send a confirmation email
         await this.quotaService.resetQuota(user);
         await this.emailService.sendEmailAfterPurchase(user.email);
