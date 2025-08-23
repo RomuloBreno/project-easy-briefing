@@ -13,9 +13,10 @@ interface MercadoPagoButtonProps {
   // como um ID de pedido, por exemplo.
   orderId?: string;
   user:User;
+  newPlan:number;
 }
 
-const MercadoPagoButton: React.FC<MercadoPagoButtonProps> = ({ orderId, user }) => {
+const MercadoPagoButton: React.FC<MercadoPagoButtonProps> = ({ orderId, user, newPlan }) => {
   // Estado para controlar o ID da preferência de pagamento
   const [preferenceId, setPreferenceId] = useState<string | null>(null);
   // Estado para controlar o estado de carregamento
@@ -46,7 +47,7 @@ const MercadoPagoButton: React.FC<MercadoPagoButtonProps> = ({ orderId, user }) 
             'Content-Type': 'application/json',
           },
           // Você pode enviar dados do pedido para o backend aqui
-          body: JSON.stringify({ orderId: orderId, plan: user.plan, planId: user.planId, email:user.email }),
+          body: JSON.stringify({ orderId: orderId, newPlan: newPlan, email:user.email }),
         });
 
         if (!response.ok) {

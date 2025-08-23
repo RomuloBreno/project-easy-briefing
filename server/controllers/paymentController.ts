@@ -30,7 +30,7 @@ export class PaymentController {
 
             let preferenceId: string = '';
             if (user?._id) {
-                preferenceId = await this.paymentService.createPaymentPreference(dto?.plan || 0, user._id.toString());
+                preferenceId = await this.paymentService.createPaymentPreference(dto?.newPlan || 0, user._id.toString());
             } else {
                 return res.status(404).json({ error: 'Usuário não encontrado para criar preferência de pagamento.' });
             }

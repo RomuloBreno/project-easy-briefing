@@ -77,7 +77,7 @@ export async function sendEmailResetPass(recipientEmail: string,link:string): Pr
         
     } catch (error) {
         console.error('Erro ao enviar o e-mail:', error);
-        throw new Error('Não foi possível enviar o e-mail de boas-vindas.');
+        throw new Error('Não foi possível enviar o e-mail de Reset');
     }
 }
 /**
@@ -104,6 +104,6 @@ export async function sendEmailAfterPurchase(recipientEmail: string): Promise<vo
         
     } catch (error) {
         console.error('Erro ao enviar o e-mail:', error);
-        throw new Error('Não foi possível enviar o e-mail de boas-vindas.');
+        throw new Error('Não foi possível enviar o e-mail de novo membro');
     }
 }

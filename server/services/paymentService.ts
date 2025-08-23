@@ -48,7 +48,7 @@ export class PaymentService {
   private paymentRepository: PaymentRepository;
   private userRepository: UserRepository;
 
-  constructor(paymentRepository: PaymentRepository, userRepository:UserRepository) {
+  constructor(paymentRepository: PaymentRepository, userRepository: UserRepository) {
     this.paymentRepository = paymentRepository;
     this.userRepository = userRepository;
   }
@@ -59,22 +59,28 @@ export class PaymentService {
    * @param userId ID do usuário que está criando o pagamento.
    * @returns O ID da preferência criada.
    */
-  async createPaymentPreference(plan: number, userId: string): Promise<string> {
-    let title: string;
-    let unit_price: number;
-    let item_id: string;
+  async createPaymentPreference(newPlan: number, userId: string): Promise<string> {
 
-    if (plan === 1) {
-      title = "Starter Plan";
-      unit_price = 9.9;
-      item_id = "plan-starter-001";
-    } else if (plan === 2) {
-      title = "Pro Plan";
-      unit_price = 29.9;
-      item_id = "plan-pro-002";
-    } else {
+    const plans = {
+      1: {
+        title: "Starter Plan",
+        unit_price: 9.9,
+        item_id: "plan-starter-001"
+      },
+      2: {
+        title: "Pro Plan",
+        unit_price: 29.9,
+        item_id: "plan-pro-002"
+      }
+    };
+
+    const selectedPlan = plans[newPlan];
+
+    if (!selectedPlan) {
       throw new Error("Plano inválido. Escolha 1 (Starter) ou 2 (Pro).");
     }
+
+    const { title, unit_price, item_id } = selectedPlan;
 
     const preference = {
       items: [
@@ -98,7 +104,7 @@ export class PaymentService {
       const result = await preferencesInstance.create({ body: preference });
 
       // Salvar no banco como status inicial "created"
-      await this.paymentRepository.create(
+     const newPayToPreference= await this.paymentRepository.create(
         new Payment({
           preferenceId: result.id,
           amount: unit_price,
@@ -106,7 +112,7 @@ export class PaymentService {
           userId: new ObjectId(userId),
           createdAt: new Date(),
           updatedAt: new Date(),
-          plan:item_id
+          plan: item_id
         } as Payment)
       );
 
@@ -123,21 +129,21 @@ export class PaymentService {
   }
 
 
-validateWebhook(req: Request) {
-  const secret = process.env.MP_WEBHOOK_TOKEN; // token secreto definido no ambiente
-  const headerSignature = req.headers["x-mp-signature"] as string; // captura o token do header
-  console.log("headerSignature - ", headerSignature)
-  if(!secret) return
-  // Gera o hash HMAC do corpo da requisição
-  const hash = crypto
-    .createHmac("sha256", secret)
-    .update(JSON.stringify(req.body))
-    .digest("hex");
+  validateWebhook(req: Request) {
+    const secret = process.env.MP_WEBHOOK_TOKEN; // token secreto definido no ambiente
+    const headerSignature = req.headers["x-mp-signature"] as string; // captura o token do header
+    console.log("headerSignature - ", headerSignature)
+    if (!secret) return
+    // Gera o hash HMAC do corpo da requisição
+    const hash = crypto
+      .createHmac("sha256", secret)
+      .update(JSON.stringify(req.body))
+      .digest("hex");
 
-  return hash === headerSignature; // true se for válido
-}
+    return hash === headerSignature; // true se for válido
+  }
 
-async updatePaymentById(preferenceId: string): Promise<void> {
+  async updatePaymentById(preferenceId: string): Promise<void> {
 
     // 1. Busca o registro de pagamento salvo localmente pelo preferenceId
     const paymentPreference = await this.paymentRepository.findByPreferenceId(preferenceId);
@@ -146,15 +152,15 @@ async updatePaymentById(preferenceId: string): Promise<void> {
     // 2. Busca o usuário dono desse pagamento
     const userPayment: User | null = await this.userRepository.findById(paymentPreference.userId.toString());
     if (!userPayment) return;
-    
+
     // 3. Buscar detalhes do pagamento na API do Mercado Pago
-    const paymentInfo = await getPayment(paymentPreference.paymentId||''); 
+    const paymentInfo = await getPayment(paymentPreference.paymentId || '');
     // ⚠️ Aqui você precisa ter salvo o `paymentId` que o MP envia no webhook!
 
     const status = paymentInfo.status; // approved | pending | rejected
     const statusDetail = paymentInfo.status_detail;
 
-    if(!paymentPreference._id) return
+    if (!paymentPreference._id) return
     // 4. Atualiza o status do pagamento no repositório
     await this.paymentRepository.updateStatus(paymentPreference._id?.toString(), status, statusDetail, paymentInfo.paymentId)
 
@@ -162,11 +168,11 @@ async updatePaymentById(preferenceId: string): Promise<void> {
     if (status === "approved") {
       await this.userRepository.updatePlan(
         new User({
-          email:userPayment.email,
-          plan:paymentPreference.plan === 'plan-starter-001' ? 1 : paymentPreference.plan === 'plan-pro-002' ? 2 : paymentPreference.plan === 'plan-enteprise-003' ? 3 : 0,
-          
+          email: userPayment.email,
+          plan: paymentPreference.plan === 'plan-starter-001' ? 1 : paymentPreference.plan === 'plan-pro-002' ? 2 : paymentPreference.plan === 'plan-enteprise-003' ? 3 : 0,
+
         } as User)
       );
     }
+  }
 }
- }
