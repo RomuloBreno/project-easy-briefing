@@ -98,6 +98,7 @@ export class PaymentService {
           quantity: 1,
         },
       ],
+      external_reference: userId,
       back_urls: {
         success: `${this.front_url}/success`,
         failure: `${this.front_url}/failure`,
@@ -149,48 +150,54 @@ export class PaymentService {
     return hash === headerSignature; // true se for válido
   }
 
-  async updatePaymentById(preferenceId: string): Promise<void> {
-
-    // 1. Busca o registro de pagamento salvo localmente pelo preferenceId
-    const paymentPreference = await this.paymentRepository.findByPreferenceId(preferenceId);
-    if (!paymentPreference?.userId) return;
-
-    // 2. Busca o usuário dono desse pagamento
-    const userPayment: User | null = await this.userRepository.findById(paymentPreference.userId.toString());
-    if (!userPayment) return;
-
-    // 3. Buscar detalhes do pagamento na API do Mercado Pago
-    const paymentInfo = await this.getPayment(paymentPreference.paymentId || '');
-    // ⚠️ Aqui você precisa ter salvo o `paymentId` que o MP envia no webhook!
-
-    const status = paymentInfo.status; // approved | pending | rejected
-    const statusDetail = paymentInfo.status_detail;
-
-    if (!paymentPreference._id) return
-    // 4. Atualiza o status do pagamento no repositório
-    await this.paymentRepository.updateStatus(paymentPreference._id?.toString(), status, statusDetail, paymentInfo.paymentId)
-    await this.quotaService.resetQuota(userPayment);
-    // 5. (Opcional) Atualizar usuário com base no pagamento aprovado
-    if (status === "approved") {
-      // Buscar detalhes do pagamento na API do Mercado Pago
-      const paymentInfo = await this.getPayment(paymentPreference.paymentId || '');
-
-      // Mapear o tipo de plano baseado no planId antigo
-      const planLevel =
-        paymentPreference.planId === 'plan-starter-001' ? 1 :
-          paymentPreference.planId === 'plan-pro-002' ? 2 :
-            paymentPreference.planId === 'plan-enteprise-003' ? 3 :
-              0;
-      // Atualizar os dados do usuário no repositório
-      await this.userRepository.updatePlan(
-        userPayment.email,            // Email do usuário
-        paymentInfo.id,           // Novo planId vindo do pagamento
-        paymentPreference.method || 'pix',    // Método de pagamento utilizado
-        planLevel,
-        paymentInfo.date_created      // Data de aprovação do pagamento
-      );
-
-      await this.emailService.sendEmailAfterPurchase(userPayment.email)
+async updatePaymentById(paymentId: string): Promise<void> {
+    // 1. Fetch payment details from Mercado Pago API using the paymentId
+    const paymentInfo = await this.getPayment(paymentId);
+    if (!paymentInfo) {
+        throw new Error('Payment not found in Mercado Pago');
     }
-  }
+
+    const { status, status_detail, preference_id, id: payment_id } = paymentInfo;
+
+    // 2. Fetch the local payment record using the preferenceId from the API response
+    const localPayment = await this.paymentRepository.findByPreferenceId(preference_id);
+    if (!localPayment || !localPayment.userId) {
+        throw new Error('Local payment record not found or missing user ID.');
+    }
+
+    const user = await this.userRepository.findById(localPayment.userId.toString());
+    if (!user) {
+        throw new Error('User not found.');
+    }
+
+    // 3. Update the local payment record with the latest status and payment ID
+    // We use the `_id` of the local record to make the update.
+    await this.paymentRepository.updateStatus(
+        localPayment._id?.toString() || '',
+        status,
+        status_detail,
+        payment_id
+    );
+
+    // 4. Update the user record and send an email if the payment is approved
+    if (status === "approved") {
+        // Map the plan level
+        const planLevel = localPayment.planId === 'plan-starter-001' ? 1 :
+            localPayment.planId === 'plan-pro-002' ? 2 :
+            localPayment.planId === 'plan-enteprise-003' ? 3 : 0;
+        
+        // Update user plan details
+        await this.userRepository.updatePlan(
+            user.email,
+            localPayment.planId,
+            paymentInfo.payment_method_id || 'pix',
+            planLevel,
+            paymentInfo.date_approved
+        );
+
+        // Reset the user's quota and send a confirmation email
+        await this.quotaService.resetQuota(user);
+        await this.emailService.sendEmailAfterPurchase(user.email);
+    }
+}
 }
