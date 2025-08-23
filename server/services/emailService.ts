@@ -45,7 +45,7 @@ export class EmailService {
                     <p>Seu cadastro foi realizado com sucesso. Estamos muito felizes em ter você conosco!</p>
                     <p>Aproveite nossa plataforma</p>
                     <p>Aqui seu link para autenticação</p>
-                    <p>${link}</p>
+                    <p><a href="${link}">Link</p>
                     <br/>
                     <p>Atenciosamente,</p>
                     <p>IzyBriefing</p>
@@ -74,7 +74,7 @@ export class EmailService {
                 html: `
                     <h3>Olá,</h3>
                     <p>Aqui está seu link para refazer a senha</p>
-                    <p>${link}</p>
+                    <p><a href="${link}">Link</p>
                     <br/>
                     <p>Atenciosamente,</p>
                     <p>IzyBriefing</p>
