@@ -30,7 +30,7 @@ export const Plans = {
         id: 1,
         name: "plan-starter-001",
         aiModel: 'gpt-4o-mini',
-        value: 1,
+        value: 9.9,
         maxRequests: 25 
     },
     // Plano Pro
@@ -38,7 +38,7 @@ export const Plans = {
         id: 2,
         name: 'plan-starter-002',
         aiModel: 'gpt-4o',
-        value: 2,
+        value: 29.9,
         maxRequests: 60
     },
     3: { // Corresponde ao ID 2
