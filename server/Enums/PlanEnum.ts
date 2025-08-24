@@ -41,6 +41,13 @@ export const Plans = {
         value: 2,
         maxRequests: 60
     },
+    3: { // Corresponde ao ID 2
+        id: 3,
+        name: 'plan-starter-003',
+        aiModel: 'gpt-4o',
+        value: 3,
+        maxRequests: 60
+    }
 } as const; // 'as const' para garantir que os tipos sejam literais e imutáveis.
 
 /**

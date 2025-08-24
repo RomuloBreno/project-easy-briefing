@@ -2,8 +2,10 @@
 
 import React, { useEffect, useState } from 'react';
 import ModalExample from './modal';
+import {sendEmail } from "../api";
 import MercadoPagoButton from './MpCheckout';
 import { User } from '../types/user';
+import ModalSendEmail from './modalSendEmail';
 
 interface LandingPageProps {
     onLoginClick: () => void;
@@ -42,8 +44,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({error, successPay, user
         }
     }
     
+    
     const handleButtonNeedVerified = async () => {
         setOpenModal(false)
+    }
+    const handleButtonNewEmail = async () => {
+        setOpenModal(true)
+        if(!user) return
+        sendEmail(user.email, user.name)
     }
 
     useEffect(()=>{
@@ -66,7 +74,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({error, successPay, user
     return (
         <>
         {/* {error != '' &&  <ModalExample onClose={handleButtonPurchase} openModalSuccessPay={true} message={error}/>} */}
-        {openModal && user?.isVerified==false && <ModalExample onClose={handleButtonNeedVerified} openModalSuccessPay={true} message={"Ative sua conta pelo email para ter direito a assinatura"}/>}   
+        {openModal && user?.isVerified==false && <ModalSendEmail onClose={handleButtonNeedVerified} onSend={handleButtonNewEmail} openModalSuccessPay={true} message={"Ative sua conta pelo email para ter direito a assinatura"}/>}   
             {/* {modalPurchase && <ModalExample onClose={handleButtonPurchaseFakeModal} openModalSuccessPay={true} message={"SIMULAÇÃO DE COMPRA"}/>} */}
            <div id="root"></div>
                 <header className="header">
