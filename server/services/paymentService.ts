@@ -142,10 +142,8 @@ export class PaymentService {
       if(!userGet) throw new Error("Erro ao fazer upload da ordem de pedido, fazendo o cancelamento da ordem");
 
       //excluir ordem do banco
-
-      const update = { $set: {preferenceOrder:result.id}};
-      if(!update)  throw new Error(`Falha ao criar update de usuário`);
-      await this.userRepository.update({email:userGet.email}, update)
+        const update = { $set: {preferenceOrder:new ObjectId(result.id)}};
+        await this.userRepository.update({email:userGet.email}, update)
 
       console.log("✅ Preferência criada:", result.id);
       return result.id || "";
