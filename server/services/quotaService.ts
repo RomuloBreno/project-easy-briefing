@@ -1,6 +1,7 @@
 // server/services/quotaService.ts
 import { User } from '../model/User.ts'; // Verifique o caminho real do seu User
 import type { IUserRepository } from '../interfaces/IUserRepository.ts'; // Verifique o caminho real do seu IUserRepository
+import { Plans } from '../Enums/PlanEnum.ts';
 
 /**
  * QuotaService é responsável por gerenciar a cota de requisições dos usuários
@@ -19,16 +20,7 @@ export class QuotaService {
      * @returns O número máximo de requisições permitidas para o plano.
      */
     getPlanQuota(plan: number): number {
-        switch (plan) {
-            case 0: // Plano Gratuito
-                return 5; // Exemplo: 5 requisições gratuitas
-            case 1: // Plano Starter
-                return 100; // Exemplo: 100 requisições para o plano Starter
-            case 2: // Plano Pro
-                return 1000; // Exemplo: 1000 requisições para o plano Pro
-            default:
-                return 0; // Plano desconhecido ou inválido não permite requisições
-        }
+        return Plans[plan].maxRequests
     }
 
     /**

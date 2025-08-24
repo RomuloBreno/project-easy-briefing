@@ -133,7 +133,8 @@ export class PaymentService {
                 userId: new ObjectId(userId),
                 createdAt: new Date(),
                 updatedAt: new Date(),
-                planId: id
+                planId: id,
+                plan:name
             })
         );
 
@@ -190,9 +191,6 @@ async updatePaymentById(paymentId: string): Promise<void> {
 
         // 2. Localiza o usuário: Tenta encontrar pelo email do pagador ou pela referência externa
         let user = await this.userRepository.findById(external_reference);
-        if (!user && !external_reference) {
-          user = await this.userRepository.findByEmail(payer.email);
-        }
 
         if (!user) {
             console.error('User not found.');
@@ -201,7 +199,7 @@ async updatePaymentById(paymentId: string): Promise<void> {
         console.log("user", user);
 
         // 3. Localiza o registro de pagamento local do usuário
-        const localPayment = await this.paymentRepository.findByPreferenceByUser(user.preferenceOrder || '');
+        const localPayment = await this.paymentRepository.findByPreferenceId(user.preferenceOrder || '');
         if (!localPayment) {
             console.error('Local payment record not found for user.');
             throw new Error('Local payment record not found.');
@@ -209,24 +207,24 @@ async updatePaymentById(paymentId: string): Promise<void> {
         console.log("PReference", localPayment);
 
         // 4. Atualiza o status do pagamento local
-        await this.paymentRepository.updateStatus(
-            localPayment._id?.toString() || '',
+        const updatePay = await this.paymentRepository.updateStatus(
+            user.preferenceOrder || '',
             status,
             status_detail,
-            id
+            paymentId
         );
-        console.log("Update Concluido", localPayment);
+        console.log("Update Concluido", updatePay);
 
         // 5. Se o pagamento for aprovado, atualiza o usuário, cota e envia e-mail
         if (status === "approved") {
             const planLevel =
-                localPayment.planId === 'plan-starter-001' ? 1 :
-                localPayment.planId === 'plan-pro-002' ? 2 :
-                localPayment.planId === 'plan-enteprise-003' ? 3 : 0;
+                localPayment.plan === 'plan-starter-001' ? 1 :
+                localPayment.plan === 'plan-pro-002' ? 2 :
+                localPayment.plan === 'plan-enteprise-003' ? 3 : 0;
             
             await this.userRepository.updatePlan(
                 user.email,
-                localPayment.planId,
+                localPayment.plan,
                 paymentInfo.payment_method_id || 'pix',
                 planLevel,
                 paymentInfo.date_approved

@@ -45,6 +45,7 @@ export class PaymentRepository extends BaseRepository<PaymentDocument> implement
   ): Promise<PaymentDocument | null> {
     const update = {
       $set: {
+        preferenceId,
         status,
         statusDetail,
         paymentId,
