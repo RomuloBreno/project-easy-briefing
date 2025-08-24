@@ -172,63 +172,71 @@ export class PaymentService {
   }
 
 async updatePaymentById(paymentId: string): Promise<void> {
-   console.log("Start Purchase")
-    // 1. Fetch payment details from Mercado Pago API using the paymentId
-    const paymentInfo = await this.getPayment(paymentId);
-    if (!paymentInfo) {
-        throw new Error('Payment not found in Mercado Pago');
-    }
-    const { status, status_detail, id: id, payer, external_reference} = paymentInfo;
-    console.log("pay:", paymentInfo);
-    
-    let user = await this.userRepository.findById(payer.email);
-    console.log("user", user);
-    if (!user) {
-        user = await this.userRepository.findById(external_reference);
-        if(!user)
-          throw new Error('User not found.');
-    }
-    // 2. Fetch the local payment record using the preferenceId from the API response
-    if(user == null || user == undefined) throw new Error('Não localizado o pagamento para esta usuário.'); 
-    const localPayment = await this.paymentRepository.findByPreferenceByUser(user.preferenceOrder?.toString() || '');
-    console.log("PReference", localPayment);
-    if (!localPayment || !localPayment.userId) {
-        throw new Error('Não localizado o pagamento para esta usuário.');
-    }
+    console.log("Start Purchase");
 
+    try {
+        // 1. Busca os detalhes do pagamento na API do Mercado Pago
+        const paymentInfo = await this.getPayment(paymentId);
+        if (!paymentInfo) {
+            console.error('Payment not found in Mercado Pago');
+            throw new Error('Payment not found in Mercado Pago');
+        }
 
-    // 3. Update the local payment record with the latest status and payment ID
-    // We use the `_id` of the local record to make the update.
-    await this.paymentRepository.updateStatus(
-        localPayment._id?.toString() || '',
-        status,
-        status_detail,
-        id
-    );
-    console.log("Update Concluido", localPayment);
+        const { status, status_detail, id, payer, external_reference } = paymentInfo;
+        console.log("pay:", paymentInfo);
 
-    // 4. Update the user record and send an email if the payment is approved
-    if (status === "approved") {
-        // Map the plan level
-        const planLevel = localPayment.planId === 'plan-starter-001' ? 1 :
-            localPayment.planId === 'plan-pro-002' ? 2 :
-            localPayment.planId === 'plan-enteprise-003' ? 3 : 0;
-        
-        // Update user plan details
-        await this.userRepository.updatePlan(
-            user.email,
-            localPayment.planId,
-            paymentInfo.payment_method_id || 'pix',
-            planLevel,
-            paymentInfo.date_approved
+        // 2. Localiza o usuário: Tenta encontrar pelo email do pagador ou pela referência externa
+        let user = await this.userRepository.findByEmail(payer.email);
+        if (!user && external_reference) {
+            user = await this.userRepository.findById(external_reference);
+        }
+
+        if (!user) {
+            console.error('User not found.');
+            throw new Error('User not found.');
+        }
+        console.log("user", user);
+
+        // 3. Localiza o registro de pagamento local do usuário
+        const localPayment = await this.paymentRepository.findByPreferenceByUser(user.preferenceOrder?.toString() || '');
+        if (!localPayment) {
+            console.error('Local payment record not found for user.');
+            throw new Error('Local payment record not found.');
+        }
+        console.log("PReference", localPayment);
+
+        // 4. Atualiza o status do pagamento local
+        await this.paymentRepository.updateStatus(
+            localPayment._id?.toString() || '',
+            status,
+            status_detail,
+            id
         );
-         console.log("Update User");
-        // Reset the user's quota and send a confirmation email
-        await this.quotaService.resetQuota(user);
-        await this.emailService.sendEmailAfterPurchase(user.email);
-        console.log("End Purchase")
+        console.log("Update Concluido", localPayment);
+
+        // 5. Se o pagamento for aprovado, atualiza o usuário, cota e envia e-mail
+        if (status === "approved") {
+            const planLevel =
+                localPayment.planId === 'plan-starter-001' ? 1 :
+                localPayment.planId === 'plan-pro-002' ? 2 :
+                localPayment.planId === 'plan-enteprise-003' ? 3 : 0;
+            
+            await this.userRepository.updatePlan(
+                user.email,
+                localPayment.planId,
+                paymentInfo.payment_method_id || 'pix',
+                planLevel,
+                paymentInfo.date_approved
+            );
+            console.log("Update User");
+
+            await this.quotaService.resetQuota(user);
+            await this.emailService.sendEmailAfterPurchase(user.email);
+            console.log("End Purchase");
+        }
+    } catch (error) {
+        console.error('Error in updatePaymentById:', error);
+        throw error;
     }
-    console.log("Fazendo estorno")
-    await this.getInfoRefunds(id)
 }
 }
