@@ -143,7 +143,9 @@ export class PaymentService {
 
       //excluir ordem do banco
 
-      await this.userRepository.update({email:userGet.email}, {preferenceOrder:result.id})
+      const update = { $set: {preferenceOrder:result.id}};
+      if(!update)  throw new Error(`Falha ao criar update de usuário`);
+      await this.userRepository.update({email:userGet.email}, update)
 
       console.log("✅ Preferência criada:", result.id);
       return result.id || "";
