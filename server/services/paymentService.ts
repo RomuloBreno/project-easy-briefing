@@ -93,69 +93,72 @@ export class PaymentService {
    * @param userId ID do usuário que está criando o pagamento.
    * @returns O ID da preferência criada.
    */
-  async createPaymentPreference(newPlan: number, userId: string): Promise<string> {
-
+ async createPaymentPreference(newPlan: number, userId: string): Promise<string> {
     const selectedPlan = Plans[newPlan];
 
     if (!selectedPlan) {
-      throw new Error("Plano inválido. Escolha 1 (Starter) ou 2 (Pro).");
+        throw new Error("Plano inválido. Escolha 1 (Starter), 2 (Pro) ou 3 (Enterprise).");
     }
 
     const { name, value, id } = selectedPlan;
 
     const preference = {
-      items: [
-        {
-          id: id,
-          title: name,
-          unit_price: value,
-          quantity: 1,
+        items: [
+            {
+                id: id,
+                title: name,
+                unit_price: value,
+                quantity: 1,
+            },
+        ],
+        external_reference: userId,
+        back_urls: {
+            success: `${this.front_url}/success`,
+            failure: `${this.front_url}/failure`,
+            pending: `${this.front_url}/pending`,
         },
-      ],
-      external_reference: userId,
-      back_urls: {
-        success: `${this.front_url}/success`,
-        failure: `${this.front_url}/failure`,
-        pending: `${this.front_url}/pending`,
-      },
-      auto_return: "approved",
+        auto_return: "approved",
     };
 
     try {
-      const preferencesInstance = new Preference(this.client);
-      const result = await preferencesInstance.create({ body: preference });
+        const preferencesInstance = new Preference(this.client);
+        const result = await preferencesInstance.create({ body: preference });
 
-      // Salvar no banco como status inicial "created"
-      await this.paymentRepository.create(
-        new Payment({
-          preferenceId: result.id,
-          amount: value,
-          status: "created",
-          userId: new ObjectId(userId),
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          planId: id
-        } as Payment)
-      );
+        // Salva o registro de pagamento localmente com o preferenceId como string
+        await this.paymentRepository.create(
+            new Payment({
+                preferenceId: result.id || '',
+                amount: value,
+                status: "created",
+                userId: new ObjectId(userId),
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                planId: id
+            })
+        );
 
-      const userGet = await this.userRepository.findById(userId)
-      if(!userGet) throw new Error("Erro ao fazer upload da ordem de pedido, fazendo o cancelamento da ordem");
+        const userGet = await this.userRepository.findById(userId);
+        if (!userGet) {
+            // Se o usuário não for encontrado, a preferência é cancelada
+            console.error("Erro ao fazer upload da ordem de pedido. Cancelando a ordem.");
+            throw new Error("Erro ao fazer upload da ordem de pedido.");
+        }
 
-      //excluir ordem do banco
-        const update = { $set: {preferenceOrder:new ObjectId(result.id)}};
-        await this.userRepository.update({email:userGet.email}, update)
+        // Atualiza o documento do usuário com o preferenceId como string
+        const update = { $set: { preferenceOrder: result.id } };
+        await this.userRepository.update({ email: userGet.email }, update);
 
-      console.log("✅ Preferência criada:", result.id);
-      return result.id || "";
+        console.log("✅ Preferência criada:", result.id);
+        return result.id || "";
     } catch (error) {
-      console.error("❌ Erro ao criar preferência:", error);
-      if (error instanceof Error) {
-        throw new Error(`Falha ao criar preferência: ${error.message}`);
-      } else {
-        throw new Error("Falha desconhecida ao criar preferência.");
-      }
+        console.error("❌ Erro ao criar preferência:", error);
+        if (error instanceof Error) {
+            throw new Error(`Falha ao criar preferência: ${error.message}`);
+        } else {
+            throw new Error("Falha desconhecida ao criar preferência.");
+        }
     }
-  }
+}
 
 
   validateWebhook(req: Request) {

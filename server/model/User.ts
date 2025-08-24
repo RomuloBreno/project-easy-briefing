@@ -19,7 +19,7 @@ export class User implements IUser {
     timestamp?: Date | undefined;
     qtdRequest: number | 0; 
     planExpirationDate?:Date;
-    preferenceOrder?:ObjectId
+    preferenceOrder?:string
 
     // Construtor baseado na interface
     constructor(user: IUser) { // Usar IUser aqui para ser mais flexível
