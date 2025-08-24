@@ -97,7 +97,8 @@ async function initializeApp() {
         
         // Chame o método da AuthController para verificar e lidar com o redirect/response
         const verifyResponse = await authController.verifyEmail(req, res); // Chamar como um método do controller
-        return verifyResponse;
+        // Envia o arquivo index.html para todas as outras rotas
+           return verifyResponse
     });
     
     // Rotas de Usuário (UserController)

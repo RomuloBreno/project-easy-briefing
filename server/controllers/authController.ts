@@ -13,12 +13,15 @@ import { EmailService } from '../services/emailService.ts';
  * e gerenciamento de usuários.
  */
 export class AuthController {
+    private readonly frontEndUrl:string;
     private readonly authService: AuthService;
     private readonly emailService: EmailService;
 
-    constructor(authService: AuthService, emailService:EmailService) {
+    constructor(authService: AuthService, emailService: EmailService) {
         this.authService = authService;
         this.emailService = emailService
+
+        this.frontEndUrl = process.env.FRONT_URL || ''
     }
 
     /**
@@ -148,12 +151,17 @@ export class AuthController {
             } else {
                 return res.status(401).json({ error: 'Token inválido ou e-mail não encontrado.' });
             }
-            
-            return res.status(200).json({ message: 'E-mail verificado com sucesso. Você pode fechar esta página.' });
+
+            if (!token || typeof token !== 'string') {
+                // Se o token for inválido ou ausente, redireciona com status de erro
+                return res.redirect(`${this.frontEndUrl}/?status=error-verify&message=token-invalido`);
+            }
+            // Se a verificação for bem-sucedida, redireciona para a home com status de sucesso
+            return res.status(200).redirect(`${this.frontEndUrl}/?status=success-verify`);
         } catch (error: unknown) {
             if (error instanceof Error) {
                 if (error.message.includes('Token Expirado')) {
-                    return res.status(401).json({ error: error.message });
+                    return res.status(401).redirect(`${this.frontEndUrl}/?status=error-verify&message=${(error as Error).message}`);
                 }
             }
             return res.status(500).json({ error: 'Erro interno do servidor.' });
@@ -176,7 +184,7 @@ export class AuthController {
             if (!decodedPayload || !decodedPayload.email) {
                 return res.status(401).json({ error: 'Token inválido ou e-mail não encontrado.' });
             }
-            
+
             // Se o token é válido e o email existe, retorna true para o front-end
             return res.status(200).json({ isValid: true, email: decodedPayload.email });
 
@@ -213,7 +221,7 @@ export class AuthController {
             }
 
             const userDecoded = await this.authService.validToken(token); // Retorna o usuário decodificado pelo token
-            
+
             if (!userDecoded) {
                 return res.status(404).json({ error: 'Usuário não encontrado ou token inválido.' });
             }

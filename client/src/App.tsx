@@ -9,7 +9,7 @@ import { apiFetch } from './api/index.ts'
 
 
 function AppContent() {
-    const { user, isLoading, error, successPay, login, register, resetPass, logout, purchase, updatePassword } = useAuth();
+    const { checkToken, user, isLoading, error, successPay, login, register, resetPass, logout, purchase, updatePassword } = useAuth();
     const [needLogin, setNeedLogin] = useState(false);
     const [needUpdatePlan, setNeedUpdatePlan] = useState(false);
     const [dashboard, setDashboard] = useState(false);
@@ -27,6 +27,10 @@ function AppContent() {
         setNeedUpdatePlan(true)
         setDashboard(false)
         document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" });
+    }
+    const toIndex = () => {
+        setNeedUpdatePlan(true)
+        setDashboard(false)
     }
 
     const dashboardPage = () => {
@@ -90,6 +94,7 @@ function AppContent() {
 
     if (needUpdatePlan) {
         return <LandingPage
+            checkToken={checkToken || null}
             error={error||''}
             successPay={successPay}
             onLoginClick={() => setNeedLogin(true)}
@@ -103,7 +108,7 @@ function AppContent() {
 
     if (dashboard) {
         if (user?.email)
-            return <Dashboard user={user} onLogout={logout} onShop={updatePlan} />;
+            return <Dashboard toIndex={toIndex} user={user} onLogout={logout} onShop={updatePlan} />;
     }
     if ((!user && needLogin) || tokenIsValid) {
         return (
@@ -128,6 +133,7 @@ function AppContent() {
         );
     }
     if (user === null) return <LandingPage
+        checkToken={checkToken}
         error={error||''}
         successPay={successPay}
         onLoginClick={() => setNeedLogin(true)}
@@ -138,6 +144,7 @@ function AppContent() {
         onDashboard={dashboardPage}
          />;
 return <LandingPage
+        checkToken={checkToken}
         error={error||''}
         successPay={successPay}
         onLoginClick={() => setNeedLogin(true)}

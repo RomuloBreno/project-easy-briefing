@@ -14,11 +14,12 @@ interface LandingPageProps {
     onLogout: () => void;
     onloading:boolean;
     successPay:boolean|null;
+    checkToken:boolean|null;
     user: User | null;
     error: string;
 }
 
-export const LandingPage: React.FC<LandingPageProps> = ({error, successPay, user, onLoginClick, onPurchaseClick, onloading, onLogout, onDashboard }) => {
+export const LandingPage: React.FC<LandingPageProps> = ({checkToken, error, successPay, user, onLoginClick, onPurchaseClick, onloading, onLogout, onDashboard }) => {
         if (onloading) {
         return (
             <div className="text-center mt-10">
@@ -27,6 +28,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({error, successPay, user
         );
     }
     const [openModal, setOpenModal] = useState<boolean>()
+    const [checkTokenParam, setCheckTokenParam] = useState<boolean | null>(false)
     const [modalPurchase, setmodalPurchase] = useState<boolean>()
     const [newPlanValue, setNewPlanValue] = useState<number>()
 
@@ -55,8 +57,22 @@ export const LandingPage: React.FC<LandingPageProps> = ({error, successPay, user
         sendEmail(user.email, user.name)
         setOpenModal(true)
     }
+    const handleCloseModalCheckTokenEmail= async () => {
+        setCheckTokenParam(false)
+        setOpenModal(false)
+        window.location.href ="/"
+    }
+    const openModalCheckTokenEmail = async () => {
+        if(checkToken !== null && user?.isVerified==true){
+            setCheckTokenParam(checkToken)
+            setOpenModal(true)
+        }else{
+            setCheckTokenParam(false)
+        }
+    }
 
     useEffect(()=>{
+        openModalCheckTokenEmail()
     },[user,openModal,modalPurchase])
     // Código JSX da landing page que você forneceu
     // Note que os botões de login e compra agora usam as props do componente.
@@ -75,7 +91,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({error, successPay, user
     }
     return (
         <>
-        {/* {error != '' &&  <ModalExample onClose={handleButtonPurchase} openModalSuccessPay={true} message={error}/>} */}
+        {openModal && checkTokenParam && user?.isVerified==true && <ModalExample onClose={handleCloseModalCheckTokenEmail} openModalSuccessPay={true} message={"E-mail verificado com sucesso"}/>}
         {openModal && user?.isVerified==false && <ModalSendEmail onClose={handleButtonNeedVerified} onSend={handleButtonNewEmail} openModalSuccessPay={true} message={"Ative sua conta pelo email para ter direito a assinatura"}/>}   
             {/* {modalPurchase && <ModalExample onClose={handleButtonPurchaseFakeModal} openModalSuccessPay={true} message={"SIMULAÇÃO DE COMPRA"}/>} */}
            <div id="root"></div>
@@ -114,9 +130,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({error, successPay, user
                         <div className="container">
                             <div className="hero-content">
                                 <div className="hero-text fade-in">
-                                    <h1 className="hero-title">Organizador de Briefing</h1>
+                                    <h1 className="hero-title">Analises que mudam sua perspectiva</h1>
                                     <p className="hero-subtitle">
-                                         O Organizador de Briefing ajuda você a centralizar, analisar e otimizar seus projetos de forma inteligente. Com IA, ele realiza análises automáticas, identifica lacunas, sugere perguntas personalizadas, avalia prompts específicos e destaca cenários que precisam de atenção. Ideal para agências, freelancers e empresas que buscam clareza, eficiência e resultados mais rápidos, mesmo em projetos globais com múltiplos idiomas.
+                                        IzyBriefing é um assistente inteligente que transforma a forma como você trabalha com briefings. Ele centraliza informações, analisa conteúdos de forma automática e identifica pontos de melhoria, lacunas e riscos. Com apoio de IA, sugere perguntas estratégicas e destaca cenários que exigem atenção imediata. Perfeito para agências, freelancers e empresas que buscam clareza, eficiência e decisões rápidas — mesmo em projetos complexos ou de alcance global, com múltiplos idiomas.
                                     </p>
                                     <div className="hero-buttons">
                                         <a onClick={onLoginClick} className="btn btn-primary btn-lg">Testar Grátis Agora</a>
@@ -154,7 +170,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({error, successPay, user
                     <section id="features" className="features">
                         <div className="container">
                             <div className="section-header">
-                                <h2 className="section-title">Recursos Inteligentes do Organizador de Briefing
+                                <h2 className="section-title">Recursos Inteligentes do Analista de Briefing
 
                                 </h2>
                             </div>
@@ -314,23 +330,23 @@ export const LandingPage: React.FC<LandingPageProps> = ({error, successPay, user
                     <section id="faqs" className="faqs">
                         <div className="container">
                             <div className="section-header">
-                                <h2 className="section-title">Perguntas Frequentes sobre o Organizador de Briefing
+                                <h2 className="section-title">Perguntas Frequentes sobre o Analista de Briefing
 
                                 </h2>
                             </div>
                             <div className="faqs-grid">
                                 <div className="faq-item">
-                                    <h3 className="faq-question">O que é o Organizador de Briefing?</h3>
+                                    <h3 className="faq-question">O que é o Analista de Briefing?</h3>
                                     <p className="faq-answer">
-                                        O Organizador de Briefing é uma plataforma online que centraliza e organiza todos os dados dos seus projetos. Com inteligência artificial, ele analisa informações, identifica lacunas e sugere perguntas, garantindo briefings claros e completos — essenciais para evitar retrabalho e atrasos.
+                                        O Analista de Briefings é uma plataforma inteligente que revisa e organiza as informações dos seus briefings. Com o apoio da IA, ele identifica lacunas, sugere perguntas estratégicas e garante que cada briefing seja claro e completo — reduzindo retrabalho, atrasos e ruídos de comunicação.
 
 
                                     </p>
                                 </div>
                                 <div className="faq-item">
-                                    <h3 className="faq-question">Posso testar o Organizador de Briefing antes de contratar?</h3>
+                                    <h3 className="faq-question">Posso testar o Analista de Briefing antes de contratar?</h3>
                                     <p className="faq-answer">
-                                        Sim! Você pode experimentar gratuitamente por 7 dias com acesso total a todas as funcionalidades. É a oportunidade perfeita para ver como a ferramenta otimiza seu fluxo de trabalho antes de investir.
+                                        Sim! Você pode experimentar o plano gratuito fazendo sua conta, com limite de até 100 analises mensais. É a oportunidade ideal para conhecer como a ferramenta otimiza seus processos e melhora a qualidade dos seus projetos antes de investir.
 
 
                                     </p>
@@ -338,7 +354,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({error, successPay, user
                                 <div className="faq-item">
                                     <h3 className="faq-question">Quais formas de pagamento vocês aceitam?</h3>
                                     <p className="faq-answer">
-                                        Aceitamos cartões de crédito, PayPal e transferência bancária para planos anuais. Todos os pagamentos são processados com segurança de nível bancário e parceiros confiáveis.
+                                        Aceitamos, pix, cartões de crédito. Todos os pagamentos são processados com segurança de nível bancário e parceiros confiáveis como mercado pago.
 
 
                                     </p>
@@ -346,21 +362,21 @@ export const LandingPage: React.FC<LandingPageProps> = ({error, successPay, user
                                 <div className="faq-item">
                                     <h3 className="faq-question">Meus dados e briefings são seguros?</h3>
                                     <p className="faq-answer">
-                                        Com certeza. Usamos criptografia de nível empresarial e seguimos protocolos rigorosos de proteção de dados. Suas informações nunca são compartilhadas e ficam armazenadas de forma segura na nuvem.
+                                        Com certeza. Não salvamos sua analise, ela vem direto da LLM para você. Usamos criptografia de nível empresarial e seguimos protocolos rigorosos de proteção de dados. Suas informações nunca são compartilhadas e ficam armazenadas de forma segura na nuvem.
                                     </p>
                                 </div>
                                 <div className="faq-item">
                                     <h3 className="faq-question">Posso cancelar minha assinatura quando quiser?</h3>
                                     <p className="faq-answer">
-                                        Sim. Você pode cancelar a qualquer momento, sem taxas extras. O acesso permanece ativo até o final do período já pago, garantindo que não perca seu trabalho ou dados.
+                                        Sim. Você pode cancelar a qualquer momento, o pagamento é feito e te garante 1 mês naquele plano, assim que acabar não cobramos novamente. Seu plano volta a ser free com uma nova possibilidade de contratação
 
 
                                     </p>
                                 </div>
                                 <div className="faq-item">
-                                    <h3 className="faq-question">O Organizador de Briefing é bom para equipes?</h3>
+                                    <h3 className="faq-question">O Analista de Briefings é indicado para quem?</h3>
                                     <p className="faq-answer">
-                                        Sim. Os planos Profissional e Enterprise oferecem colaboração em tempo real, espaços de trabalho compartilhados, histórico de versões e controles administrativos — perfeitos para agências, equipes remotas e empresas de grande porte.
+                                        Com certeza. Os planos Profissional e Enterprise permitem analises complexas com informações que você pode dar além do briefing. O Analista de Briefings é ideal para freelancers, agências criativas e empresas que precisam de organização e clareza em seus projetos.
                                     </p>
                                 </div>
                             </div>
@@ -416,7 +432,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({error, successPay, user
                                 </div>
                                 <p className="footer-description">
                                     Transforme briefings desorganizados em projetos claros e ágeis com análise avançada.
-
+                                     <br/>
+                                     <br/>
+                                    contato@izybriefing.com
 
 
 

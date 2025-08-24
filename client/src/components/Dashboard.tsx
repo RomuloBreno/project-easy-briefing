@@ -16,10 +16,11 @@ interface DashboardProps {
     } | null;
     onLogout: () => void;
     onShop: () => void;
+    toIndex: () => void;
 
 }
 
-export function Dashboard({ user,  onLogout, onShop }: DashboardProps) {
+export function Dashboard({ user,  onLogout, onShop, toIndex }: DashboardProps) {
     const [disabledSendEmailToken, setDisabledSendEmailToken] = useState<boolean>(false)
     const [editProfile, setEditProfile] = useState<boolean>()
     if (!user || !user.email) {
@@ -184,6 +185,7 @@ export function Dashboard({ user,  onLogout, onShop }: DashboardProps) {
                     <div className="nav-user">
                                {user?.email &&
                             <>
+                            <button onClick={toIndex} className="btn btn-outline btn-sm">Inicio</button>
                             <button onClick={onShop} className="btn btn-primary">{ user?.plan === 0 ? "Free": user?.plan === 1 ? "Starter" : user?.plan === 2 ? "Pro" : 'Conheça Mais'}</button>
                             <button onClick={onLogout} className="btn btn-outline btn-sm">Sair</button>
                             </>
@@ -426,14 +428,63 @@ export function Dashboard({ user,  onLogout, onShop }: DashboardProps) {
             </main>
 
             {/* Fixed Footer */}
-            <footer className="app-footer">
-                <div className="container">
-                    <p className="app-footer-text">
-                        Prototype • Made with{" "}
-                        <i className="fas fa-heart" style={{ color: "#e74c3c" }}></i> — IzyBriefing
-                    </p>
-                </div>
-            </footer>
+            
+                <footer className="footer">
+                    <div className="container">
+                        <div className="footer-content">
+                            <div className="footer-brand">
+                                <div className="nav-brand">
+                                    <i className="fas fa-clipboard-list nav-logo-icon"></i>
+                                    <span className="nav-logo-text">IzyBriefing</span>
+                                </div>
+                                <p className="footer-description">
+                                    Transforme briefings desorganizados em projetos claros e ágeis com análise avançada.
+                                    <br/>
+                                    <br/>
+                                    contato@izybriefing.com
+
+
+
+
+
+
+
+
+
+
+
+                                </p>
+                            </div>
+                            <div className="footer-links">
+                                <div className="footer-column">
+                                    <h4 className="footer-title">Legal</h4>
+                                    <ul className="footer-list">
+                                        <li><a href="#" className="footer-link">Termos de Serviço</a></li>
+                                        <li><a href="#" className="footer-link">Política de Privacidade</a></li>
+                                        <li><a href="#" className="footer-link">Suporte</a></li>
+                                    </ul>
+                                </div>
+                                <div className="footer-column">
+                                    <h4 className="footer-title">Compartilhe</h4>
+                                    <div className="footer-social">
+                                        <a href="#" className="social-link" aria-label="Facebook">
+                                            <i className="fab fa-facebook-f"></i>
+                                        </a>
+                                        <a href="#" className="social-link" aria-label="Twitter">
+                                            <i className="fab fa-twitter"></i>
+                                        </a>
+                                        <a href="#" className="social-link" aria-label="LinkedIn">
+                                            <i className="fab fa-linkedin-in"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="footer-bottom">
+                            <p className="footer-copyright">© 2025 Automatic IzyBriefing. All rights reserved.</p>
+                        </div>
+                    </div>
+                </footer>
         </>
     );
 }

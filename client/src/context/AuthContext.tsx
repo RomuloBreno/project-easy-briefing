@@ -16,6 +16,7 @@ import {
 
 interface AuthContextType {
     user: User | null;
+    checkToken: boolean | null;
     isLoading: boolean;
     error: string | null;
     successPay: boolean | null;
@@ -36,6 +37,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [token, setToken] = useState<string | null>(null);
+    const [checkToken, setCheckToken] = useState<boolean | null>(null);
     const [successPay, setSuccessPay] = useState<boolean | null>(false);
 
     useEffect(() => {
@@ -43,6 +45,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (token) {
             validateToken(token);
             setToken(token)
+            checkTokenEmailSend()
         }
     }, []);
 
@@ -100,6 +103,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const token = searchParams.get('resetToken');
             if(token)
                 await updatePasswordApi(token || '', password);
+        } catch (err: any) {
+            setError(err.message);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    const checkTokenEmailSend = async () => {
+        setIsLoading(true);
+        setError(null);
+        try {
+        const searchParams = new URLSearchParams(window.location.search);
+        // Obtém os parâmetros 'token' e 'valid' da URL
+        const param = searchParams.get('status');
+            if(param === "success-verify")
+                setCheckToken(true);
         } catch (err: any) {
             setError(err.message);
         } finally {
@@ -183,7 +201,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     return (
-        <AuthContext.Provider value={{ user, isLoading, error, successPay, login, register, resetPass, logout, purchase, updateProfile, updatePassword }}>
+        <AuthContext.Provider value={{ checkToken, user, isLoading, error, successPay, login, register, resetPass, logout, purchase, updateProfile, updatePassword }}>
             {children}
         </AuthContext.Provider>
     );
