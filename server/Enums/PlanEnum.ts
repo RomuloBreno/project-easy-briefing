@@ -28,7 +28,7 @@ export const Plans = {
     // Plano Starter
     1: { // Corresponde ao ID 1
         id: 1,
-          name: "plan-starter-001",
+        name: "plan-starter-001",
         aiModel: 'gpt-4o-mini',
         value: 1,
         maxRequests: 25 

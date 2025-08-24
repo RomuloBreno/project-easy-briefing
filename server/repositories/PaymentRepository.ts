@@ -40,15 +40,16 @@ export class PaymentRepository extends BaseRepository<PaymentDocument> implement
   async updateStatus(
     preferenceId: string,
     status: string,
+    method:string,
     statusDetail?: string,
     paymentId?: string
   ): Promise<PaymentDocument | null> {
     const update = {
       $set: {
-        preferenceId,
         status,
         statusDetail,
         paymentId,
+        method,
         updatedAt: new Date(),
       },
     };

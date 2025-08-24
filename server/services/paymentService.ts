@@ -186,7 +186,7 @@ async updatePaymentById(paymentId: string): Promise<void> {
             throw new Error('Payment not found in Mercado Pago');
         }
 
-        const { status, status_detail, id, payer, external_reference } = paymentInfo;
+        const { status, status_detail, id, payer, external_reference, transaction_details, payment_method_id } = paymentInfo;
         console.log("pay:", paymentInfo);
 
         // 2. Localiza o usuário: Tenta encontrar pelo email do pagador ou pela referência externa
@@ -206,17 +206,19 @@ async updatePaymentById(paymentId: string): Promise<void> {
         }
         console.log("PReference", localPayment);
 
+
         // 4. Atualiza o status do pagamento local
         const updatePay = await this.paymentRepository.updateStatus(
             user.preferenceOrder || '',
             status,
+            payment_method_id,
             status_detail,
-            paymentId
+            paymentId,
         );
         console.log("Update Concluido", updatePay);
 
         // 5. Se o pagamento for aprovado, atualiza o usuário, cota e envia e-mail
-        if (status === "approved") {
+        if (status === "approved" && status_detail == "accredited") {
             const planLevel =
                 localPayment.plan === 'plan-starter-001' ? 1 :
                 localPayment.plan === 'plan-pro-002' ? 2 :
@@ -225,7 +227,7 @@ async updatePaymentById(paymentId: string): Promise<void> {
             await this.userRepository.updatePlan(
                 user.email,
                 localPayment.plan,
-                paymentInfo.payment_method_id || 'pix',
+                payment_method_id || 'pix',
                 planLevel,
                 paymentInfo.date_approved
             );
