@@ -51,7 +51,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({error, successPay, user
     const handleButtonNewEmail = async () => {
         setOpenModal(true)
         if(!user) return
+        // sendEmail(user.email, user.name)
         sendEmail(user.email, user.name)
+        setOpenModal(true)
     }
 
     useEffect(()=>{

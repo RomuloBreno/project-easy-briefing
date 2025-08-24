@@ -6,10 +6,6 @@ interface Props {
 }
 export default function modalSendEmail({onClose, onSend, openModalSuccessPay, message}:Props) {
 
-const onSendAndCloseBefore = () =>{
-    onClose(null)
-    onSend
-  }
   return (
     <div className="p-4" style={{position:'absolute',zIndex:'10'}}>
       {openModalSuccessPay && (
@@ -24,7 +20,7 @@ const onSendAndCloseBefore = () =>{
               Fechar
             </button>
             <button
-              onClick={() => onSendAndCloseBefore()}
+              onClick={() => onSend()}
               className="btn btn-outline"
             >
               Enviar email
