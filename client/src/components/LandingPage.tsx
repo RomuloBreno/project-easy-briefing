@@ -451,9 +451,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({checkToken, error, succ
                                 <div className="footer-column">
                                     <h4 className="footer-title">Legal</h4>
                                     <ul className="footer-list">
-                                        <li><a href="#" className="footer-link">Termos de Serviço</a></li>
-                                        <li><a href="#" className="footer-link">Política de Privacidade</a></li>
-                                        <li><a href="#" className="footer-link">Suporte</a></li>
+                                        <li><a href="/terms.html" className="footer-link">Termos de Serviço</a></li>
+                                        <li><a href="/privacy.html" className="footer-link">Política de Privacidade</a></li>
+                                        <li><a href="/suport.html" className="footer-link">Suporte</a></li>
                                     </ul>
                                 </div>
                                 <div className="footer-column">
