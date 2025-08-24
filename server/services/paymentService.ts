@@ -201,7 +201,7 @@ async updatePaymentById(paymentId: string): Promise<void> {
         console.log("user", user);
 
         // 3. Localiza o registro de pagamento local do usuário
-        const localPayment = await this.paymentRepository.findByPreferenceByUser(user.preferenceOrder?.toString() || '');
+        const localPayment = await this.paymentRepository.findByPreferenceByUser(user.preferenceOrder|| '');
         if (!localPayment) {
             console.error('Local payment record not found for user.');
             throw new Error('Local payment record not found.');
