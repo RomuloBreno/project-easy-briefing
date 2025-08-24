@@ -131,9 +131,17 @@ export class AnalysisController {
 
            await this.quotaService.decrementQuota(user)
 
-            return res.json({
-                response: aiResponseContent
-            });
+
+                        // Define o prefixo e sufixo de markdown
+            const prefix = '```json\n';
+            const suffix = '\n```\n';
+
+            // Remove o prefixo e o sufixo para obter a string JSON pura
+            const pureaiResponseContent = aiResponseContent.substring(prefix.length, aiResponseContent.length - suffix.length);
+            
+        return res.json({
+            response: JSON.parse(pureaiResponseContent)
+        });
 
 
         } catch (error) {
