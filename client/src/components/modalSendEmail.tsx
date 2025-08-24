@@ -27,7 +27,7 @@ const onSendAndCloseBefore = () =>{
               onClick={() => onSendAndCloseBefore()}
               className="btn btn-outline"
             >
-              onSend
+              Enviar email
             </button>
           </div>
         </div>
