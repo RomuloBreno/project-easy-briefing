@@ -189,9 +189,9 @@ async updatePaymentById(paymentId: string): Promise<void> {
         console.log("pay:", paymentInfo);
 
         // 2. Localiza o usuário: Tenta encontrar pelo email do pagador ou pela referência externa
-        let user = await this.userRepository.findByEmail(payer.email);
+        let user = await this.userRepository.findById(external_reference);
         if (!user && external_reference) {
-            user = await this.userRepository.findById(external_reference);
+          user = await this.userRepository.findByEmail(payer.email);
         }
 
         if (!user) {
