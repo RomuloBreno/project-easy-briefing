@@ -145,7 +145,7 @@ export class PaymentService {
         }
 
         // Atualiza o documento do usuário com o preferenceId como string
-        const update = { $set: { preferenceOrder: result.id } };
+        const update = { $set: { preferenceOrder: result.id || '' } };
         await this.userRepository.update({ email: userGet.email }, update);
 
         console.log("✅ Preferência criada:", result.id);
