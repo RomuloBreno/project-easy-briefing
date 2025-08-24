@@ -6,7 +6,7 @@ export class Payment {
   preferenceId: string;          // ID gerado pelo Mercado Pago (preference)
   paymentId?: string | undefined; // ID real do pagamento (quando disponível)
   externalReference?: string | undefined; // se você usar para vincular ao seu pedido
-  userId?: ObjectId | undefined; // vínculo com o usuário que pagou
+  userId?: ObjectId; // vínculo com o usuário que pagou
   status: string;                // created | pending | approved | rejected | etc
   statusDetail?: string | undefined; // motivo detalhado do status
   amount: number;                // valor do pagamento

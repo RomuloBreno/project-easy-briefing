@@ -57,11 +57,11 @@ export class PaymentRepository extends BaseRepository<PaymentDocument> implement
   async findByPreferenceId(preferenceId: string): Promise<PaymentDocument | null> {
     return this.findOne({ preferenceId });
   }
-  async findByPreferenceByUser(userId: string): Promise<PaymentDocument | null> {
-    return this.findOne({ userId: new ObjectId(userId) });
+  async findByPreferenceByUser(preferenceOrder: string): Promise<PaymentDocument | null> {
+    return this.findOne({ preferenceId: preferenceOrder });
   }
 
-  async listByUser(userId: string): Promise<PaymentDocument[]> {
-    return this.find({ userId: new ObjectId(userId) });
+  async listByUser(preferenceOrder: string): Promise<PaymentDocument[]> {
+    return this.find({ preferenceId: preferenceOrder });
   }
 }
