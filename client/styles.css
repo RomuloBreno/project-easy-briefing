@@ -387,6 +387,12 @@ p {
 .hero-image {
     position: relative;
 }
+/* Media Query para telas maiores (desktops) */
+@media (max-width: 768px) {
+  .hero-image {
+    display: none;
+  }
+}
 
 .mockup {
     background: var(--color-surface);
