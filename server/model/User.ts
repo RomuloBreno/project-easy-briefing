@@ -42,21 +42,12 @@ export class User implements IUser {
     // Método simulado de validação de plano com um gateway de pagamento.
     // **Essa lógica deve ser uma chamada para uma API externa real.**
   async validPlan(): Promise<boolean> {
-    // 1. Verifica se usuário não tem plano
+    
     if (!this.planId || this.planId.trim() === '') {
         return false;
     }
-
-    // 2. Busca informações do pagamento na API
-    const payment = await getPayment(this.planId);
-
-    // Se pagamento não encontrado ou não aprovado
-    if (!payment || payment.status !== 'approved') {
-        return false;
-    }
-
-    // 3. Pega data de aprovação do pagamento
-    const approvedDate = new Date(payment.date_approved);
+    if(!this.planExpirationDate) return false
+    const approvedDate = new Date(this.planExpirationDate);
     if(this.planExpirationDate == approvedDate){
         const validade = new Date(approvedDate);
         validade.setDate(validade.getDate() + 30);

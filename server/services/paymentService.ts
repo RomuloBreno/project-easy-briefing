@@ -222,7 +222,7 @@ async updatePaymentById(paymentId: string): Promise<void> {
             const planLevel =
                 localPayment.plan === 'plan-starter-001' ? 1 :
                 localPayment.plan === 'plan-pro-002' ? 2 :
-                localPayment.plan === 'plan-enteprise-003' ? 3 : 0;
+                localPayment.plan === 'plan-enterprise-003' ? 3 : 0;
             
             await this.userRepository.updatePlan(
                 user.email,

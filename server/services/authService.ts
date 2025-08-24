@@ -41,7 +41,6 @@ export class AuthService {
 
 
         const userId = new User(existingUser)
-
         const planId = await userId.validPlan()
         // Retorna o token para o front-end
         

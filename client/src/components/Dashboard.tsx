@@ -270,6 +270,7 @@ export function Dashboard({ user,  onLogout, onShop }: DashboardProps) {
                                             <option value="Financeiro">Financeiro</option>
                                             <option value="Industrial">Industrial</option>
                                             <option value="Audio/Visual">Audio/Visual</option>
+                                            <option value="Marketing">Marketing</option>
                                         </select>
                                         {isFreePlan &&
                                             <span className="form-hint-pro">

@@ -20,7 +20,7 @@ export const Plans = {
     // Plano Gratuito
     0: { // Corresponde ao ID 0
         id: 0,
-        name: "plan-starter-000",
+        name: "plan-free-000",
         aiModel: 'gpt-3.5-turbo',
         value: 0,
         maxRequests: 100// Exemplo: 0 requisições gratuitas
@@ -36,14 +36,14 @@ export const Plans = {
     // Plano Pro
     2: { // Corresponde ao ID 2
         id: 2,
-        name: 'plan-starter-002',
+        name: 'plan-pro-002',
         aiModel: 'gpt-4o',
         value: 29.9,
         maxRequests: 60
     },
     3: { // Corresponde ao ID 2
         id: 3,
-        name: 'plan-starter-003',
+        name: 'plan-enterprise-003',
         aiModel: 'gpt-4o',
         value: 3,
         maxRequests: 60
