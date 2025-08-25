@@ -38,7 +38,7 @@ export const Plans = {
         id: 2,
         name: 'plan-pro-002',
         aiModel: 'gpt-4o',
-        value: 29.9,
+        value: 509.9,
         maxRequests: 60
     },
     3: { // Corresponde ao ID 2
