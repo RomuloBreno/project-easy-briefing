@@ -101,6 +101,11 @@ export class AnalysisController {
 
                             ${promptManipulation ? `### Instruções Adicionais (Prompt de Manipulação):
                             ${promptManipulation}` : ''}
+                            JSON 1
+                             { \"analise\": \"Texto sobre clareza, organização e facilidade de entendimento do briefing\", \"perguntas\": [\"Pergunta 1\", \"Pergunta 2\"], \"oportunidades\": [\"Oportunidade 1\", \"Oportunidade 2\"], \"cenarios\": [\"Cenário 1\", \"Cenário 2\"] }
+                            JSON 2
+                            { \"erro\": \"O briefing fornecido contém conteúdo discriminatório, abusivo ou ilegal, e não pode ser analisado pelo agente.\" }
+
                             `;
 
             // const mockAI = {
