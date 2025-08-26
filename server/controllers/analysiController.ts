@@ -106,31 +106,23 @@ export class AnalysisController {
 2. **Informações Estruturadas**: Categorizar as informações fornecidas (ex.: Título do Projeto, Nicho de Mercado, Contexto, Conteúdo).
 3. **Lacunas e Pontos de Dúvida**: Lista de pontos faltantes ou ambíguos no briefing.
 4. **Perguntas Sugeridas**: Lista de 5 a 10 perguntas cruciais que devem ser feitas ao cliente.
-5. **OUTPUT**: A resposta **deve ser exclusivamente em JSON válido**, então adicione suas respostas ao JSON abaixo e mantenha o seguindo o formato:
+5. **OUTPUT**: A resposta **deve ser exclusivamente no modelo válido**,mantenha o seguindo o formato:
+analise: Texto sobre clareza, organização e facilidade de entendimento do briefing, CASO NÃO TENHA PERGUNTAS, OPORTUNIDADES OU DETALHES RETIRE A LINHA
 
-{
-  \"analise\": \"Texto sobre clareza, organização e facilidade de entendimento do briefing\",
-  \"perguntas\": [
-    \"Pergunta 1 necessária para complementar a documentação\",
-    \"Pergunta 2\",
-    \"Pergunta 3\"
-  ],
-  \"oportunidades\": [
-    \"Oportunidade 1 identificada\",
-    \"Oportunidade 2\"
-  ],
-  \"cenarios\": [
-    \"Cenário 1 que ainda não foi validado\",
-    \"Cenário 2\"
-  ]
-}
+perguntas: Pergunta 1 necessária para complementar a documentação
+perguntas: Pergunta 2
+perguntas: Pergunta 3
+
+oportunidades: Oportunidade 1 identificada
+oportunidades: Oportunidade 2
+
+cenarios: Cenário 1 que ainda não foi validado
+cenarios: Cenário 2
 
 ## Observação
-Caso o briefing contenha conteúdos que violem estas regras (ex.: discriminatórios, abusivos, ilegais ou que incentivem ódio), a IA deve **recusar a análise** e responder com um JSON contendo apenas:
+Caso o briefing contenha conteúdos que violem estas regras (ex.: discriminatórios, abusivos, ilegais ou que incentivem ódio), a IA deve **recusar a análise** e responder apenas:
 
-{
-  \"response\": \"O briefing fornecido contém conteúdo que não pode ser analisado pelo agente.\"
-}
+response: O briefing fornecido contém conteúdo que não pode ser analisado pelo agente.
                             `;
 
             // const mockAI = {
@@ -168,9 +160,9 @@ Caso o briefing contenha conteúdos que violem estas regras (ex.: discriminatór
 
             // // Remove o prefixo e o sufixo para obter a string JSON pura
             // const pureaiResponseContent = aiResponseContent.substring(prefix.length, aiResponseContent.length - suffix.length);
-
+           
             return res.json({
-                response: JSON.parse(aiResponseContent)
+                response: JSON.parse(JSON.stringify(this.parseLineToJson(aiResponseContent)))
             });
 
 
@@ -179,4 +171,27 @@ Caso o briefing contenha conteúdos que violem estas regras (ex.: discriminatór
             res.status(500).json({ error: (error as Error).message || 'Falha ao processar os arquivos e obter a resposta da IA.' });
         }
     }
+
+
+    parseLineToJson(text) {
+  const result = {};
+  text.split(/\r?\n/).forEach(line => {
+    const [key, ...rest] = line.split(':');
+    if (!key || !rest.length) return;
+
+    const value = rest.join(':').trim();
+    if (!value) return;
+
+    if (result[key]) {
+      if (Array.isArray(result[key])) {
+        result[key].push(value);
+      } else {
+        result[key] = [result[key], value];
+      }
+    } else {
+      result[key] = value;
+    }
+  });
+  return result;
+}
 }
