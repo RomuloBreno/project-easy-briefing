@@ -125,7 +125,6 @@ export class AnalysisController {
   ]
 }
 
-
 ## Observação
 Caso o briefing contenha conteúdos que violem estas regras (ex.: discriminatórios, abusivos, ilegais ou que incentivem ódio), a IA deve **recusar a análise** e responder com um JSON contendo apenas:
 
