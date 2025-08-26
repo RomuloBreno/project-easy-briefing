@@ -76,10 +76,10 @@ export class AnalysisController {
 
             if (fileContent === undefined || fileContent === '') {
                 // Melhorar esta mensagem, pois não é sobre plano não contemplar, mas sim falta de conteúdo.
-                return res.status(400).json({ response: {response: "Conteúdo para análise não fornecido ou inválido." }});
+                return res.status(400).json({ response: { response: "Conteúdo para análise não fornecido ou inválido." } });
             }
 
-            if (!this.quotaService.checkQuota(user)) return res.status(200).json({ response: {response:"Você não possui mais cotas para analise, considere adiquirir um novo plano" }});
+            if (!this.quotaService.checkQuota(user)) return res.status(200).json({ response: { response: "Você não possui mais cotas para analise, considere adiquirir um novo plano" } });
 
             const ModelBasedPlan = this.authService.validPlanToSetModel(user?.plan || 0);
             if (ModelBasedPlan === '') {
@@ -87,8 +87,8 @@ export class AnalysisController {
                 return res.status(500).json({ error: 'Falha ao determinar o modelo de IA com base no plano.' });
             }
 
-            const userPrompt = 
-                            `
+            const userPrompt =
+                `
                             ## Briefing para Análise
                             **Título do Projeto:** ${projectTitle}
                             **Nicho de Mercado:** ${niche || 'Não especificado'}
@@ -96,16 +96,42 @@ export class AnalysisController {
                             ### Conteúdo do Briefing:
                             ${content || "SEM CONTEUDO PARA ANALISAR"}
 
-                            ### Conteúdo de Arquivos Anexos:
-                            ${fileContent || 'Nenhum arquivo anexado.'}
-
+                           
                             ${promptManipulation ? `### Instruções Adicionais (Prompt de Manipulação):
                             ${promptManipulation}` : ''}
-                            JSON 1
-                             { \"analise\": \"Texto sobre clareza, organização e facilidade de entendimento do briefing\", \"perguntas\": [\"Pergunta 1\", \"Pergunta 2\"], \"oportunidades\": [\"Oportunidade 1\", \"Oportunidade 2\"], \"cenarios\": [\"Cenário 1\", \"Cenário 2\"] }
-                            JSON 2
-                            { \"erro\": \"O briefing fornecido contém conteúdo discriminatório, abusivo ou ilegal, e não pode ser analisado pelo agente.\" }
+---
 
+## Estrutura de Resposta Obrigatória
+1. **Resumo do Briefing**: Um resumo conciso dos objetivos e escopo do projeto.
+2. **Informações Estruturadas**: Categorizar as informações fornecidas (ex.: Título do Projeto, Nicho de Mercado, Contexto, Conteúdo).
+3. **Lacunas e Pontos de Dúvida**: Lista de pontos faltantes ou ambíguos no briefing.
+4. **Perguntas Sugeridas**: Lista de 5 a 10 perguntas cruciais que devem ser feitas ao cliente.
+5. **OUTPUT**: A resposta **deve ser exclusivamente em JSON válido**, então adicione suas respostas ao JSON abaixo e mantenha o seguindo o formato:
+
+{
+  \"analise\": \"Texto sobre clareza, organização e facilidade de entendimento do briefing\",
+  \"perguntas\": [
+    \"Pergunta 1 necessária para complementar a documentação\",
+    \"Pergunta 2\",
+    \"Pergunta 3\"
+  ],
+  \"oportunidades\": [
+    \"Oportunidade 1 identificada\",
+    \"Oportunidade 2\"
+  ],
+  \"cenarios\": [
+    \"Cenário 1 que ainda não foi validado\",
+    \"Cenário 2\"
+  ]
+}
+
+
+## Observação
+Caso o briefing contenha conteúdos que violem estas regras (ex.: discriminatórios, abusivos, ilegais ou que incentivem ódio), a IA deve **recusar a análise** e responder com um JSON contendo apenas:
+
+{
+  \"response\": \"O briefing fornecido contém conteúdo que não pode ser analisado pelo agente.\"
+}
                             `;
 
             // const mockAI = {
@@ -134,19 +160,19 @@ export class AnalysisController {
             });
             const aiResponseContent = completion.output_text;
 
-           await this.quotaService.decrementQuota(user)
+            await this.quotaService.decrementQuota(user)
 
 
-                        // Define o prefixo e sufixo de markdown
-            const prefix = '```json\n';
-            const suffix = '\n```\n';
+            //             // Define o prefixo e sufixo de markdown
+            // const prefix = '```json\n';
+            // const suffix = '\n```\n';
 
-            // Remove o prefixo e o sufixo para obter a string JSON pura
-            const pureaiResponseContent = aiResponseContent.substring(prefix.length, aiResponseContent.length - suffix.length);
-            
-        return res.json({
-            response: JSON.parse(pureaiResponseContent)
-        });
+            // // Remove o prefixo e o sufixo para obter a string JSON pura
+            // const pureaiResponseContent = aiResponseContent.substring(prefix.length, aiResponseContent.length - suffix.length);
+
+            return res.json({
+                response: JSON.parse(aiResponseContent)
+            });
 
 
         } catch (error) {

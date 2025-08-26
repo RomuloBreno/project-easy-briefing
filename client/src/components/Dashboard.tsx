@@ -134,6 +134,7 @@ export function Dashboard({ user,  onLogout, onShop, toIndex }: DashboardProps) 
 
         try {
             const response = await sendBriefingToAiApi(briefingData);
+            console.log("FRONTEND",response)
                 setAiResponse(response);
         } catch (err: any) {
             setAiError(err.message);
