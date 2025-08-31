@@ -31,7 +31,6 @@ export function Dashboard({ user,  onLogout, onShop, toIndex }: DashboardProps) 
         );
     }
     useEffect(()=>{
-
     },[user])
 
 
@@ -86,6 +85,8 @@ export function Dashboard({ user,  onLogout, onShop, toIndex }: DashboardProps) 
     const [promptManipulation, setPromptManipulation] = useState('');
     const [selectedNiche, setSelectedNiche] = useState('');
     const [briefingContent, setBriefingContent] = useState('');
+    const maximumContent = 1500;
+    const [atualContent, setAtualContent] = useState<number>();
     const [inputOrFile, setInputOrFile] = useState(false);
     // ESTADOS DA IA
     const [aiResponse, setAiResponse] = useState<AIResponse|null>(null);
@@ -155,6 +156,14 @@ export function Dashboard({ user,  onLogout, onShop, toIndex }: DashboardProps) 
     if (editProfile) {
         return <ProfileForm onCancel={() => handleChangeProfile()} />;
     }
+    
+    const handleBriefingChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    if (value.length <= maximumContent) {
+        setBriefingContent(value);
+        setAtualContent(value.length);
+    }
+    };
 
     return (
         <>
@@ -326,7 +335,7 @@ export function Dashboard({ user,  onLogout, onShop, toIndex }: DashboardProps) 
                                         :
                                     <div className="form-group">
                                         <label htmlFor="briefing-content" className="form-label">
-                                            Conteúdo do Briefing
+                                            Conteúdo do Briefing <span> {atualContent || 0}/{maximumContent}</span>
                                         </label>
                                         <textarea
                                             id="briefing-content"
@@ -334,8 +343,9 @@ export function Dashboard({ user,  onLogout, onShop, toIndex }: DashboardProps) 
                                             className="form-textarea"
                                             placeholder="Digite seu briefing"
                                             value={briefingContent}
-                                            onChange={(e) => setBriefingContent(e.target.value)}
+                                            onChange={handleBriefingChange}
                                             rows={12}
+                                            maxLength={maximumContent}
                                             required={!inputOrFile? true : false}
                                         />
                                         <div className="form-help">
