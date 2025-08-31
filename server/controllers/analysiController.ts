@@ -1,5 +1,6 @@
 // server/controllers/analysisController.ts
 import type { Request, Response } from 'express';
+import pdf from "pdf-parse";
 import { AuthService } from '../services/authService.ts'; // Verifique o caminho real do seu AuthService
 import { OpenAI } from 'openai'; // Verifique o caminho real do seu OpenAI import (ou remova se for um mock)
 import { QuotaService } from '../services/quotaService.ts';
@@ -28,12 +29,25 @@ export function processFiles(file: string[] | null, userPlan: number): string {
         .map((base64String: string) => {
             const [metadata, base64Data] = base64String.split(',');
 
-            if (metadata.includes('text/')) return handleTextFile(base64Data);
-            if (metadata.includes('application/pdf')) return handlePdfFile(base64Data);
+            if (metadata.includes('text/')) return base64Data;
+            if (metadata.includes('application/pdf')) return base64Data;
 
             throw new Error('Somente arquivos de texto ou PDF são permitidos.');
         })
         .join('');
+}
+
+export async function readPdfFromBase64(base64Pdf: string) {
+  // remove o cabeçalho "data:application/pdf;base64," se existir
+  const base64Clean = base64Pdf.replace(/^data:application\/pdf;base64,/, "");
+
+  // gera um buffer binário do PDF
+  const pdfBuffer = Buffer.from(base64Clean, "base64");
+
+  // aqui TEM que ser um Buffer, não uma string de path
+  const data = await pdf(pdfBuffer);
+
+  return data.text;
 }
 
 export class AnalysisController {
@@ -72,7 +86,7 @@ export class AnalysisController {
             }
 
             // Decodifica e extrai o conteúdo dos arquivos Base64
-            let fileContent = content == '' ? processFiles(file, user.plan) : content;
+            let fileContent = content ==  undefined ? readPdfFromBase64(processFiles(file, user.plan)) : content;
 
             if (fileContent === undefined || fileContent === '') {
                 // Melhorar esta mensagem, pois não é sobre plano não contemplar, mas sim falta de conteúdo.
@@ -94,7 +108,7 @@ export class AnalysisController {
                             **Nicho de Mercado:** ${niche || 'Não especificado'}
 
                             ### Conteúdo do Briefing:
-                            ${content || "SEM CONTEUDO PARA ANALISAR"}
+                            ${fileContent || "SEM CONTEUDO PARA ANALISAR"}
 
                            
                             ${promptManipulation ? `### Instruções Adicionais (Prompt de Manipulação):
