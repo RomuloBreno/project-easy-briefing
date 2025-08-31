@@ -48,14 +48,10 @@ export class User implements IUser {
     }
     if(!this.planExpirationDate) return false
     const approvedDate = new Date(this.planExpirationDate);
-    if(this.planExpirationDate == approvedDate){
         const validade = new Date(approvedDate);
         validade.setDate(validade.getDate() + 30);
     
         // Retorna se o plano ainda está dentro da validade
         return new Date() <= validade;
-    }
-    return false
-    // Define validade de 30 dias
 }
 }
